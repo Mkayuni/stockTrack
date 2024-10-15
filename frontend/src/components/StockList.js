@@ -1,10 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 
+// Simplifies number to smaller format (1B or 2.03M)
+function numberToMoney(num) {
+
+  if (num >= 1_000_000_000) {
+    return (num / 1_000_000_000).toFixed(1) + 'B'; // Billions
+  } else if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1) + 'M'; // Millions
+  } else if (num >= 1_000) {
+    return (num / 1_000).toFixed(1) + 'K'; // Thousands
+  } else {
+    return num.toString();
+  }
+
+}
+
 // Definition for a card which holds stock information
 const StockCard = (props) => (
     <div className="StockList-Card">
-      {props.stock.symbol}
+      <div className="StockList-Card-Title">{props.stock.symbol}</div>
+      <div className="StockList-Card-Company">{props.stock.companyName}</div>
+      <div className="StockList-Card-Sector">{props.stock.sector}</div>
+      <br/>
+      <br/>
+      <div className="StockList-Card-MarketCap">${numberToMoney(props.stock.marketCap)}</div>
     </div>
 );
 
@@ -57,17 +77,6 @@ const StockList = () => {
             <li>No stocks available</li>  // If there are no stocks in the database
         )}
       </div>
-
-
-      <ul>
-        {stocks.length > 0 ? (
-          stocks.map(stock => (
-            <li key={stock.id}>{stock.companyName} - {stock.symbol}</li>
-          ))
-        ) : (
-          <li>No stocks available</li>  // If there are no stocks in the database
-        )}
-      </ul>
     </div>
   );
 };
