@@ -4,7 +4,6 @@ const { Stock } = require('../models');  // Import the Stock model
 
 module.exports = {
   async up() {
-    // Use the Stock model to bulk insert data
     await Stock.bulkCreate([
       {
         symbol: 'AAPL',
@@ -34,7 +33,6 @@ module.exports = {
   },
 
   async down() {
-    // Use the Stock model to delete all records
-    await Stock.destroy({ where: {}, truncate: true });
+    await Stock.destroy({ where: {}, truncate: true });  // Remove all entries from the Stocks table
   }
 };
