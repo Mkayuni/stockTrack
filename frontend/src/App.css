@@ -1,38 +1,53 @@
+:root {
+  --header-color: #282c34;
+  --header-text-color: #ffffff;
+  --body-color: #e8e8e8;
+  --body-text-color: #333333;
+  --stocklist-header-color: #64748b;
+  --stocklist-header-text-color: #64748b;
+}
+
+body {
+  background-color: var(--body-color);
+  color: var(--body-text-color);
+
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  background-color: var(--header-color);
   display: flex;
   flex-direction: column;
+  font-size: calc(1.5vmin);
+  color: var(--header-text-color);
+}
+
+.StockList-Header {
+  background-color: var(--stocklist-header-color);
+  color: var(--stocklist-header-text-color);
+  height: 20px;
+  text-align: center;
+  line-height: 50px;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 10px;
+  gap: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.StockList-Cards {
+  margin: 20px;
+  display: flex;
+  gap: 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.StockList-Card {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+  max-width: 450px;
 }
