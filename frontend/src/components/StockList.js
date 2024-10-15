@@ -9,7 +9,7 @@ const StockList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get('/stocks');  // Make sure your backend route is '/api/stocks'
+        const response = await api.get('/api/stocks');  // Make sure your backend route is '/api/stocks'
         setStocks(response.data);  // Set fetched data to state
       } catch (err) {
         setError('Failed to fetch stock data');  // Handle errors
