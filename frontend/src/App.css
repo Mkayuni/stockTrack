@@ -5,6 +5,7 @@
   --body-text-color: #333333;
   --stocklist-header-color: #64748b;
   --stocklist-header-text-color: #64748b;
+  --stocklist-button-color: #f8f9fa;
 }
 
 body {
@@ -28,13 +29,13 @@ body {
 .StockList-Header {
   background-color: var(--stocklist-header-color);
   color: var(--stocklist-header-text-color);
-  height: 20px;
   text-align: center;
   line-height: 50px;
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 5px 15px 5px 15px;
   gap: 10px;
+  justify-content: flex-end;
 }
 
 .StockList-Cards {
@@ -69,4 +70,13 @@ body {
 .StockList-Card-Sector {
   font-size: 15px;
   color: #363636;
+}
+
+.StockList-Search {
+  max-width: 500px;
+  background-color: var(--stocklist-button-color);
+}
+
+.StockList-OrderBy, .StockList-Sector{
+  background-color: var(--stocklist-button-color);
 }
