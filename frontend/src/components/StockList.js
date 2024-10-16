@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 
 // Simplifies number to smaller format (1B or 2.03M)
 function numberToMoney(num) {
@@ -68,6 +73,53 @@ const StockList = () => {
 
       <div className="StockList-Header">
 
+          <FormControl className="StockList-Sector" variant="filled" sx={{ m: 1, minWidth: 270}}>
+              <InputLabel id="StockList-Sector">Sectors</InputLabel>
+              <Select
+                  labelId="StockList-Sector"
+                  id="StockList-Sector"
+                  //value={age}
+                  //onChange={handleChange}
+              >
+                  <MenuItem value="">
+                      <em>None</em>
+                  </MenuItem>
+                  <MenuItem value={10}>Placeholder 1</MenuItem>
+                  <MenuItem value={20}>Placeholder 2</MenuItem>
+              </Select>
+          </FormControl>
+
+          <FormControl className="StockList-OrderBy" variant="filled" sx={{ m: 1, minWidth: 270}}>
+              <InputLabel id="StockList-OrderBy">Order By</InputLabel>
+              <Select
+                  labelId="StockList-OrderBy"
+                  id="StockList-OrderBy"
+                  //value={age}
+                  //onChange={handleChange}
+              >
+                  <MenuItem value="">
+                      <em>None</em>
+                  </MenuItem>
+                  <MenuItem value={70}>Newest</MenuItem>
+                  <MenuItem value={80}>Oldest</MenuItem>
+                  <MenuItem value={90}>Updated</MenuItem>
+                  <MenuItem value={100}>Percent Change (high-to-low)</MenuItem>
+                  <MenuItem value={10}>Price (low-to-high)</MenuItem>
+                  <MenuItem value={20}>Price (high-to-low)</MenuItem>
+                  <MenuItem value={30}>Market Value (low-to-high)</MenuItem>
+                  <MenuItem value={40}>Market Value (high-to-low)</MenuItem>
+                  <MenuItem value={50}>Percent Change (low-to-high)</MenuItem>
+                  <MenuItem value={60}>Percent Change (high-to-low)</MenuItem>
+              </Select>
+          </FormControl>
+
+          <TextField
+              className="StockList-Search"
+              id="filled-search"
+              label="Search"
+              type="search"
+              variant="filled"
+          />
       </div>
 
       <div className="StockList-Cards">
