@@ -25,7 +25,7 @@ function MainApp() {
                 </div>
 
                 <div className="App-Right">
-                    <nav className={location.pathname === "/stocks" ? "App-Routes Small" : "App-Routes"}>
+                    <nav className="App-Routes">
                         <Link to="/">Home</Link>
                         <Link to="/stocks">Stocks</Link>
                     </nav>
