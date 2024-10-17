@@ -1,4 +1,28 @@
 const { User } = require('../models');  // Import from models/index.js
+const bcrypt = require('bcrypt');  // Import bcrypt for password hashing
+const jwt = require('jsonwebtoken');  // Import jsonwebtoken for JWT token generation
+
+// Function to create a new user with password hashing
+const createUser = async (req, res) => {
+  console.log(req.body);  // Debugging: Log the request body to ensure it is being received
+
+  const { password } = req.body;
+  if (!password) {
+    return res.status(400).json({ message: 'Password is required' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);  // Hash the password with bcrypt
+    const newUser = await User.create({ ...req.body, password: hashedPassword });
+
+    // Exclude the password from the response by renaming the destructured password variable
+    const { password: hashed, ...userWithoutPassword } = newUser.dataValues;
+
+    res.status(201).json(userWithoutPassword);  // Return the user without the password
+  } catch (error) {
+    res.status(400).json({ message: 'Bad request', error: error.message });  // Handle errors
+  }
+};
 
 // Function to get all users
 const getUsers = async (req, res) => {
@@ -25,15 +49,23 @@ const getUserById = async (req, res) => {
   }
 };
 
-// Function to create a new user
-const createUser = async (req, res) => {
+// Function to login a user (Login Route) with JWT token generation
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const newUser = await User.create(req.body);  // Create a new user with the request body data
-    res.status(201).json(newUser);  // Return the newly created user
+    const user = await User.findOne({ where: { email } });
+    if (user && await bcrypt.compare(password, user.password)) {
+      // Generate a JWT token valid for 1 hour using the secret key from the .env file
+      const token = jwt.sign({ id: user.id, role: user.role }, process.env.YOUR_SECRET_KEY, { expiresIn: '1h' });
+      res.json({ message: 'Login successful', token });  // Send back the token and success message
+    } else {
+      res.status(401).json({ message: 'Invalid credentials' });  // Handle invalid login
+    }
   } catch (error) {
-    res.status(400).json({ message: 'Bad request', error: error.message });  // Handle errors, e.g., validation issues
+    res.status(500).json({ message: 'Server error' });  // Handle server errors
   }
 };
+
 
 // Function to update an existing user
 const updateUser = async (req, res) => {
@@ -67,4 +99,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser };
+module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser};
