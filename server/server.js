@@ -4,6 +4,7 @@ require('dotenv').config();  // Load environment variables from .env
 const sequelize = require('./config/db');
 const stockRoutes = require('./routes/stockRoutes');
 const userRoutes = require('./routes/userRoutes');
+const stockPriceRoutes = require('./routes/stockPriceRoutes');
 const cors = require('cors');
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json());
 // API routes
 app.use('/api/stocks', stockRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/stocks', stockPriceRoutes);
 
 // Sync database and start server
 sequelize.sync().then(() => {
