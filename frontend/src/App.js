@@ -15,7 +15,9 @@ function App() {
 }
 
 function MainApp() {
-    const location = useLocation(); // Grabs current location (Home, StockList, etc)
+
+    // Grab the current page and check if it is the home page
+    const location = useLocation();
     const useFullHeader = location.pathname === '/';
 
     return (
