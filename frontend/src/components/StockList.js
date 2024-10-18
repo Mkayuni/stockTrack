@@ -39,6 +39,8 @@ const StockList = () => {
     const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(true);  // State for loading
     const [error, setError] = useState(null);  // State for error handling
+    const [orderBy, setOrderBy] = useState("Newest"); // When orderBy updates
+    const [sortedStocks, setSortedStocks] = useState([]); // For Sorted Stocks
     // Used to determine if the search options are open or not
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -61,6 +63,29 @@ const StockList = () => {
         fetchData();
     }, []);
 
+    // Update Cards
+    useEffect(() => {
+        // Sort stocks whenever orderBy changes
+        let sorted = [...stocks]; // Create a copy to avoid mutating the original array
+
+        switch (orderBy) {
+            case "Newest":
+                sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                break;
+            case "Oldest":
+                sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                break;
+            case "Market Low":
+                sorted.sort((a, b) => a.marketCap - b.marketCap);
+                break;
+            case "Market High":
+                sorted.sort((a, b) => b.marketCap - a.marketCap);
+                break;
+        }
+
+        setSortedStocks(sorted); // Update sorted stocks state
+    }, [orderBy, stocks]); // Re-run when orderBy or stocks change
+
     // Display a loading message while fetching data
     if (loading) {
         return <div>Loading...</div>;
@@ -73,7 +98,7 @@ const StockList = () => {
 
     // Creates a list of cards from stock database
     function generateCards () {
-        return stocks.map(stock => {
+        return sortedStocks.map(stock => {
             return (<StockCard stock={stock}/>)
         });
     }
@@ -107,22 +132,19 @@ const StockList = () => {
                         <Select
                             labelId="StockList-OrderBy"
                             id="StockList-OrderBy"
-                            //value={age}
-                            //onChange={handleChange}
+                            value={orderBy}
+                            onChange={(event) => setOrderBy(event.target.value)}
                         >
-                            <MenuItem value="">
-                                <em>None</em>
-                            </MenuItem>
-                            <MenuItem value={70}>Newest</MenuItem>
-                            <MenuItem value={80}>Oldest</MenuItem>
-                            <MenuItem value={90}>Updated</MenuItem>
-                            <MenuItem value={100}>Percent Change (high-to-low)</MenuItem>
-                            <MenuItem value={10}>Price (low-to-high)</MenuItem>
-                            <MenuItem value={20}>Price (high-to-low)</MenuItem>
-                            <MenuItem value={30}>Market Value (low-to-high)</MenuItem>
-                            <MenuItem value={40}>Market Value (high-to-low)</MenuItem>
-                            <MenuItem value={50}>Percent Change (low-to-high)</MenuItem>
-                            <MenuItem value={60}>Percent Change (high-to-low)</MenuItem>
+                            <MenuItem value={"Newest"}>Newest</MenuItem>
+                            <MenuItem value={"Oldest"}>Oldest</MenuItem>
+                            <MenuItem value={"Updated"}>Updated</MenuItem>
+                            <MenuItem value={"Percent Change"}>Percent Change (high-to-low)</MenuItem>
+                            <MenuItem value={"Price Low"}>Price (low-to-high)</MenuItem>
+                            <MenuItem value={"Price High"}>Price (high-to-low)</MenuItem>
+                            <MenuItem value={"Market Low"}>Market Value (low-to-high)</MenuItem>
+                            <MenuItem value={"Market High"}>Market Value (high-to-low)</MenuItem>
+                            <MenuItem value={"Percent Low"}>Percent Change (low-to-high)</MenuItem>
+                            <MenuItem value={"Percent High"}>Percent Change (high-to-low)</MenuItem>
                         </Select>
                     </FormControl>
                 </div>
