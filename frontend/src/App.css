@@ -8,6 +8,12 @@
   --stocklist-button-color: #f8f9fa;
 }
 
+html body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
 body {
   background-color: var(--body-color);
   color: var(--body-text-color);
@@ -93,15 +99,64 @@ body::-webkit-scrollbar-thumb {
 }
 
 .StockList-Header {
-  background-color: var(--stocklist-header-color);
-  color: var(--stocklist-header-text-color);
-  text-align: center;
-  line-height: 50px;
   display: flex;
   align-items: center;
-  padding: 10px 15px 10px 15px;
-  gap: 20px;
-  justify-content: space-between;
+  justify-content: center;
+  background-color: var(--stocklist-header-color);
+  color: var(--stocklist-header-text-color);
+  padding: 10px 15px;
+}
+
+.StockList-Search {
+  background-color: var(--stocklist-button-color);
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.StockList-Search:hover, .StockList-OrderBy:hover, .StockList-Sector:hover {
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.StockList-OrderBy, .StockList-Sector{
+  background-color: var(--stocklist-button-color);
+  font-size: 15px;
+  color: #363636;
+  border-radius: 5px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.StockList-Sector-OrderBy-Left {
+  display: flex;
+  gap: 15px;
+  margin-right: auto;
+}
+
+.StockList-Search-Center {
+  display: flex;
+  justify-content: center;
+}
+
+{/* The point of this is to center the search bar*/}
+.StockList-Right-Space {
+  min-width: 375px; /* May Need to adjust this for smaller screens...*/
+  pointer-events: none;
+}
+
+.StockList-SearchFields {
+  display: flex;
+  margin-left: auto;
+  gap: 15px;
+}
+
+.SearchFields {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.SearchFields:hover {
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .StockList-Cards {
@@ -131,24 +186,4 @@ body::-webkit-scrollbar-thumb {
 
 .StockList-Card-Company {
   font-size: 25px;
-}
-
-.StockList-Card-Sector {
-  font-size: 15px;
-  color: #363636;
-}
-
-.StockList-Search {
-  background-color: var(--stocklist-button-color);
-}
-
-.StockList-OrderBy, .StockList-Sector{
-  background-color: var(--stocklist-button-color);
-  display: flex;
-}
-
-.StockList-SearchFields {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
 }

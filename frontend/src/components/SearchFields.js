@@ -19,8 +19,8 @@ export default function SearchFields() {
     const id = open ? 'SearchFields' : undefined;
 
     return (
-        <div>
-            <Button aria-describedby={id} variant="contained" onClick={handleClick} sx={{backgroundColor: '#f8f9fa', color: 'black'}}>
+        <div className="SearchFields">
+            <Button aria-describedby={id} variant="contained" onClick={handleClick} sx={{backgroundColor: '#f8f9fa', color: 'black', minWidth: '163px'}}>
                 Search Options
             </Button>
             <Popover
