@@ -11,65 +11,73 @@
 body {
   background-color: var(--body-color);
   color: var(--body-text-color);
+  overflow: hidden;
+}
+
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 
 .App {
-  text-align: center;
+
 }
 
 .App-Title {
-  text-align: center;
-  flex:0;
-  transition: transform 1s ease, text-align 1s ease;
-}
-
-.App-Title.Small {
-  flex: 1;
-}
-
-.App-Header {
+  font-size: max(10px, calc(3vmin));
+  color: var(--header-text-color);
   background-color: var(--header-color);
   display: flex;
   justify-content: center;
-  min-height: 100vh;
-  font-size: calc(3vmin);
-  color: var(--header-text-color);
-  flex-direction: column;
   align-items: center;
-  transition: opacity 0.4s ease, min-height 0.4s ease, font-size 0.4s ease;
-  opacity: 1;
+  min-height: 100vh;
+  transition: min-height 0.4s ease, font-size 0.3s ease;
 }
 
-.App-Header.Small {
+.App-Title.Small {
   min-height: 0;
-  justify-content: space-between;
-  font-size: calc(1.5vmin);
-  flex-direction: row;
+  justify-content: flex-start;
+  font-size: 10px;
   opacity: 0.9;
 }
 
-.App-Right {
+.App-Title.Small h1 {
+  margin-left: 20px;
+}
+
+.App-Header {
   display: flex;
-  justify-content: flex-end;
+  background-color: var(--header-color);
+  flex-direction: column;
+}
+
+.App-Header.Small {
+  flex-direction: row;
+}
+
+.App-Right {
+  position: fixed;
+  display: flex;
   align-items: center;
-  margin-left: auto;
+  top: 0;
+  right: 0;
   background-color: var(--header-color);
 }
 
 .App-Routes {
-  position: absolute;
-  top: -5px;
-  right: 0;
   display: flex;
   align-items: center;
-  margin-left: 20px;
   margin-right: 20px;
   gap: 10px;
 }
 
 .App-Routes a {
   text-decoration: none;
-  padding: 20px 10px;
+  padding: 10px 10px;
   color: var(--header-text-color);
   border-radius: 5px;
   font-size: 20px;

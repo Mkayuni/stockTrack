@@ -16,15 +16,16 @@ function App() {
 
 function MainApp() {
     const location = useLocation(); // Grabs current location (Home, StockList, etc)
+    const useFullHeader = location.pathname === '/';
 
     return (
         <div className="App">
-            <header className={location.pathname === "/stocks" ? "App-Header Small" : "App-Header"}>
-                <div className={location.pathname === "/stocks" ? "App-Title Small" : "App-Title"}>
+            <header className={useFullHeader ? "App-Header" : "App-Header Small"}>
+                <div className={useFullHeader ? "App-Title" : "App-Title Small"}>
                     <h1>Real-Time Stock Tracker</h1>
                 </div>
 
-                <div className="App-Right">
+                <div className={useFullHeader ? "App-Right" : "App-Right Small"}>
                     <nav className="App-Routes">
                         <Link to="/">Home</Link>
                         <Link to="/stocks">Stocks</Link>
