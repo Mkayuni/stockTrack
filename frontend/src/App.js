@@ -15,20 +15,17 @@ function App() {
 }
 
 function MainApp() {
-
-    // Grab the current page and check if it is the home page
-    const location = useLocation();
-    const useFullHeader = location.pathname === '/';
+    const location = useLocation(); // Grabs current location (Home, StockList, etc)
 
     return (
         <div className="App">
-            <header className={useFullHeader ? "App-Header" : "App-Header Small"}>
-                <div className={useFullHeader ? "App-Title" : "App-Title Small"}>
+            <header className={location.pathname === "/stocks" ? "App-Header Small" : "App-Header"}>
+                <div className={location.pathname === "/stocks" ? "App-Title Small" : "App-Title"}>
                     <h1>Real-Time Stock Tracker</h1>
                 </div>
 
-                <div className={useFullHeader ? "App-Right" : "App-Right Small"}>
-                    <nav className="App-Routes">
+                <div className="App-Right">
+                    <nav className={location.pathname === "/stocks" ? "App-Routes Small" : "App-Routes"}>
                         <Link to="/">Home</Link>
                         <Link to="/stocks">Stocks</Link>
                     </nav>
