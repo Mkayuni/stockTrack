@@ -70,10 +70,10 @@ const StockCard = ({ stock, isSelected, onToggle }) => {
                 <div>{fetchError}</div> // Display error if fetching fails
             ) : (
                 <SparkLineChart
-                    data={stockPrices.map(price => price.open)}
+                    data={stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => price.open)}
                     xAxis={{
                         scaleType: 'time',
-                        data: stockPrices.map(price => new Date(price.date)),
+                        data: stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => new Date(price.date)),
                         valueFormatter: (value) => value.toISOString().slice(0, 10),
                     }}
                     height={100}
