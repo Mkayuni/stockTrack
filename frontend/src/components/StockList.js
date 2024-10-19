@@ -29,45 +29,58 @@ function numberToMoney (num) {
 }
 
 // Definition for a card which holds stock information
-const StockCard = ({stock, isSelected, onToggle}) => {
-
+const StockCard = ({ stock, isSelected, onToggle }) => {
     const [height, setHeight] = useState('160px');
+    const [stockPrices, setStockPrices] = useState([]);
+    const [fetchError, setFetchError] = useState(null); // State for fetch error
 
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await api.get(`/api/stocks/${stock.id}/prices`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+                });
+                setStockPrices(response.data);
+            } catch (err) {
+                console.error("Failed to fetch stock prices:", err);
+                setFetchError('Failed to fetch stock prices'); // Set error state
+            }
+        };
+
         if (isSelected) {
             setHeight('400px'); // Set height when expanded
+            fetchData(); // Call fetchData only when expanded
         } else {
             setHeight('160px'); // Reset height when collapsed
         }
-    }, [isSelected]);
+    }, [isSelected, stock.id]);
 
     return (
-        <div className={isSelected ? `StockList-Card Expand` : `StockList-Card`} style={{ height, transition: 'height 0.5s ease, box-shadow 0.3s ease' }} onClick={onToggle}>
+        <div
+            className={isSelected ? `StockList-Card Expand` : `StockList-Card`}
+            style={{ height, transition: 'height 0.5s ease, box-shadow 0.3s ease' }}
+            onClick={onToggle}
+        >
             <div className="StockList-Card-Title">{stock.symbol}</div>
             <div className="StockList-Card-Company">{stock.companyName}</div>
             <div className="StockList-Card-Sector">{stock.sector}</div>
-            <br/>
+            <br />
 
-            <SparkLineChart
-                data={[1, 4, 2, 5, 7, 2, 4, 6]}
-                xAxis={{
-                    scaleType: 'time',
-                    data: [
-                        new Date(2022, 5, 1),
-                        new Date(2022, 5, 2),
-                        new Date(2022, 5, 5),
-                        new Date(2022, 5, 6),
-                        new Date(2022, 5, 7),
-                        new Date(2022, 5, 8),
-                        new Date(2022, 5, 11),
-                        new Date(2022, 5, 12),
-                    ],
-                    valueFormatter: (value) => value.toISOString().slice(0, 10),
-                }}
-                height={100}
-                showTooltip
-                showHighlight
-            />
+            {isSelected && (fetchError ? (
+                <div>{fetchError}</div> // Display error if fetching fails
+            ) : (
+                <SparkLineChart
+                    data={stockPrices.map(price => price.high)}
+                    xAxis={{
+                        scaleType: 'time',
+                        data: stockPrices.map(price => new Date(price.date)),
+                        valueFormatter: (value) => value.toISOString().slice(0, 10),
+                    }}
+                    height={100}
+                    showTooltip
+                    showHighlight
+                />
+            ))}
 
             <br/>
 
@@ -88,6 +101,24 @@ const StockList = () => {
     const [currentSector, setSectors] = useState(""); // For filtering sectors from stocks
     const [searchBarInput, setSearchBar] = useState(""); // For filtering using the search bar
     const [selectedCards, setSelectedCards] = useState(new Set()); // Array of selected or clicked cards
+
+    // Login
+    const handleLogin = async (username, password) => {
+        try {
+            const response = await api.post('/api/users/login', {
+                email: username,
+                password: password
+            });
+            localStorage.setItem('authToken', response.data.token); // Save token in localStorage
+        } catch (error) {
+            console.error('Login failed:', error);
+        }
+    };
+
+    // Automatically log in as an admin
+    useEffect(() => {
+        handleLogin('admin@example.com', 'adminpassword123');
+    }, []);
 
     // Fetches data from database
     useEffect(() => {
