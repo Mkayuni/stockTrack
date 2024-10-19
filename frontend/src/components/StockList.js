@@ -41,13 +41,8 @@ const StockList = () => {
     const [error, setError] = useState(null);  // State for error handling
     const [orderBy, setOrderBy] = useState("Newest"); // When orderBy updates
     const [sortedStocks, setSortedStocks] = useState([]); // For Sorted Stocks
-    // Used to determine if the search options are open or not
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    }
-
+    // Fetches data from database
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -63,7 +58,7 @@ const StockList = () => {
         fetchData();
     }, []);
 
-    // Update Cards
+    // Sorts the cards based on OrderBy
     useEffect(() => {
         // Sort stocks whenever orderBy changes
         let sorted = [...stocks]; // Create a copy to avoid mutating the original array
@@ -103,6 +98,17 @@ const StockList = () => {
         });
     }
 
+    // Generate all the sector items that are in the database
+    function generateSectorItems() {
+
+        // Creates an array of all sectors with no duplicates from the stock db
+        const sectors = [...new Set(stocks.map(stock => stock.sector))];
+
+        return sectors.map((sector, index) => (
+            <MenuItem key={sector} value={sector}> {sector} </MenuItem>
+        ))
+    }
+
     return (
         <div>
             <div className="StockList-Header">
@@ -121,8 +127,9 @@ const StockList = () => {
                             <MenuItem value="">
                                 <em>None</em>
                             </MenuItem>
-                            <MenuItem value={10}>Placeholder 1</MenuItem>
-                            <MenuItem value={20}>Placeholder 2</MenuItem>
+
+                            {generateSectorItems()}
+
                         </Select>
                     </FormControl>
 
