@@ -163,7 +163,7 @@ body::-webkit-scrollbar-thumb {
   margin: 20px;
   display: flex;
   gap: 10px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -179,6 +179,8 @@ body::-webkit-scrollbar-thumb {
   cursor: pointer;
   user-select: none;
   transition: min-height 1s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .StockList-Card.Expand {
@@ -199,6 +201,11 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: auto;
+}
+
+.StockList-Card-MarketCap {
+  margin-top: auto;
 }
 
 .StockList-Empty {

@@ -7,6 +7,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { useMemo } from 'react';
 
 import SearchFields from "./SearchFields";
 
@@ -69,7 +70,7 @@ const StockList = () => {
     }, []);
 
     // Sorts & Filters the cards based on OrderBy (Live Sorting & Filtering)
-    useEffect(() => {
+    const filteredAndSortedStocks  = useMemo(() => {
         // Copy of the stocks array
         let sorted = [...stocks];
 
@@ -81,25 +82,22 @@ const StockList = () => {
         // Searchbar Filter
         if (searchBarInput !== "") sorted = sorted.filter(stock => stock.companyName.toLowerCase().includes(searchBarInput.toLowerCase()) || stock.symbol.toLowerCase().includes(searchBarInput.toLowerCase()));
 
+
+        //setSelectedCards(new Set()); Remove comment to have cards reset expanded section after sorting **NEEDS EDITING **
+
         /** Sorting **/
         switch (orderBy) {
             case "Newest":
-                sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                break;
+                return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             case "Oldest":
-                sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-                break;
+                return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             case "Market Low":
-                sorted.sort((a, b) => a.marketCap - b.marketCap);
-                break;
+                return sorted.sort((a, b) => a.marketCap - b.marketCap);
             case "Market High":
-                sorted.sort((a, b) => b.marketCap - a.marketCap);
-                break;
+                return sorted.sort((a, b) => b.marketCap - a.marketCap);
+            default:
+                return sorted;
         }
-
-        setSortedStocks(sorted); // Update sorted stocks state
-
-        //setSelectedCards(new Set()); Remove comment to have cards reset expanded section after sorting
 
     }, [orderBy, stocks, currentSector, searchBarInput]); // Re-run when orderBy or stocks or sectors change
 
@@ -127,7 +125,7 @@ const StockList = () => {
 
     // Creates a list of cards from stock database
     function generateCards () {
-        return sortedStocks.map(stock => {
+        return filteredAndSortedStocks.map(stock => {
             return (<StockCard stock={stock} isSelected={selectedCards.has(stock.id)} onToggle={() => toggleCardExpansion(stock.id)}/>)
         });
     }
@@ -210,9 +208,9 @@ const StockList = () => {
 
             </div>
 
-            <div className={stocks.length > 0 && sortedStocks.length > 0 ? "StockList-Cards" : "StockList-Empty"}>
+            <div className={stocks.length > 0 && filteredAndSortedStocks.length > 0 ? "StockList-Cards" : "StockList-Empty"}>
                 {stocks.length > 0 ? (
-                    sortedStocks.length > 0 ? (
+                    filteredAndSortedStocks.length > 0 ? (
                         generateCards()
                     ) : (
                         <div>
