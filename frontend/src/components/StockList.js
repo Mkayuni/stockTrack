@@ -41,6 +41,7 @@ const StockList = () => {
     const [error, setError] = useState(null);  // State for error handling
     const [orderBy, setOrderBy] = useState("Newest"); // When orderBy updates
     const [sortedStocks, setSortedStocks] = useState([]); // For Sorted Stocks
+    const [currentSector, setSectors] = useState("");
 
     // Fetches data from database
     useEffect(() => {
@@ -58,11 +59,17 @@ const StockList = () => {
         fetchData();
     }, []);
 
-    // Sorts the cards based on OrderBy
+    // Sorts & Filters the cards based on OrderBy
     useEffect(() => {
-        // Sort stocks whenever orderBy changes
-        let sorted = [...stocks]; // Create a copy to avoid mutating the original array
+        // Copy of the stocks array
+        let sorted = [...stocks];
 
+        /** Filters **/
+
+        // Sector Filter
+        if (currentSector !== "") sorted = sorted.filter(stock => stock.sector === currentSector);
+
+        /** Sorting **/
         switch (orderBy) {
             case "Newest":
                 sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -79,7 +86,7 @@ const StockList = () => {
         }
 
         setSortedStocks(sorted); // Update sorted stocks state
-    }, [orderBy, stocks]); // Re-run when orderBy or stocks change
+    }, [orderBy, stocks, currentSector]); // Re-run when orderBy or stocks or sectors change
 
     // Display a loading message while fetching data
     if (loading) {
@@ -121,8 +128,8 @@ const StockList = () => {
                         <Select
                             labelId="StockList-Sector"
                             id="StockList-Sector"
-                            //value={age}
-                            //onChange={handleChange}
+                            value={currentSector}
+                            onChange={(event) => setSectors(event.target.value)}
                         >
                             <MenuItem value="">
                                 <em>None</em>
