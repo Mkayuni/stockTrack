@@ -4,7 +4,8 @@ const {
   createStockPrice,
   updateStockPrice,
   deleteStockPrice,
-  getLatestStockPrice
+  getLatestStockPrice,
+  createStockPriceMulti
 } = require('../controllers/stockPriceController');
 
 const authenticateToken = require('../middleware/authenticateToken');  // Import authentication middleware
@@ -16,6 +17,9 @@ router.get('/:stockId/prices', authenticateToken, getStockPrices);  // Example: 
 
 // Add new stock price for a stock (admin only)
 router.post('/:stockId/prices', authenticateToken, isAdmin, createStockPrice);
+
+// Add an array of stock prices to a single stock (admin only)
+router.post('/:stockId/prices/multiple', authenticateToken, isAdmin, createStockPriceMulti);
 
 // Update existing stock price (admin only)
 router.put('/:stockId/prices/:priceId', authenticateToken, isAdmin, updateStockPrice);
