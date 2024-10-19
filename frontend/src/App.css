@@ -187,3 +187,20 @@ body::-webkit-scrollbar-thumb {
 .StockList-Card-Company {
   font-size: 25px;
 }
+
+.StockList-Empty {
+  font-size: max(10px, calc(2.5vmin));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  list-style: none;
+  text-align: center;
+}
+
+.StockList-Empty h1 {
+  border-radius: 16px;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 40px
+}

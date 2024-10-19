@@ -187,11 +187,17 @@ const StockList = () => {
 
             </div>
 
-            <div className="StockList-Cards">
+            <div className={stocks.length > 0 && sortedStocks.length > 0 ? "StockList-Cards" : "StockList-Empty"}>
                 {stocks.length > 0 ? (
-                    generateCards()
+                    sortedStocks.length > 0 ? (
+                        generateCards()
+                    ) : (
+                        <div>
+                            <h1> No stocks matches your search conditions. <br/> Please try reducing your restrictions. </h1>
+                        </div>  // If there are no stocks in the search conditions
+                    )
                 ) : (
-                    <li>No stocks available</li>  // If there are no stocks in the database
+                    <div> <h1> No stocks available</h1> </div>  // If there are no stocks in the database
                 )}
             </div>
         </div>
