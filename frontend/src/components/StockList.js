@@ -26,24 +26,18 @@ function numberToMoney (num) {
 }
 
 // Definition for a card which holds stock information
-const StockCard = (props) => {
-
-    const [flipCard, setFlipCard] = React.useState(false);
-
-    function flipStockCard() {
-        setFlipCard(!flipCard);
-    }
+const StockCard = ({stock, isSelected, onToggle}) => {
 
     return (
-        <div className={flipCard ? `StockList-Card Expand` : `StockList-Card`} onClick={() => flipStockCard(props.stock)}>
-            <div className="StockList-Card-Title">{props.stock.symbol}</div>
-            <div className="StockList-Card-Company">{props.stock.companyName}</div>
-            <div className="StockList-Card-Sector">{props.stock.sector}</div>
+        <div className={isSelected ? `StockList-Card Expand` : `StockList-Card`} onClick={onToggle}>
+            <div className="StockList-Card-Title">{stock.symbol}</div>
+            <div className="StockList-Card-Company">{stock.companyName}</div>
+            <div className="StockList-Card-Sector">{stock.sector}</div>
             <br/>
             <br/>
-            <div className="StockList-Card-MarketCap">${numberToMoney(props.stock.marketCap)}</div>
+            <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
 
-            <div className="StockList-Card-Icon"> {flipCard ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
+            <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
         </div>
     );
 };
@@ -56,6 +50,7 @@ const StockList = () => {
     const [sortedStocks, setSortedStocks] = useState([]); // For Sorted Stocks
     const [currentSector, setSectors] = useState(""); // For filtering sectors from stocks
     const [searchBarInput, setSearchBar] = useState(""); // For filtering using the search bar
+    const [selectedCards, setSelectedCards] = useState(new Set()); // Array of selected or clicked cards
 
     // Fetches data from database
     useEffect(() => {
@@ -103,7 +98,22 @@ const StockList = () => {
         }
 
         setSortedStocks(sorted); // Update sorted stocks state
+
+        //setSelectedCards(new Set()); Remove comment to have cards reset expanded section after sorting
+
     }, [orderBy, stocks, currentSector, searchBarInput]); // Re-run when orderBy or stocks or sectors change
+
+    // Toggle card expansion
+    const toggleCardExpansion = (stockId) => {
+        setSelectedCards(prev => {
+            const newExpanded = new Set(prev);
+
+            if (newExpanded.has(stockId)) newExpanded.delete(stockId); // Collapse if already expanded
+            else newExpanded.add(stockId); // Expand if not expanded
+
+            return newExpanded;
+        });
+    };
 
     // Display a loading message while fetching data
     if (loading) {
@@ -118,7 +128,7 @@ const StockList = () => {
     // Creates a list of cards from stock database
     function generateCards () {
         return sortedStocks.map(stock => {
-            return (<StockCard stock={stock}/>)
+            return (<StockCard stock={stock} isSelected={selectedCards.has(stock.id)} onToggle={() => toggleCardExpansion(stock.id)}/>)
         });
     }
 
