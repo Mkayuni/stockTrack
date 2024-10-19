@@ -5,6 +5,8 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 import SearchFields from "./SearchFields";
 
@@ -24,16 +26,27 @@ function numberToMoney (num) {
 }
 
 // Definition for a card which holds stock information
-const StockCard = (props) => (
-    <div className="StockList-Card">
-        <div className="StockList-Card-Title">{props.stock.symbol}</div>
-        <div className="StockList-Card-Company">{props.stock.companyName}</div>
-        <div className="StockList-Card-Sector">{props.stock.sector}</div>
-        <br/>
-        <br/>
-        <div className="StockList-Card-MarketCap">${numberToMoney(props.stock.marketCap)}</div>
-    </div>
-);
+const StockCard = (props) => {
+
+    const [flipCard, setFlipCard] = React.useState(false);
+
+    function flipStockCard() {
+        setFlipCard(!flipCard);
+    }
+
+    return (
+        <div className={flipCard ? `StockList-Card Expand` : `StockList-Card`} onClick={() => flipStockCard(props.stock)}>
+            <div className="StockList-Card-Title">{props.stock.symbol}</div>
+            <div className="StockList-Card-Company">{props.stock.companyName}</div>
+            <div className="StockList-Card-Sector">{props.stock.sector}</div>
+            <br/>
+            <br/>
+            <div className="StockList-Card-MarketCap">${numberToMoney(props.stock.marketCap)}</div>
+
+            <div className="StockList-Card-Icon"> {flipCard ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
+        </div>
+    );
+};
 
 const StockList = () => {
     const [stocks, setStocks] = useState([]);

@@ -176,6 +176,13 @@ body::-webkit-scrollbar-thumb {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-width: 250px;
   max-width: 450px;
+  cursor: pointer;
+  user-select: none;
+  transition: min-height 1s ease;
+}
+
+.StockList-Card.Expand {
+  min-height: 500px;
 }
 
 .StockList-Card-Title {
@@ -186,6 +193,12 @@ body::-webkit-scrollbar-thumb {
 
 .StockList-Card-Company {
   font-size: 25px;
+}
+
+.StockList-Card-Icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .StockList-Empty {
