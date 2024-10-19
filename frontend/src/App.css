@@ -163,7 +163,7 @@ body::-webkit-scrollbar-thumb {
   margin: 20px;
   display: flex;
   gap: 10px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -176,6 +176,14 @@ body::-webkit-scrollbar-thumb {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-width: 250px;
   max-width: 450px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.StockList-Card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 }
 
 .StockList-Card-Title {
@@ -186,6 +194,16 @@ body::-webkit-scrollbar-thumb {
 
 .StockList-Card-Company {
   font-size: 25px;
+}
+
+.StockList-Card-Icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.StockList-Card-Bottom {
+  margin-top: auto;
 }
 
 .StockList-Empty {

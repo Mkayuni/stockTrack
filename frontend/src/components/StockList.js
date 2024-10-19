@@ -1,10 +1,15 @@
 import React, {useEffect, useState} from 'react';
+import { useMemo } from 'react';
 import api from '../services/api';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import SearchFields from "./SearchFields";
 
@@ -24,25 +29,65 @@ function numberToMoney (num) {
 }
 
 // Definition for a card which holds stock information
-const StockCard = (props) => (
-    <div className="StockList-Card">
-        <div className="StockList-Card-Title">{props.stock.symbol}</div>
-        <div className="StockList-Card-Company">{props.stock.companyName}</div>
-        <div className="StockList-Card-Sector">{props.stock.sector}</div>
-        <br/>
-        <br/>
-        <div className="StockList-Card-MarketCap">${numberToMoney(props.stock.marketCap)}</div>
-    </div>
-);
+const StockCard = ({stock, isSelected, onToggle}) => {
+
+    const [height, setHeight] = useState('160px');
+
+    useEffect(() => {
+        if (isSelected) {
+            setHeight('400px'); // Set height when expanded
+        } else {
+            setHeight('160px'); // Reset height when collapsed
+        }
+    }, [isSelected]);
+
+    return (
+        <div className={isSelected ? `StockList-Card Expand` : `StockList-Card`} style={{ height, transition: 'height 0.5s ease, box-shadow 0.3s ease' }} onClick={onToggle}>
+            <div className="StockList-Card-Title">{stock.symbol}</div>
+            <div className="StockList-Card-Company">{stock.companyName}</div>
+            <div className="StockList-Card-Sector">{stock.sector}</div>
+            <br/>
+
+            <SparkLineChart
+                data={[1, 4, 2, 5, 7, 2, 4, 6]}
+                xAxis={{
+                    scaleType: 'time',
+                    data: [
+                        new Date(2022, 5, 1),
+                        new Date(2022, 5, 2),
+                        new Date(2022, 5, 5),
+                        new Date(2022, 5, 6),
+                        new Date(2022, 5, 7),
+                        new Date(2022, 5, 8),
+                        new Date(2022, 5, 11),
+                        new Date(2022, 5, 12),
+                    ],
+                    valueFormatter: (value) => value.toISOString().slice(0, 10),
+                }}
+                height={100}
+                showTooltip
+                showHighlight
+            />
+
+            <br/>
+
+            <div className="StockList-Card-Bottom">
+                <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
+
+                <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
+            </div>
+        </div>
+    );
+};
 
 const StockList = () => {
     const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(true);  // State for loading
     const [error, setError] = useState(null);  // State for error handling
     const [orderBy, setOrderBy] = useState("Newest"); // When orderBy updates
-    const [sortedStocks, setSortedStocks] = useState([]); // For Sorted Stocks
     const [currentSector, setSectors] = useState(""); // For filtering sectors from stocks
     const [searchBarInput, setSearchBar] = useState(""); // For filtering using the search bar
+    const [selectedCards, setSelectedCards] = useState(new Set()); // Array of selected or clicked cards
 
     // Fetches data from database
     useEffect(() => {
@@ -61,7 +106,7 @@ const StockList = () => {
     }, []);
 
     // Sorts & Filters the cards based on OrderBy (Live Sorting & Filtering)
-    useEffect(() => {
+    const filteredAndSortedStocks  = useMemo(() => {
         // Copy of the stocks array
         let sorted = [...stocks];
 
@@ -73,28 +118,44 @@ const StockList = () => {
         // Searchbar Filter
         if (searchBarInput !== "") sorted = sorted.filter(stock => stock.companyName.toLowerCase().includes(searchBarInput.toLowerCase()) || stock.symbol.toLowerCase().includes(searchBarInput.toLowerCase()));
 
+
+        //setSelectedCards(new Set()); Remove comment to have cards reset expanded section after sorting **NEEDS EDITING **
+
         /** Sorting **/
         switch (orderBy) {
             case "Newest":
-                sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                break;
+                return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             case "Oldest":
-                sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-                break;
+                return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             case "Market Low":
-                sorted.sort((a, b) => a.marketCap - b.marketCap);
-                break;
+                return sorted.sort((a, b) => a.marketCap - b.marketCap);
             case "Market High":
-                sorted.sort((a, b) => b.marketCap - a.marketCap);
-                break;
+                return sorted.sort((a, b) => b.marketCap - a.marketCap);
+            default:
+                return sorted;
         }
 
-        setSortedStocks(sorted); // Update sorted stocks state
     }, [orderBy, stocks, currentSector, searchBarInput]); // Re-run when orderBy or stocks or sectors change
+
+    // Toggle card expansion
+    const toggleCardExpansion = (stockId) => {
+        setSelectedCards(prev => {
+            const newExpanded = new Set(prev);
+
+            if (newExpanded.has(stockId)) newExpanded.delete(stockId); // Collapse if already expanded
+            else newExpanded.add(stockId); // Expand if not expanded
+
+            return newExpanded;
+        });
+    };
 
     // Display a loading message while fetching data
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress />
+            </div>
+        );
     }
 
     // Display an error message if there's an issue
@@ -104,8 +165,8 @@ const StockList = () => {
 
     // Creates a list of cards from stock database
     function generateCards () {
-        return sortedStocks.map(stock => {
-            return (<StockCard stock={stock}/>)
+        return filteredAndSortedStocks.map(stock => {
+            return (<StockCard stock={stock} isSelected={selectedCards.has(stock.id)} onToggle={() => toggleCardExpansion(stock.id)}/>)
         });
     }
 
@@ -187,9 +248,9 @@ const StockList = () => {
 
             </div>
 
-            <div className={stocks.length > 0 && sortedStocks.length > 0 ? "StockList-Cards" : "StockList-Empty"}>
+            <div className={stocks.length > 0 && filteredAndSortedStocks.length > 0 ? "StockList-Cards" : "StockList-Empty"}>
                 {stocks.length > 0 ? (
-                    sortedStocks.length > 0 ? (
+                    filteredAndSortedStocks.length > 0 ? (
                         generateCards()
                     ) : (
                         <div>
