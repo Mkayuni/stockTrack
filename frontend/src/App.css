@@ -202,5 +202,11 @@ body::-webkit-scrollbar-thumb {
   border-radius: 16px;
   background-color: #f8f9fa;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 40px
+  padding: 40px;
+  font-weight: normal;
+}
+
+.StockList-Empty em {
+  font-size: 80%;
+  color: grey;
 }

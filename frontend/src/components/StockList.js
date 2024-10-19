@@ -193,7 +193,7 @@ const StockList = () => {
                         generateCards()
                     ) : (
                         <div>
-                            <h1> No stocks matches your search conditions. <br/> Please try reducing your restrictions. </h1>
+                            <h1> No stocks matches your search conditions. <br/> <em> Try reducing your restrictions. </em> </h1>
                         </div>  // If there are no stocks in the search conditions
                     )
                 ) : (
