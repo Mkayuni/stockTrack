@@ -41,7 +41,8 @@ const StockList = () => {
     const [error, setError] = useState(null);  // State for error handling
     const [orderBy, setOrderBy] = useState("Newest"); // When orderBy updates
     const [sortedStocks, setSortedStocks] = useState([]); // For Sorted Stocks
-    const [currentSector, setSectors] = useState("");
+    const [currentSector, setSectors] = useState(""); // For filtering sectors from stocks
+    const [searchBarInput, setSearchBar] = useState(""); // For filtering using the search bar
 
     // Fetches data from database
     useEffect(() => {
@@ -59,7 +60,7 @@ const StockList = () => {
         fetchData();
     }, []);
 
-    // Sorts & Filters the cards based on OrderBy
+    // Sorts & Filters the cards based on OrderBy (Live Sorting & Filtering)
     useEffect(() => {
         // Copy of the stocks array
         let sorted = [...stocks];
@@ -68,6 +69,9 @@ const StockList = () => {
 
         // Sector Filter
         if (currentSector !== "") sorted = sorted.filter(stock => stock.sector === currentSector);
+
+        // Searchbar Filter
+        if (searchBarInput !== "") sorted = sorted.filter(stock => stock.companyName.toLowerCase().includes(searchBarInput.toLowerCase()) || stock.symbol.toLowerCase().includes(searchBarInput.toLowerCase()));
 
         /** Sorting **/
         switch (orderBy) {
@@ -86,7 +90,7 @@ const StockList = () => {
         }
 
         setSortedStocks(sorted); // Update sorted stocks state
-    }, [orderBy, stocks, currentSector]); // Re-run when orderBy or stocks or sectors change
+    }, [orderBy, stocks, currentSector, searchBarInput]); // Re-run when orderBy or stocks or sectors change
 
     // Display a loading message while fetching data
     if (loading) {
@@ -170,6 +174,8 @@ const StockList = () => {
                         label="Search"
                         type="search"
                         variant="filled"
+                        value={searchBarInput}
+                        onChange={(event) => setSearchBar(event.target.value)}
                         sx={{minWidth: '350px'}}
                     />
                 </div>
