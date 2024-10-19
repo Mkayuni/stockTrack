@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import { useMemo } from 'react';
 import api from '../services/api';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
@@ -7,7 +8,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { useMemo } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import SearchFields from "./SearchFields";
 
@@ -29,16 +30,29 @@ function numberToMoney (num) {
 // Definition for a card which holds stock information
 const StockCard = ({stock, isSelected, onToggle}) => {
 
+    const [height, setHeight] = useState('160px');
+
+    useEffect(() => {
+        if (isSelected) {
+            setHeight('400px'); // Set height when expanded
+        } else {
+            setHeight('160px'); // Reset height when collapsed
+        }
+    }, [isSelected]);
+
     return (
-        <div className={isSelected ? `StockList-Card Expand` : `StockList-Card`} onClick={onToggle}>
+        <div className={isSelected ? `StockList-Card Expand` : `StockList-Card`} style={{ height, transition: 'height 0.5s ease, box-shadow 0.3s ease' }} onClick={onToggle}>
             <div className="StockList-Card-Title">{stock.symbol}</div>
             <div className="StockList-Card-Company">{stock.companyName}</div>
             <div className="StockList-Card-Sector">{stock.sector}</div>
             <br/>
             <br/>
-            <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
 
-            <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
+            <div className="StockList-Card-Bottom">
+                <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
+
+                <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
+            </div>
         </div>
     );
 };
@@ -48,7 +62,6 @@ const StockList = () => {
     const [loading, setLoading] = useState(true);  // State for loading
     const [error, setError] = useState(null);  // State for error handling
     const [orderBy, setOrderBy] = useState("Newest"); // When orderBy updates
-    const [sortedStocks, setSortedStocks] = useState([]); // For Sorted Stocks
     const [currentSector, setSectors] = useState(""); // For filtering sectors from stocks
     const [searchBarInput, setSearchBar] = useState(""); // For filtering using the search bar
     const [selectedCards, setSelectedCards] = useState(new Set()); // Array of selected or clicked cards
@@ -115,7 +128,11 @@ const StockList = () => {
 
     // Display a loading message while fetching data
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress />
+            </div>
+        );
     }
 
     // Display an error message if there's an issue

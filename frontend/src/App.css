@@ -178,13 +178,12 @@ body::-webkit-scrollbar-thumb {
   max-width: 450px;
   cursor: pointer;
   user-select: none;
-  transition: min-height 1s ease;
   display: flex;
   flex-direction: column;
 }
 
-.StockList-Card.Expand {
-  min-height: 500px;
+.StockList-Card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 }
 
 .StockList-Card-Title {
@@ -201,10 +200,9 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: auto;
 }
 
-.StockList-Card-MarketCap {
+.StockList-Card-Bottom {
   margin-top: auto;
 }
 
