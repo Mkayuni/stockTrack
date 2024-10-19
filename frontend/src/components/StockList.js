@@ -8,6 +8,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import SearchFields from "./SearchFields";
@@ -46,6 +47,28 @@ const StockCard = ({stock, isSelected, onToggle}) => {
             <div className="StockList-Card-Company">{stock.companyName}</div>
             <div className="StockList-Card-Sector">{stock.sector}</div>
             <br/>
+
+            <SparkLineChart
+                data={[1, 4, 2, 5, 7, 2, 4, 6]}
+                xAxis={{
+                    scaleType: 'time',
+                    data: [
+                        new Date(2022, 5, 1),
+                        new Date(2022, 5, 2),
+                        new Date(2022, 5, 5),
+                        new Date(2022, 5, 6),
+                        new Date(2022, 5, 7),
+                        new Date(2022, 5, 8),
+                        new Date(2022, 5, 11),
+                        new Date(2022, 5, 12),
+                    ],
+                    valueFormatter: (value) => value.toISOString().slice(0, 10),
+                }}
+                height={100}
+                showTooltip
+                showHighlight
+            />
+
             <br/>
 
             <div className="StockList-Card-Bottom">
