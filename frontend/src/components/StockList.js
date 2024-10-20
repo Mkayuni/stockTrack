@@ -66,21 +66,32 @@ const StockCard = ({ stock, isSelected, onToggle }) => {
             <div className="StockList-Card-Sector">{stock.sector}</div>
             <br />
 
-            {isSelected && (fetchError ? (
-                <div>{fetchError}</div> // Display error if fetching fails
-            ) : (
-                <SparkLineChart
-                    data={stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => price.open)}
-                    xAxis={{
-                        scaleType: 'time',
-                        data: stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => new Date(price.date)),
-                        valueFormatter: (value) => value.toISOString().slice(0, 10),
-                    }}
-                    height={100}
-                    showTooltip
-                    showHighlight
-                />
-            ))}
+            {/** Graph **/}
+            <div className={`StockList-Card-Graph ${isSelected ? 'Expanded' : ''}`}>
+                {isSelected && (fetchError ? (
+                    <div>{fetchError}</div> // Display error if fetching fails
+                ) : (
+                    <SparkLineChart
+                        data={stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => price.open)}
+                        xAxis={{
+                            scaleType: 'time',
+                            data: stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => new Date(price.date)),
+                            valueFormatter: (value) => value.toISOString().slice(0, 10),
+                            min: new Date(Math.min(...stockPrices.map(price => new Date(price.date).getTime()))),
+                            max: new Date(Math.max(...stockPrices.map(price => new Date(price.date).getTime()))),
+
+                        }}
+                        yAxis={{
+                            min: Math.min(...stockPrices.map(price => price.open)),
+                            max: Math.max(...stockPrices.map(price => price.open)),
+                        }}
+                        height={200}
+                        showTooltip
+                        showHighlight
+                        sx={{}}
+                    />
+                ))}
+            </div>
 
             <br/>
 

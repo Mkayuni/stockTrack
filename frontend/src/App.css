@@ -186,6 +186,20 @@ body::-webkit-scrollbar-thumb {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 }
 
+.StockList-Card-Graph {
+  overflow: hidden;
+  height: 0;
+  transition: height 0.5s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex:1;
+}
+
+.StockList-Card-Graph.Expanded {
+  height: 100px;
+}
+
 .StockList-Card-Title {
   font-weight: bold;
   color: #808080;
