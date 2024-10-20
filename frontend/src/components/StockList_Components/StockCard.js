@@ -66,15 +66,30 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
                 {isSelected && (fetchError ? (
                     <div>{fetchError}</div> // Display error if fetching fails
                 ) : (
-                    <StockGraph prices={stockPrices}/>
-                ))}
-            </div>
+                    <div>
+                        <div className="StockList-Card-Graph-Buttons">
+                            {['1D', '1W', '1M', '6M', 'YTD', '1Y', '5Y', 'Max'].map((label) => (
+                                <button
+                                    key={label}
+                                    onClick={(event) => {
+                                        event.stopPropagation(); // Prevent card toggle on button click
+                                    }}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
 
-            <br/>
+                        <StockGraph prices={stockPrices}/>
+                    </div>
+            ))}
+        </div>
 
-            <div className="StockList-Card-Bottom">
-                <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
-                <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
+    <br/>
+
+    <div className="StockList-Card-Bottom">
+        <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
+        <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
             </div>
         </div>
     );

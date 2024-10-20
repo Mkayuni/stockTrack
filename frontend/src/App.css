@@ -199,6 +199,43 @@ body::-webkit-scrollbar-thumb {
   height: 100px;
 }
 
+.StockList-Card-Graph-Buttons {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.StockList-Card-Graph-Buttons button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  position: relative; /* Positioning for the pseudo-element */
+  text-decoration: none; /* Remove default underline */
+  color: inherit; /* Use inherited color for the text */
+}
+
+.StockList-Card-Graph-Buttons button:hover {
+  font-weight: bold;
+}
+
+.StockList-Card-Graph-Buttons button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0; /* Position the line at the bottom */
+  width: 100%; /* Full width of the button */
+  height: 2px; /* Adjust the height of the underline */
+  background: black; /* Color of the underline */
+  transform: scaleX(0); /* Initial state (hidden) */
+  transition: transform 0.3s ease; /* Smooth transition effect */
+}
+
+.StockList-Card-Graph-Buttons button:hover::after {
+  transform: scaleX(1); /* Scale to full width on hover */
+}
+
 .StockList-Card-Title {
   font-weight: bold;
   color: #808080;

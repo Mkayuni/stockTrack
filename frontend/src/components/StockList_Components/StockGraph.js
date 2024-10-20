@@ -42,8 +42,8 @@ export default function StockGraph({prices}) {
                 grid: {
                     color: 'rgba(0, 0, 0, 0.2)',
                 },
-                max: Math.max(...prices.map(price => price.open)) + 1,
-                min: Math.min(...prices.map(price => price.open)) - 1,
+                max: Math.max(...prices.map(price => price.open)) + 50,
+                min: Math.min(...prices.map(price => price.open)) - 50,
             },
         },
         plugins: {
