@@ -13,10 +13,12 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
     const [fetchError, setFetchError] = useState(null); // State for fetch error
     const [timeFrame, setTimeFrame] = useState("max");
     const [filteredStockPrices, setFilteredStockPrices] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Retrieves the stock prices for the stock associated with this card
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
             try {
                 const response = await api.get(`/api/stocks/${stock.id}/prices`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
@@ -26,6 +28,8 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
             } catch (err) {
                 console.error("Failed to fetch stock prices:", err);
                 setFetchError('Failed to fetch stock prices'); // Set error state
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -136,7 +140,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
                             ))}
                         </div>
 
-                        <StockGraph prices={filteredStockPrices}/>
+                        <StockGraph prices={filteredStockPrices} loading={loading}/>
                     </div>
             ))}
         </div>
