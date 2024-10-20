@@ -10,8 +10,14 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Line } from 'react-chartjs-2';
+import {Chart, registerables } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+
 
 import SearchFields from "./SearchFields";
+
+Chart.register(...registerables);
 
 // Simplifies number to smaller format (1B or 2.03M)
 function numberToMoney (num) {
@@ -55,6 +61,64 @@ const StockCard = ({ stock, isSelected, onToggle }) => {
         }
     }, [isSelected, stock.id]);
 
+    const stockData = {
+        labels: stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => new Date(price.date)),
+        datasets: [{
+            label: 'Stock Price',
+            data: stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => price.open),
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            fill: true,
+            tension: 0.1, // Smooth lines
+            pointRadius: 0, // Remove points for cleaner look
+        }],
+    };
+
+    const stockOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'day',
+                    tooltipFormat: 'MMM d, yyyy',
+                },
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10,
+                },
+                grid: {
+                    display: false,
+                },
+            },
+            y: {
+                beginAtZero: false,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.2)',
+                },
+            },
+        },
+        plugins: {
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: 'white',
+                bodyColor: 'white',
+            },
+            legend: {
+                display: false,
+            },
+        },
+
+        elements: {
+            point: {
+                radius: 1,
+                hoverRadius: 3,
+                hitRadius: 10,
+            },
+        },
+    };
+
     return (
         <div
             className={isSelected ? `StockList-Card Expand` : `StockList-Card`}
@@ -71,25 +135,7 @@ const StockCard = ({ stock, isSelected, onToggle }) => {
                 {isSelected && (fetchError ? (
                     <div>{fetchError}</div> // Display error if fetching fails
                 ) : (
-                    <SparkLineChart
-                        data={stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => price.open)}
-                        xAxis={{
-                            scaleType: 'time',
-                            data: stockPrices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => new Date(price.date)),
-                            valueFormatter: (value) => value.toISOString().slice(0, 10),
-                            min: new Date(Math.min(...stockPrices.map(price => new Date(price.date).getTime()))),
-                            max: new Date(Math.max(...stockPrices.map(price => new Date(price.date).getTime()))),
-
-                        }}
-                        yAxis={{
-                            min: Math.min(...stockPrices.map(price => price.open)),
-                            max: Math.max(...stockPrices.map(price => price.open)),
-                        }}
-                        height={200}
-                        showTooltip
-                        showHighlight
-                        sx={{}}
-                    />
+                    <Line data={stockData} options={stockOptions} />
                 ))}
             </div>
 
@@ -97,7 +143,6 @@ const StockCard = ({ stock, isSelected, onToggle }) => {
 
             <div className="StockList-Card-Bottom">
                 <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
-
                 <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
             </div>
         </div>
