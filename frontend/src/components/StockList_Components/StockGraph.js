@@ -7,10 +7,10 @@ export default function StockGraph({prices}) {
     }
 
     const stockData = {
-        labels: prices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => new Date(price.date)),
+        labels: prices.map(price => new Date(price.date)),
         datasets: [{
             label: 'Stock Price',
-            data: prices.sort((a, b) => new Date(a.date) - new Date(b.date)).map(price => price.open),
+            data: prices.map(price => price.open),
             borderColor: 'rgba(75, 192, 192, 1)',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             fill: true,

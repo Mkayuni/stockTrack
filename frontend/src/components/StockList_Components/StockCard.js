@@ -11,6 +11,8 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
     const [height, setHeight] = useState('160px');
     const [stockPrices, setStockPrices] = useState([]);
     const [fetchError, setFetchError] = useState(null); // State for fetch error
+    const [timeFrame, setTimeFrame] = useState("max");
+    const [filteredStockPrices, setFilteredStockPrices] = useState([]);
 
     // Retrieves the stock prices for the stock associated with this card
     useEffect(() => {
@@ -34,6 +36,59 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
             setHeight('160px'); // Reset height when collapsed
         }
     }, [isSelected, stock.id]);
+
+    // Handles filtering and sorting of prices
+    useEffect(() => {
+
+        let prices = [...stockPrices];
+
+        // Sort prices in case they are not in order
+        prices = prices.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Get latest date
+        const latest = new Date(Math.max(...prices.map(price => Date.parse(price.date))));
+
+        // Get the min based on time frame
+        const past = new Date(latest);
+
+        /** NEED TO UPDATE IF SAT and SUN don't have stocks!!! **/
+        switch (timeFrame) {
+            case '1D':
+                past.setDate(latest.getDate() - 1);
+                break;
+            case '1W':
+                past.setDate(latest.getDate() - 7);
+                break;
+            case '1M':
+                past.setDate(latest.getDate() - 30);
+                break;
+            case '6M':
+                past.setDate(latest.getDate() - (30 * 6));
+                break;
+            case 'YTD':
+                past.setFullYear(latest.getFullYear(), 0, 1);
+                break;
+            case '1Y':
+                past.setFullYear(latest.getFullYear() - 1);
+                break;
+            case '5Y':
+                past.setFullYear(latest.getFullYear() - 5);
+                break;
+            default:
+                setFilteredStockPrices(prices);
+                return;
+        }
+
+
+        // Filter based on time frame
+        prices = prices.filter(price => {
+            const date = new Date(price.date);
+            return date >= past && date <= latest;
+        });
+
+        setFilteredStockPrices(prices);
+
+    }, [timeFrame, stockPrices]);
 
     // Simplifies number to smaller format (1B or 2.03M)
     function numberToMoney (num) {
@@ -73,6 +128,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
                                     key={label}
                                     onClick={(event) => {
                                         event.stopPropagation(); // Prevent card toggle on button click
+                                        setTimeFrame(label);
                                     }}
                                 >
                                     {label}
@@ -80,7 +136,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
                             ))}
                         </div>
 
-                        <StockGraph prices={stockPrices}/>
+                        <StockGraph prices={filteredStockPrices}/>
                     </div>
             ))}
         </div>
