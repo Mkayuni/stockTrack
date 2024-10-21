@@ -91,7 +91,7 @@ export default function StockGraph({prices, loading}) {
         },
         plugins: {
             tooltip: {
-                mode: 'nearest',
+                mode: 'index',
                 intersect: false,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 titleColor: 'white',
@@ -103,7 +103,7 @@ export default function StockGraph({prices, loading}) {
             verticalLine: verticalLinePlugin,
         },
         hover: {
-          mode: 'nearest',
+          mode: 'index',
           intersect: false,
         },
         elements: {
