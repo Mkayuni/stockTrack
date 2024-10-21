@@ -16,6 +16,39 @@ export default function StockGraph({prices, loading}) {
         return <div>Error loading graph data.</div>;
     }
 
+    const verticalLinePlugin = {
+        id: 'verticalLine',
+        afterEvent: (chart, args) => {
+            const { ctx, chartArea, scales } = chart;
+            const event = args.event;
+
+            // Make sure the event is a mouse event and inside the chart area
+            if (event.type === 'mousemove' && event.x >= chartArea.left && event.x <= chartArea.right) {
+                // Store the mouse x position for drawing later
+                chart.config._verticalLinePosition = event.x;
+                chart.draw();
+            }
+        },
+        afterDraw: (chart) => {
+            const { ctx, chartArea } = chart;
+
+            if (chart.config._verticalLinePosition) {
+                const x = chart.config._verticalLinePosition;
+
+                // Draw the vertical line
+                ctx.save();
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]); // Dotted line style
+                ctx.moveTo(x, chartArea.top);
+                ctx.lineTo(x, chartArea.bottom);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(0, 0, 0, 1)'; // Line color
+                ctx.stroke();
+                ctx.restore();
+            }
+        },
+    };
+
     const stockData = {
         labels: prices.map(price => new Date(price.date)),
         datasets: [{
@@ -58,6 +91,8 @@ export default function StockGraph({prices, loading}) {
         },
         plugins: {
             tooltip: {
+                mode: 'nearest',
+                intersect: false,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 titleColor: 'white',
                 bodyColor: 'white',
@@ -65,12 +100,17 @@ export default function StockGraph({prices, loading}) {
             legend: {
                 display: false,
             },
+            verticalLine: verticalLinePlugin,
+        },
+        hover: {
+          mode: 'nearest',
+          intersect: false,
         },
         elements: {
             point: {
                 radius: 1,
-                hoverRadius: 3,
-                hitRadius: 10,
+                hoverRadius: 5,
+                hitRadius: 1,
             },
         },
         animation: {
@@ -80,7 +120,7 @@ export default function StockGraph({prices, loading}) {
 
     return (
         <div>
-            <Line data={stockData} options={stockOptions} />
+            <Line data={stockData} options={stockOptions} plugins={[verticalLinePlugin]}/>
         </div>
     );
 }

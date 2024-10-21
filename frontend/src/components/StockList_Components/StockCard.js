@@ -128,7 +128,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
                 {isSelected && (fetchError ? (
                     <div>{fetchError}</div> // Display error if fetching fails
                 ) : (
-                    <div>
+                    <div onClick={(event) => {event.stopPropagation();}} style={{cursor: 'default'}}>
                         <div className="StockList-Card-Graph-Buttons">
                             {['1D', '1W', '1M', '6M', 'YTD', '1Y', '5Y', 'Max'].map((label) => (
                                 <button
@@ -143,7 +143,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
                             ))}
                         </div>
 
-                        <StockGraph prices={filteredStockPrices} loading={loading}/>
+                        <StockGraph prices={filteredStockPrices} loading={loading} />
                     </div>
             ))}
         </div>
