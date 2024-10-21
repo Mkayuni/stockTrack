@@ -1,9 +1,10 @@
 import { Line } from 'react-chartjs-2';
 import CircularProgress from "@mui/material/CircularProgress";
+import {useEffect, useState} from "react";
 
 export default function StockGraph({prices, loading}) {
 
-    if (loading || prices.length === 0) {
+    if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <CircularProgress />
@@ -11,7 +12,7 @@ export default function StockGraph({prices, loading}) {
         );
     }
 
-    if (!Array.isArray(prices)) {
+    if (!Array.isArray(prices) || prices.length === 0 ) {
         return <div>Error loading graph data.</div>;
     }
 
@@ -31,10 +32,6 @@ export default function StockGraph({prices, loading}) {
     const stockOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        animation: {
-            duration: 1000, // Overall duration
-            easing: 'easeInOutQuart',
-        },
         scales: {
             x: {
                 type: 'time',
@@ -69,7 +66,6 @@ export default function StockGraph({prices, loading}) {
                 display: false,
             },
         },
-
         elements: {
             point: {
                 radius: 1,
@@ -77,6 +73,9 @@ export default function StockGraph({prices, loading}) {
                 hitRadius: 10,
             },
         },
+        animation: {
+            duration: 0,
+        }
     };
 
     return (

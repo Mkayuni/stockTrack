@@ -44,6 +44,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
     // Handles filtering and sorting of prices
     useEffect(() => {
 
+        setLoading(true);
         let prices = [...stockPrices];
 
         // Sort prices in case they are not in order
@@ -80,6 +81,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
                 break;
             default:
                 setFilteredStockPrices(prices);
+                setLoading(false);
                 return;
         }
 
@@ -91,6 +93,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
         });
 
         setFilteredStockPrices(prices);
+        setLoading(false);
 
     }, [timeFrame, stockPrices]);
 
