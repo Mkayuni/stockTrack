@@ -106,48 +106,10 @@ const getLatestStockPrice = async (req, res) => {
   }
 };
 
-// Function to add an array of prices to the stock
-const createStockPriceMulti = async (req, res) => {
-  const { stockId } = req.params;
-  const stockPricesArray = req.body;
-
-  if (!Array.isArray(stockPricesArray) || stockPricesArray.length === 0) {
-    return res.status(400).json({ message: 'Request body must be a non-empty array of stock prices.' });
-  }
-
-  for (const stockPrice of stockPricesArray) {
-    const { date, open, close, high, low, volume } = stockPrice;
-    if (!date || !open || !close || !high || !low || !volume) {
-      return res.status(400).json({ message: 'All fields are required: date, open, close, high, low, volume.' });
-    }
-  }
-
-  try {
-    const newPrices = await Promise.all(
-        stockPricesArray.map(price =>
-            StockPrice.create({
-              stockId,
-              date: price.date,
-              open: price.open,
-              close: price.close,
-              high: price.high,
-              low: price.low,
-              volume: price.volume
-            })
-        )
-    );
-
-    res.status(201).json(newPrices);
-  } catch (error) {
-    res.status(400).json({ message: 'Failed to create stock prices', error: error.message });
-  }
-};
-
 module.exports = {
   getStockPrices,
   createStockPrice,
   updateStockPrice,
   deleteStockPrice,
-  getLatestStockPrice,
-  createStockPriceMulti
+  getLatestStockPrice
 };
