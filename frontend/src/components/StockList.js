@@ -6,92 +6,14 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import CircularProgress from '@mui/material/CircularProgress';
+import {Chart, registerables } from 'chart.js';
+import 'chartjs-adapter-date-fns';
 
-import SearchFields from "./SearchFields";
+import {StockCard} from "./StockList_Components/StockCard"
+import SearchFields from "./StockList_Components/SearchFields";
 
-// Simplifies number to smaller format (1B or 2.03M)
-function numberToMoney (num) {
-
-    if (num >= 1_000_000_000) {
-        return (num / 1_000_000_000).toFixed(1) + 'B'; // Billions
-    } else if (num >= 1_000_000) {
-        return (num / 1_000_000).toFixed(1) + 'M'; // Millions
-    } else if (num >= 1_000) {
-        return (num / 1_000).toFixed(1) + 'K'; // Thousands
-    } else {
-        return num.toString();
-    }
-
-}
-
-// Definition for a card which holds stock information
-const StockCard = ({ stock, isSelected, onToggle }) => {
-    const [height, setHeight] = useState('160px');
-    const [stockPrices, setStockPrices] = useState([]);
-    const [fetchError, setFetchError] = useState(null); // State for fetch error
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await api.get(`/api/stocks/${stock.id}/prices`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
-                });
-                setStockPrices(response.data);
-            } catch (err) {
-                console.error("Failed to fetch stock prices:", err);
-                setFetchError('Failed to fetch stock prices'); // Set error state
-            }
-        };
-
-        if (isSelected) {
-            setHeight('400px'); // Set height when expanded
-            fetchData(); // Call fetchData only when expanded
-        } else {
-            setHeight('160px'); // Reset height when collapsed
-        }
-    }, [isSelected, stock.id]);
-
-    return (
-        <div
-            className={isSelected ? `StockList-Card Expand` : `StockList-Card`}
-            style={{ height, transition: 'height 0.5s ease, box-shadow 0.3s ease' }}
-            onClick={onToggle}
-        >
-            <div className="StockList-Card-Title">{stock.symbol}</div>
-            <div className="StockList-Card-Company">{stock.companyName}</div>
-            <div className="StockList-Card-Sector">{stock.sector}</div>
-            <br />
-
-            {isSelected && (fetchError ? (
-                <div>{fetchError}</div> // Display error if fetching fails
-            ) : (
-                <SparkLineChart
-                    data={stockPrices.map(price => price.high)}
-                    xAxis={{
-                        scaleType: 'time',
-                        data: stockPrices.map(price => new Date(price.date)),
-                        valueFormatter: (value) => value.toISOString().slice(0, 10),
-                    }}
-                    height={100}
-                    showTooltip
-                    showHighlight
-                />
-            ))}
-
-            <br/>
-
-            <div className="StockList-Card-Bottom">
-                <div className="StockList-Card-MarketCap">${numberToMoney(stock.marketCap)}</div>
-
-                <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
-            </div>
-        </div>
-    );
-};
+Chart.register(...registerables);
 
 const StockList = () => {
     const [stocks, setStocks] = useState([]);

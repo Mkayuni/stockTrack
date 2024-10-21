@@ -174,7 +174,7 @@ body::-webkit-scrollbar-thumb {
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  min-width: 250px;
+  min-width: 300px;
   max-width: 450px;
   cursor: pointer;
   user-select: none;
@@ -184,6 +184,63 @@ body::-webkit-scrollbar-thumb {
 
 .StockList-Card:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.StockList-Card-Prices {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.StockList-Card-Graph {
+  overflow: hidden;
+  height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex:1;
+}
+
+.StockList-Card-Graph.Expanded {
+  height: 100px;
+}
+
+.StockList-Card-Graph-Buttons {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.StockList-Card-Graph-Buttons button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  position: relative; /* Positioning for the pseudo-element */
+  text-decoration: none; /* Remove default underline */
+  color: inherit; /* Use inherited color for the text */
+}
+
+.StockList-Card-Graph-Buttons button:hover {
+  font-weight: bold;
+}
+
+.StockList-Card-Graph-Buttons button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0; /* Position the line at the bottom */
+  width: 100%; /* Full width of the button */
+  height: 2px; /* Adjust the height of the underline */
+  background: black; /* Color of the underline */
+  transform: scaleX(0); /* Initial state (hidden) */
+  transition: transform 0.3s ease; /* Smooth transition effect */
+}
+
+.StockList-Card-Graph-Buttons button:hover::after {
+  transform: scaleX(1); /* Scale to full width on hover */
 }
 
 .StockList-Card-Title {
