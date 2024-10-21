@@ -186,6 +186,13 @@ body::-webkit-scrollbar-thumb {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 }
 
+.StockList-Card-Prices {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .StockList-Card-Graph {
   overflow: hidden;
   height: 0;
