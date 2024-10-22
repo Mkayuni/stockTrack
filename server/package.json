@@ -15,8 +15,10 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^2.7.0",
     "sequelize": "^6.37.4",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "sequelize-cli": "^6.6.2"

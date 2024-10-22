@@ -31,6 +31,14 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+// Ensuring StockSymbol is loaded correctly and associated
+if (db.StockSymbol) {
+  db.StockSymbol.hasMany(db.Stock, { foreignKey: 'stockSymbolId' }); // Associate StockSymbol to Stock
+}
+if (db.Stock) {
+  db.Stock.belongsTo(db.StockSymbol, { foreignKey: 'stockSymbolId' }); // Associate Stock back to StockSymbol
+}
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

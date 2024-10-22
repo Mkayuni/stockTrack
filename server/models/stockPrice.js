@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     volume: {
       type: DataTypes.BIGINT,
-      allowNull: false
+      allowNull: true
     }
   });
 
