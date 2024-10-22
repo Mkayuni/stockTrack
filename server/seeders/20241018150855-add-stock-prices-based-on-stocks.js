@@ -9,12 +9,12 @@ module.exports = {
 
     // Insert stock prices for each stock
     const stockPrices = [];
-    
+
     for (const stock of stocks) {
       stockPrices.push({
         stockId: stock.id,  // Use the stock's ID to associate the price
         date: '2024-01-01',
-        open: 100.0,
+        open: 100.0,  // These can be replaced with real fetched data later
         close: 105.0,
         high: 107.0,
         low: 99.0,

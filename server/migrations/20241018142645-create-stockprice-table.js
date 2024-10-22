@@ -39,7 +39,7 @@ module.exports = {
       },
       volume: {
         type: Sequelize.BIGINT,
-        allowNull: false
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
