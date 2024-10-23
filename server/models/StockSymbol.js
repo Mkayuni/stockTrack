@@ -17,5 +17,9 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
+  StockSymbol.associate = (models) => {
+    StockSymbol.hasMany(models.Stock, { foreignKey: 'stockSymbolId', as: 'stocks' });
+  };
+
   return StockSymbol;
 };
