@@ -24,24 +24,6 @@ const StockList = () => {
     const [searchBarInput, setSearchBar] = useState(""); // For filtering using the search bar
     const [selectedCards, setSelectedCards] = useState(new Set()); // Array of selected or clicked cards
 
-    // Login
-    const handleLogin = async (username, password) => {
-        try {
-            const response = await api.post('/api/users/login', {
-                email: username,
-                password: password
-            });
-            localStorage.setItem('authToken', response.data.token); // Save token in localStorage
-        } catch (error) {
-            console.error('Login failed:', error);
-        }
-    };
-
-    // Automatically log in as an admin
-    useEffect(() => {
-        handleLogin('admin@example.com', 'adminpassword123');
-    }, []);
-
     // Fetches data from database
     useEffect(() => {
         const fetchData = async () => {

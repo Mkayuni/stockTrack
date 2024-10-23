@@ -74,6 +74,41 @@ body::-webkit-scrollbar-thumb {
   background-color: var(--header-color);
 }
 
+.App-Right-Profile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+.App-Right-SignIn {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  gap: 10px;
+  color: var(--header-text-color);
+  font-size: 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.App-Right-SignIn-Container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.App-Right-SignIn-UsernamePassword {
+  display: flex;
+  flex-direction: row;
+}
+
+.App-Right-SignIn:hover {
+  color: yellow;
+}
+
 .App-Routes {
   display: flex;
   align-items: center;
