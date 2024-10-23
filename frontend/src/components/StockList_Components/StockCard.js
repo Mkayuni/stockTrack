@@ -19,6 +19,7 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
     const [filteredStockPrices, setFilteredStockPrices] = useState([]);
     const [loading, setLoading] = useState(false);
 
+
     // Retrieves the stock prices for the stock associated with this card
     useEffect(() => {
         const fetchData = async () => {

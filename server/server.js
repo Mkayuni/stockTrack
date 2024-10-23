@@ -133,6 +133,7 @@ const updateStockPricesInDB = async (data) => {
         low: stockData.l,
         volume,  // Explicitly set volume (could be null)
       });
+      console.log(`${stockData.o}`);
       console.log(`Stock price for ${symbol} updated in DB.`);
     } catch (error) {
       console.error(`Error updating stock prices for ${symbol} in DB:`, error);
