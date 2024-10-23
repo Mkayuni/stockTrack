@@ -2,25 +2,24 @@ const { Stock, StockSymbol } = require('../models');
 
 const updateStockSymbols = async () => {
   try {
-    // Fetch all stocks and include the associated StockSymbol model using the alias 'stockSymbol'
-    const stocks = await Stock.findAll({
-      include: [
-        {
-          model: StockSymbol,
-          as: 'stockSymbol',  // This alias should match the alias used in the association
-          attributes: ['symbol']
-        }
-      ]
-    });
+    // Fetch all stocks and ensure `symbol` field is included
+    const stocks = await Stock.findAll({ attributes: ['id', 'symbol'] });
 
     for (const stock of stocks) {
-      const symbol = stock.stockSymbol ? stock.stockSymbol.symbol : null;
+      if (!stock.symbol) {
+        console.error(`Stock with id ${stock.id} has an undefined symbol.`);
+        continue; // Skip this stock
+      }
 
-      if (symbol) {
-        const stockSymbol = await StockSymbol.findOne({ where: { symbol } });
-        if (stockSymbol) {
-          await stock.update({ stockSymbolId: stockSymbol.id });
-        }
+      // Find the corresponding stock symbol in the StockSymbols table
+      const stockSymbol = await StockSymbol.findOne({ where: { symbol: stock.symbol } });
+
+      if (stockSymbol) {
+        // Update the stock with the correct stockSymbolId
+        await stock.update({ stockSymbolId: stockSymbol.id });
+        console.log(`Updated stockSymbolId for stock: ${stock.symbol}`);
+      } else {
+        console.error(`No corresponding StockSymbol found for stock: ${stock.symbol}`);
       }
     }
 
@@ -30,4 +29,5 @@ const updateStockSymbols = async () => {
   }
 };
 
+// Run the update script
 updateStockSymbols();
