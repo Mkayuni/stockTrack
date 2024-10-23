@@ -97,12 +97,19 @@ body::-webkit-scrollbar-thumb {
 .App-Right-SignIn-Container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
 }
 
 .App-Right-SignIn-UsernamePassword {
   display: flex;
   flex-direction: row;
+}
+
+.App-Right-SignIn-UsernamePassword-Links {
+  position: relative;
+  text-decoration: none;
+  margin-left: 15px;
+  margin-right: 15px;
+  top: -5px;
 }
 
 .App-Right-SignIn:hover {

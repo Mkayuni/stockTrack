@@ -7,6 +7,8 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import {FilledInput, IconButton, Input, InputAdornment, OutlinedInput} from "@mui/material";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
+import Button from "@mui/material/Button";
+import {Link} from "react-router-dom";
 
 export default function LoginComponent() {
 
@@ -35,10 +37,10 @@ export default function LoginComponent() {
         <>
             <div className="App-Right-SignIn" onClick={onSignIn} id={id}>Sign In</div>
 
-            <Popper id={id} open={open} anchorEl={anchorEl} transition modifiers={[{name: 'offset', options: {offset: [-90, 10]}}]}>
+            <Popper id={id} open={open} anchorEl={anchorEl} transition modifiers={[{name: 'offset', options: {offset: [-155, 10]}}]}>
                 {({ TransitionProps }) => (
                     <Fade {...TransitionProps} timeout={350}>
-                        <Box sx={{ position: 'relative', border: 1, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                        <Box sx={{ position: 'relative', border: 0, boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)', p: 2, bgcolor: 'background.paper', borderRadius: 5 }}>
                             <Box
                                 sx={{
                                     position: 'absolute',
@@ -48,22 +50,24 @@ export default function LoginComponent() {
                                     borderRight: '8px solid transparent',
                                     borderBottom: '8px solid white', // Same color as the Popper background
                                     top: -8, // Position the arrow right above the popper box
-                                    right: '10%',
+                                    right: '6%',
                                 }}
                             />
 
                             <div className='App-Right-SignIn-Container'>
                                 <div className="App-Right-SignIn-UsernamePassword">
-                                    <TextField
-                                        required
-                                        id="email-box"
-                                        type="email"
-                                        label="Email"
-                                    />
+                                    <FormControl sx={{ m: 1, width: '40ch' }} variant="outlined">
+                                        <TextField
+                                            required
+                                            id="email-box"
+                                            type="email"
+                                            label="Email"
+                                        />
+                                    </FormControl>
                                 </div>
 
                                 <div className="App-Right-SignIn-UsernamePassword">
-                                    <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+                                    <FormControl sx={{ m: 1, width: '40ch' }} variant="outlined">
                                         <InputLabel htmlFor="outlined-adornment-password" required>Password</InputLabel>
                                         <OutlinedInput
                                             id="outlined-adornment-password"
@@ -88,6 +92,14 @@ export default function LoginComponent() {
                                         />
                                     </FormControl>
                                 </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
+                                    <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Forgot Password? </Link>
+                                    <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Sign Up </Link>
+                                </div>
+
+                                <Button variant="contained" sx={{backgroundColor: '#42A5F5'}} style={{marginTop: '8px'}}>Log in</Button>
+
                             </div>
                         </Box>
                     </Fade>
