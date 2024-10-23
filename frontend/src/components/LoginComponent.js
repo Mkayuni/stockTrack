@@ -16,6 +16,9 @@ export default function LoginComponent() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [showPassword, setShowPassword] = React.useState(false);
 
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+
     const onSignIn = (event) => {
         setAnchorEl(event.currentTarget);
         setOpen((previousOpen) => !previousOpen);
@@ -32,6 +35,10 @@ export default function LoginComponent() {
     const handleMouseUpPassword = (event) => {
         event.preventDefault();
     };
+
+    function login() {
+
+    }
 
     return (
         <>
@@ -59,6 +66,7 @@ export default function LoginComponent() {
                                     <FormControl sx={{ m: 1, width: '40ch' }} variant="outlined">
                                         <TextField
                                             required
+                                            onChange={(e) => setEmail(e.target.value)}
                                             id="email-box"
                                             type="email"
                                             label="Email"
@@ -73,6 +81,7 @@ export default function LoginComponent() {
                                             id="outlined-adornment-password"
                                             type={showPassword ? 'text' : 'password'}
                                             required
+                                            onChange={(e) => setPassword(e.target.value)}
                                             endAdornment={
                                                 <InputAdornment position="end">
                                                     <IconButton
@@ -98,7 +107,7 @@ export default function LoginComponent() {
                                     <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Sign Up </Link>
                                 </div>
 
-                                <Button variant="contained" sx={{backgroundColor: '#42A5F5'}} style={{marginTop: '8px'}}>Log in</Button>
+                                <Button variant="contained" sx={{backgroundColor: '#42A5F5'}} onClick={() => login()} style={{marginTop: '8px'}}>Log in</Button>
 
                             </div>
                         </Box>
