@@ -1,4 +1,4 @@
-const { StockPrice } = require('../models');
+const { StockPrice, Stock } = require('../models');
 const { Op } = require('sequelize');
 
 // Function to get stock prices by stock ID with an optional date range
@@ -22,24 +22,56 @@ const getStockPrices = async (req, res) => {
   }
 };
 
-// Function to create a new stock price (admin only)
-const createStockPrice = async (req, res) => {
+// Function to create or update a stock price (admin only)
+const createOrUpdateStockPrice = async (req, res) => {
   const { stockId } = req.params;
-  const { date, open, close, high, low, volume } = req.body;
+  const { date, open, close, high, low, volume, marketCap } = req.body;
 
   try {
-    const newPrice = await StockPrice.create({
-      stockId,
-      date,
-      open,
-      close,
-      high,
-      low,
-      volume
+    // Check if a stock price exists for the given date
+    let existingPrice = await StockPrice.findOne({
+      where: { stockId, date }
     });
-    res.status(201).json(newPrice);
+
+    if (existingPrice) {
+      // Update the existing stock price if found
+      await existingPrice.update({
+        open,
+        close,
+        high,
+        low,
+        volume
+      });
+
+      // Optionally, update the stock's market cap
+      const stock = await Stock.findByPk(stockId);
+      if (stock) {
+        await stock.update({ marketCap });
+      }
+
+      return res.status(200).json({ message: 'Stock price updated successfully', stockPrice: existingPrice });
+    } else {
+      // Create a new stock price entry if none exists
+      const newPrice = await StockPrice.create({
+        stockId,
+        date,
+        open,
+        close,
+        high,
+        low,
+        volume
+      });
+
+      // Optionally, update the stock's market cap
+      const stock = await Stock.findByPk(stockId);
+      if (stock) {
+        await stock.update({ marketCap });
+      }
+
+      return res.status(201).json(newPrice);
+    }
   } catch (error) {
-    res.status(400).json({ message: 'Failed to create stock price', error: error.message });
+    res.status(400).json({ message: 'Failed to create or update stock price', error: error.message });
   }
 };
 
@@ -86,7 +118,7 @@ const deleteStockPrice = async (req, res) => {
   }
 };
 
-// Function to get the latest stock price (protected)
+// Function to get the latest stock price (public route)
 const getLatestStockPrice = async (req, res) => {
   const { stockId } = req.params;
 
@@ -108,7 +140,7 @@ const getLatestStockPrice = async (req, res) => {
 
 module.exports = {
   getStockPrices,
-  createStockPrice,
+  createOrUpdateStockPrice,
   updateStockPrice,
   deleteStockPrice,
   getLatestStockPrice

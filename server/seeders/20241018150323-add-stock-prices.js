@@ -1,26 +1,27 @@
 'use strict';
 
-const { Stock, StockPrice } = require('../models');  // Import both Stock and StockPrice models
+const { StockSymbol, Stock, StockPrice } = require('../models');
 
 module.exports = {
   async up() {
-    // Fetch the stocks dynamically by their symbols
-    const stocks = await Stock.findAll({
+    // Fetch the stocks by symbol from the StockSymbols table
+    const stockSymbols = await StockSymbol.findAll({
       where: {
         symbol: ['AAPL', 'GOOGL', 'TSLA']  // These are the stock symbols
       }
     });
 
-    // Create a mapping of stock symbols to their corresponding IDs
+    // Map stock symbols to their corresponding Stock IDs
     const stockMap = {};
-    stocks.forEach(stock => {
-      stockMap[stock.symbol] = stock.id;
-    });
+    for (const symbol of stockSymbols) {
+      const stock = await Stock.findOne({ where: { stockSymbolId: symbol.id } });
+      stockMap[symbol.symbol] = stock ? stock.id : null;
+    }
 
-    // Insert stock prices associated with the correct stockId dynamically
+    // Insert stock prices associated with correct stockId
     await StockPrice.bulkCreate([
       {
-        stockId: stockMap['AAPL'],  // Dynamically map stockId for 'AAPL'
+        stockId: stockMap['AAPL'],  // Stock ID for AAPL
         date: '2024-01-01',
         open: 100.0,
         close: 105.0,
@@ -31,7 +32,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        stockId: stockMap['GOOGL'],  // Dynamically map stockId for 'GOOGL'
+        stockId: stockMap['GOOGL'],  // Stock ID for GOOGL
         date: '2024-01-01',
         open: 1500.0,
         close: 1520.0,
@@ -42,7 +43,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        stockId: stockMap['TSLA'],  // Dynamically map stockId for 'TSLA'
+        stockId: stockMap['TSLA'],  // Stock ID for TSLA
         date: '2024-01-01',
         open: 600.0,
         close: 610.0,
@@ -56,7 +57,6 @@ module.exports = {
   },
 
   async down() {
-    // Remove all stock prices
-    await StockPrice.destroy({ where: {}, truncate: true });
+    await StockPrice.destroy({ where: {}, truncate: true });  // Remove all stock prices
   }
 };

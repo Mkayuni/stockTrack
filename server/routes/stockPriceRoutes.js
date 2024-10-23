@@ -1,21 +1,21 @@
 const express = require('express');
 const {
   getStockPrices,
-  createStockPrice,
+  createOrUpdateStockPrice,  // Updated here
   updateStockPrice,
   deleteStockPrice,
   getLatestStockPrice
-} = require('../controllers/stockPriceController');  // Ensure these are correctly imported
+} = require('../controllers/stockPriceController');
 
-const authenticateToken = require('../middleware/authenticateToken');  // Import authentication middleware
-const isAdmin = require('../middleware/isAdmin');  // Import admin middleware
+const authenticateToken = require('../middleware/authenticateToken');
+const isAdmin = require('../middleware/isAdmin');
 const router = express.Router();
 
 // Get stock prices by stock ID and optional date range (public access)
 router.get('/:stockId/prices', getStockPrices);  // Example: GET /stocks/:stockId/prices?startDate=2024-01-01&endDate=2024-12-31
 
-// Add new stock price for a stock (admin only)
-router.post('/:stockId/prices', authenticateToken, isAdmin, createStockPrice);
+// Add or update stock price for a stock (admin only)
+router.post('/:stockId/prices', authenticateToken, isAdmin, createOrUpdateStockPrice);  // Updated here
 
 // Update existing stock price (admin only)
 router.put('/:stockId/prices/:priceId', authenticateToken, isAdmin, updateStockPrice);
