@@ -30,7 +30,7 @@ app.use('/api/admin', adminRoutes);
 app.post('/api/webhook', async (req, res) => {
   const secret = req.headers['x-finnhub-secret'];
   
-  // Check if the secret matches your secret from the environment
+  // Check if the secret matches secrete from environment
   if (secret !== process.env.FINNHUB_SECRET_KEY) {
     return res.status(403).json({ message: 'Unauthorized' });
   }
