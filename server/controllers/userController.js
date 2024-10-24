@@ -54,6 +54,13 @@ const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ where: { email } });
+
+    // If user is not found
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    
     if (user && await bcrypt.compare(password, user.password)) {
       // Generate a JWT token valid for 1 hour using the secret key from the .env file
       const token = jwt.sign({ id: user.id, role: user.role }, process.env.YOUR_SECRET_KEY, { expiresIn: '1h' });

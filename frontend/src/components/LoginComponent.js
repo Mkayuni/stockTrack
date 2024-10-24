@@ -36,9 +36,31 @@ export default function LoginComponent() {
         event.preventDefault();
     };
 
-    function login() {
+    // User attempts to log into our system
+    const loginUser = async () => {
 
-    }
+        // Fetches Login API
+        const response = await fetch('http://localhost:3001/api/users/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+            }),
+        });
+
+        // Successful login
+        if (response.ok) {
+            alert(await response.json());
+        }
+        // Fail to login
+        else {
+            alert("failed");
+        }
+
+    };
 
     return (
         <>
@@ -66,7 +88,7 @@ export default function LoginComponent() {
                                     <FormControl sx={{ m: 1, width: '40ch' }} variant="outlined">
                                         <TextField
                                             required
-                                            onChange={(e) => setEmail(e.target.value)}
+                                            onChange={(e) => setEmail(e.target.value.toLowerCase())}
                                             id="email-box"
                                             type="email"
                                             label="Email"
@@ -107,7 +129,7 @@ export default function LoginComponent() {
                                     <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Sign Up </Link>
                                 </div>
 
-                                <Button variant="contained" sx={{backgroundColor: '#42A5F5'}} onClick={() => login()} style={{marginTop: '8px'}}>Log in</Button>
+                                <Button variant="contained" sx={{backgroundColor: '#42A5F5'}} onClick={() => loginUser()} style={{marginTop: '8px'}}>Log in</Button>
 
                             </div>
                         </Box>
