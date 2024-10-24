@@ -18,6 +18,7 @@ export default function LoginComponent() {
 
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const [loginError, setLoginError] = React.useState(0);
 
     const onSignIn = (event) => {
         setAnchorEl(event.currentTarget);
@@ -39,28 +40,69 @@ export default function LoginComponent() {
     // User attempts to log into our system
     const loginUser = async () => {
 
-        // Fetches Login API
-        const response = await fetch('http://localhost:3001/api/users/login', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            }),
-        });
+        try {
+            // Fetches Login API
+            const response = await fetch('http://localhost:3001/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
 
-        // Successful login
-        if (response.ok) {
-            alert(await response.json());
-        }
-        // Fail to login
-        else {
-            alert("failed");
+            // Successful login
+            if (response.ok) {
+                alert(await response.json());
+                setLoginError(0);
+            }
+            // Fail to login
+            else {
+
+                // Email is not registered in system
+                if (response.status === 404) {
+                    alert("There is no account with that email.");
+                    setLoginError(1);
+                }
+                // Password is incorrect
+                else if (response.status === 401) {
+                    alert("Incorrect Password");
+                    setLoginError(2);
+                }
+                // Other Errors
+                else {
+                    alert("An un expected error occurred.");
+                    setLoginError(3);
+                }
+            }
+        } catch (e) {
+            alert(e);
+            setLoginError(-1);
         }
 
     };
+
+    function getLoginErrorMessage() {
+
+        switch (loginError) {
+            case 0: // No Error
+                break;
+            
+            case 1: // Email Error
+                break;
+
+            case 2: // Password Error
+                break;
+
+            default: // Unknown Error
+                break;
+        }
+
+
+        return (<p> Test </p>);
+    }
 
     return (
         <>
@@ -124,6 +166,12 @@ export default function LoginComponent() {
                                     </FormControl>
                                 </div>
 
+                                {/* Errors Display */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
+                                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage()}</div>
+                                </div>
+
+                                {/* Recovery & Sign Up Links */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
                                     <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Forgot Password? </Link>
                                     <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Sign Up </Link>

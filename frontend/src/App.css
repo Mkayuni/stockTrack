@@ -112,6 +112,10 @@ body::-webkit-scrollbar-thumb {
   top: -5px;
 }
 
+.App-Right-SignIn-Error {
+  color: red;
+}
+
 .App-Right-SignIn:hover {
   color: yellow;
 }
