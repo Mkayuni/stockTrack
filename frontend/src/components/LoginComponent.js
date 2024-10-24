@@ -40,6 +40,26 @@ export default function LoginComponent() {
     // User attempts to log into our system
     const loginUser = async () => {
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // Email is left empty
+        if (email === '') {
+            setLoginError(4);
+            return;
+        }
+
+        // Email in field is not a correct email address
+        if (!emailRegex.test(email)) {
+            setLoginError(5);
+            return;
+        }
+
+        // Password is left empty
+        if (password === '') {
+            setLoginError(3);
+            return;
+        }
+
         try {
             // Fetches Login API
             const response = await fetch('http://localhost:3001/api/users/login', {
@@ -63,45 +83,63 @@ export default function LoginComponent() {
 
                 // Email is not registered in system
                 if (response.status === 404) {
-                    alert("There is no account with that email.");
                     setLoginError(1);
                 }
                 // Password is incorrect
                 else if (response.status === 401) {
-                    alert("Incorrect Password");
                     setLoginError(2);
                 }
                 // Other Errors
                 else {
-                    alert("An un expected error occurred.");
                     setLoginError(3);
                 }
             }
         } catch (e) {
-            alert(e);
             setLoginError(-1);
         }
 
     };
 
-    function getLoginErrorMessage() {
+    function getLoginErrorMessage(type) {
+
+        let message = "";
+        let errorType = "";
 
         switch (loginError) {
             case 0: // No Error
-                break;
-            
+                return ('');
+
             case 1: // Email Error
+                errorType = 'email';
+                message = "There are no accounts with that email";
                 break;
 
             case 2: // Password Error
+                errorType = 'password';
+                message = "Incorrect Password";
+                break;
+
+            case 3: // Empty Password
+                errorType = 'password';
+                message = "You can not leave the password field empty";
+                break;
+
+            case 4: // Empty Email
+                errorType = 'email';
+                message = "You can not leave the email field empty!";
+                break;
+
+            case 5:
+                errorType = 'email';
+                message = "Please enter a valid email"
                 break;
 
             default: // Unknown Error
-                break;
+                return ('Unknown Error')
         }
 
-
-        return (<p> Test </p>);
+        if (errorType === type) return (message);
+        else return ('');
     }
 
     return (
@@ -138,6 +176,11 @@ export default function LoginComponent() {
                                     </FormControl>
                                 </div>
 
+                                {/* Display Email Errors */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
+                                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage("email")}</div>
+                                </div>
+
                                 <div className="App-Right-SignIn-UsernamePassword">
                                     <FormControl sx={{ m: 1, width: '40ch' }} variant="outlined">
                                         <InputLabel htmlFor="outlined-adornment-password" required>Password</InputLabel>
@@ -166,9 +209,9 @@ export default function LoginComponent() {
                                     </FormControl>
                                 </div>
 
-                                {/* Errors Display */}
+                                {/* Display Password Errors */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
-                                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage()}</div>
+                                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage("password")}</div>
                                 </div>
 
                                 {/* Recovery & Sign Up Links */}
