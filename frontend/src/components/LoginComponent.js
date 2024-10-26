@@ -217,7 +217,7 @@ export default function LoginComponent() {
                                 {/* Recovery & Sign Up Links */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
                                     <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Forgot Password? </Link>
-                                    <Link to='/' className="App-Right-SignIn-UsernamePassword-Links"> Sign Up </Link>
+                                    <Link to='/signup' className="App-Right-SignIn-UsernamePassword-Links"> Sign Up </Link>
                                 </div>
 
                                 <Button variant="contained" sx={{backgroundColor: '#42A5F5'}} onClick={() => loginUser()} style={{marginTop: '8px'}}>Log in</Button>
