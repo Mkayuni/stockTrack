@@ -34,7 +34,9 @@ export default function SignUp() {
         }
 
         // Is email matching conditions
-        validateEmail()
+        if (!validateEmail()) {
+            alert("Email is not formatted correctly!")
+        }
 
         // Is username matching conditions?
 
@@ -71,11 +73,12 @@ export default function SignUp() {
 
         // Is email an email?
         if (!emailRegex.test(email)) {
-
+            return false;
         }
 
         // Does this email already have an account?
 
+        return true;
     }
 
     function blankFieldsCheck() {
