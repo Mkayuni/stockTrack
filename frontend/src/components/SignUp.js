@@ -5,6 +5,7 @@ import InputLabel from "@mui/material/InputLabel";
 import {IconButton, InputAdornment, OutlinedInput} from "@mui/material";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import Button from "@mui/material/Button";
+import {useNavigate} from "react-router-dom";
 
 export default function SignUp() {
 
@@ -14,6 +15,8 @@ export default function SignUp() {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [username, setUsername] = React.useState("");
+
+    const nav = useNavigate();
 
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -27,21 +30,31 @@ export default function SignUp() {
     };
 
     const registerUser = async () => {
+        let isValid = true;
 
         // Are any fields blank?
         if (blankFieldsCheck()) {
             alert("You left some fields empty!");
-            return;
+            isValid = false;
         }
 
         // Is email matching conditions
         if (!await validateEmail ()) {
-            return;
+            isValid = false;
         }
 
         // Is username matching conditions?
+        if (!await validateUsername()) {
+            isValid = false;
+        }
 
         // Is password matching conditions?
+
+
+        // If an error occur, return early
+        if (!isValid) {
+            return;
+        }
 
         // Send a POST to URL to create an account
         try {
@@ -52,10 +65,10 @@ export default function SignUp() {
                 },
                 body: JSON.stringify({
                     username: username,
-                    email: email,
+                    email: email.toLowerCase(),
                     password: password,
-                    firstName: firstName,
-                    lastName: lastName,
+                    firstName: firstName.toLowerCase().replace(/\b\w/g, char => char.toUpperCase()),
+                    lastName: lastName.toLowerCase().replace(/\b\w/g, char => char.toUpperCase()),
                     role: "user"
                 }),
             });
@@ -67,7 +80,37 @@ export default function SignUp() {
             alert("failed: " + e);
         }
 
+        // Leave register page when finished
+        nav("/");
+
     };
+
+    async function validateUsername () {
+
+        // Is this username taken
+        try {
+            const response = await fetch ("http://localhost:3001/api/users/has-username/" + username, {
+                method: 'GET',
+                headers: {
+                    'content-type': 'application/json',
+                }});
+
+            const data = await response.json();
+            const usernameFounded = data.found;
+
+            // Username is in the system
+            if (usernameFounded) {
+                alert("Username has been taken!");
+                return false;
+            }
+
+        } catch (e) {
+            alert("failed: " + e);
+            return false;
+        }
+
+        return true;
+    }
 
     async function validateEmail () {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,7 +129,8 @@ export default function SignUp() {
                     'content-type': 'application/json',
                 }});
 
-            const emailFounded = await response.json().found;
+            const data = await response.json();
+            const emailFounded = data.found;
 
             // Email is in the system
             if (emailFounded) {
