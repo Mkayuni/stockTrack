@@ -30,12 +30,13 @@ export default function SignUp() {
 
         // Are any fields blank?
         if (blankFieldsCheck()) {
-            alert("You left some fields empty!")
+            alert("You left some fields empty!");
+            return;
         }
 
         // Is email matching conditions
-        if (!validateEmail()) {
-            alert("Email is not formatted correctly!")
+        if (!await validateEmail ()) {
+            return;
         }
 
         // Is username matching conditions?
@@ -63,20 +64,40 @@ export default function SignUp() {
 
 
         } catch (e) {
-            alert("failed: " + e)
+            alert("failed: " + e);
         }
 
     };
 
-    function validateEmail() {
+    async function validateEmail () {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         // Is email an email?
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test (email)) {
+            alert("Email is not formatted correctly!")
             return false;
         }
 
         // Does this email already have an account?
+        try {
+            const response = await fetch ("http://localhost:3001/api/users/has-email/" + email, {
+                method: 'GET',
+                headers: {
+                    'content-type': 'application/json',
+                }});
+
+            const emailFounded = await response.json().found;
+
+            // Email is in the system
+            if (emailFounded) {
+                alert("Email already exists!");
+                return false;
+            }
+
+        } catch (e) {
+            alert("failed: " + e);
+            return false;
+        }
 
         return true;
     }
