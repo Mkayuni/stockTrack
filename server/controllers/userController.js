@@ -49,6 +49,38 @@ const getUserById = async (req, res) => {
   }
 };
 
+// Function that returns true if the email is in the system
+const isEmailTaken = async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await User.findOne({where: {email: email}});
+
+    if (user) {
+      res.json({found: true});  // Return if email is in the system
+    } else {
+      res.status(404).json({found: false, message: 'Email is not in the system'}); // If Email is not in system
+    }
+  } catch (error) {
+    res.status(500).json({found: false, message: 'Server error'});  // Handle server errors
+  }
+}
+
+// Function that returns true if a username is in the system
+const isUsernameTaken = async (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({where: {username: username}});
+
+    if (user) {
+      res.json({found: true});  // Return if username is in the system
+    } else {
+      res.status(404).json({found: false, message: 'Username is not in the system'}); // If username is not in system
+    }
+  } catch (error) {
+    res.status(500).json({found: false, message: 'Server error'});  // Handle server errors
+  }
+}
+
 // Function to login a user (Login Route) with JWT token generation
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -60,7 +92,7 @@ const loginUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    
+
     if (user && await bcrypt.compare(password, user.password)) {
       // Generate a JWT token valid for 1 hour using the secret key from the .env file
       const token = jwt.sign({ id: user.id, role: user.role }, process.env.YOUR_SECRET_KEY, { expiresIn: '1h' });
@@ -106,4 +138,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser};
+module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken};
