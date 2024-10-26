@@ -123,7 +123,7 @@ export default function SignUp() {
 
         // Does this email already have an account?
         try {
-            const response = await fetch ("http://localhost:3001/api/users/has-email/" + email, {
+            const response = await fetch ("http://localhost:3001/api/users/has-email/" + email.toLowerCase(), {
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json',
