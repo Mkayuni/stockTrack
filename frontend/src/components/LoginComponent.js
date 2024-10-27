@@ -67,7 +67,7 @@ export default function LoginComponent({setUser, setUserToken}) {
 
         try {
             // Fetches Login API
-            const response = await fetch('/users/login', {
+            const response = await fetch('http://localhost:3001/api/users/login', {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
@@ -83,7 +83,7 @@ export default function LoginComponent({setUser, setUserToken}) {
                 const data = await response.json();
 
                 setUserToken(data.token); // Fetches the user token for auth.
-                setUser(getUserInfo(data.token)); // Fetches the user from token
+                setUser(await getUserInfo(data.token)); // Fetches the user from token
 
                 setLoginError(0);
             }
@@ -112,12 +112,9 @@ export default function LoginComponent({setUser, setUserToken}) {
     // Fetches user data from login generated token
     async function getUserInfo(token) {
 
-        // Get user ID from token
-        const userID = 5;
-
         // Fetch data
         try {
-            const response = await fetch(`/user/${userID}`, {
+            const response = await fetch(`http://localhost:3001/api/users/self`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

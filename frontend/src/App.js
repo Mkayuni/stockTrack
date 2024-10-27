@@ -36,7 +36,7 @@ function MainApp () {
         }
 
         // Otherwise, show profile
-        return (<div className="App-Right-Profile"><Avatar>{user.firstName}</Avatar></div>);
+        return (<div className="App-Right-Profile"><Avatar>{user.firstName.charAt(0) + user.lastName.charAt(0)}</Avatar></div>);
     }
 
     return (
