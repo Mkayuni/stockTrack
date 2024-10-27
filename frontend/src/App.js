@@ -9,9 +9,8 @@ import Avatar from '@mui/material/Avatar';
 import SignUp from "./components/SignUp";
 
 
-
 // Seperated into MainApp b.c location needed to be within Router
-function App() {
+function App () {
     return (
         <Router>
             <MainApp/>
@@ -19,21 +18,21 @@ function App() {
     );
 }
 
-function displayProfilePicture(user) {
+function displayProfilePicture (user) {
 
     if (user === null || user === undefined || user.length === 0) {
         return;
     }
 
     return (<div className="App-Right-Profile"><Avatar>?</Avatar></div>);
-        }
+}
 
-        function MainApp() {
+function MainApp () {
 
-            const [user, setUser] = useState([]); // Empty or null if user is not logged in
+    const [user, setUser] = useState ([]); // Empty or null if user is not logged in
 
     // Grab the current page and check if it is the home page
-    const location = useLocation();
+    const location = useLocation ();
     const useFullHeader = location.pathname === '/';
 
     return (
@@ -52,7 +51,7 @@ function displayProfilePicture(user) {
 
                     {user.length === 0 ? <LoginComponent/> : ""}
 
-                    {displayProfilePicture(user)}
+                    {displayProfilePicture (user)}
 
                 </div>
             </header>
