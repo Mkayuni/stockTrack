@@ -18,22 +18,26 @@ function App () {
     );
 }
 
-function displayProfilePicture (user) {
-
-    if (user === null || user === undefined || user.length === 0) {
-        return;
-    }
-
-    return (<div className="App-Right-Profile"><Avatar>?</Avatar></div>);
-}
-
 function MainApp () {
 
     const [user, setUser] = useState ([]); // Empty or null if user is not logged in
+    const [userToken, setUserToken] = useState(null);
 
     // Grab the current page and check if it is the home page
     const location = useLocation ();
     const useFullHeader = location.pathname === '/';
+
+    // Handles displaying profile picture
+    function displayProfilePicture (user) {
+
+        // If no user, show sign in
+        if (user === null || user === undefined || user.length === 0) {
+            return (<LoginComponent setUser={setUser} setUserToken={setUserToken} />);
+        }
+
+        // Otherwise, show profile
+        return (<div className="App-Right-Profile"><Avatar>{user.firstName}</Avatar></div>);
+    }
 
     return (
         <div className="App">
@@ -49,9 +53,7 @@ function MainApp () {
 
                     </nav>
 
-                    {user.length === 0 ? <LoginComponent/> : ""}
-
-                    {displayProfilePicture (user)}
+                    {displayProfilePicture (user) /* Show either profile picture or login */}
 
                 </div>
             </header>

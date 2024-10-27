@@ -5,12 +5,12 @@ import Fade from '@mui/material/Fade';
 import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
-import {FilledInput, IconButton, Input, InputAdornment, OutlinedInput} from "@mui/material";
+import {IconButton, InputAdornment, OutlinedInput} from "@mui/material";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import {Link} from "react-router-dom";
 
-export default function LoginComponent() {
+export default function LoginComponent({setUser, setUserToken}) {
 
     const [open, setOpen] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -67,7 +67,7 @@ export default function LoginComponent() {
 
         try {
             // Fetches Login API
-            const response = await fetch('http://localhost:3001/api/users/login', {
+            const response = await fetch('/users/login', {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
@@ -80,7 +80,11 @@ export default function LoginComponent() {
 
             // Successful login
             if (response.ok) {
-                alert(await response.json());
+                const data = await response.json();
+
+                setUserToken(data.token); // Fetches the user token for auth.
+                setUser(getUserInfo(data.token)); // Fetches the user from token
+
                 setLoginError(0);
             }
             // Fail to login
@@ -104,6 +108,37 @@ export default function LoginComponent() {
         }
 
     };
+
+    // Fetches user data from login generated token
+    async function getUserInfo(token) {
+
+        // Get user ID from token
+        const userID = 5;
+
+        // Fetch data
+        try {
+            const response = await fetch(`/user/${userID}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Error fetching data
+            if (!response.ok) {
+                alert('Failed to fetch user info');
+                return null;
+            }
+
+            return await response.json ();
+        }
+        catch (e) {
+            alert('Failed to fetch user info');
+            return null;
+        }
+
+    }
 
     function getLoginErrorMessage(type) {
 

@@ -105,7 +105,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-
 // Function to update an existing user
 const updateUser = async (req, res) => {
   const { id } = req.params;
@@ -137,5 +136,7 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Server error' });  // Handle server errors
   }
 };
+
+
 
 module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken};
