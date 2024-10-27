@@ -2,7 +2,7 @@ import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
 import React from "react";
 import InputLabel from "@mui/material/InputLabel";
-import {IconButton, InputAdornment, OutlinedInput} from "@mui/material";
+import {FormHelperText, IconButton, InputAdornment, OutlinedInput} from "@mui/material";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import {useNavigate} from "react-router-dom";
@@ -15,6 +15,7 @@ export default function SignUp() {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [username, setUsername] = React.useState("");
+    const [error, setError] = React.useState(0);
 
     const nav = useNavigate();
 
@@ -49,7 +50,9 @@ export default function SignUp() {
         }
 
         // Is password matching conditions?
-
+        if (!validatePassword()) {
+            isValid = false;
+        }
 
         // If an error occur, return early
         if (!isValid) {
@@ -144,6 +147,32 @@ export default function SignUp() {
         }
 
         return true;
+    }
+
+    // Ensures the password matches requirements
+    function validatePassword() {
+
+        let isValid = true;
+        const min_pass_length = 8;
+
+        // Is characters 8 or more?
+        if (password.length < min_pass_length) {
+            isValid = false;
+        }
+
+        // Is there a number?
+        if (!/\d/.test(password)) {
+            isValid = false;
+        }
+
+        // Is there a cap?
+        if (!/[A-Z]/.test(password)) {
+            isValid = false;
+        }
+
+        alert("Password does not meet requirement");
+
+        return isValid;
     }
 
     function blankFieldsCheck() {
@@ -257,7 +286,7 @@ export default function SignUp() {
                                     <InputAdornment position="end">
                                         <IconButton
                                             aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
+                                                showPassword ? 'hide password' : 'show password'
                                             }
                                             onClick={handleClickShowPassword}
                                             onMouseDown={handleMouseDownPassword}
@@ -270,6 +299,10 @@ export default function SignUp() {
                                 }
                                 label="Password"
                             />
+
+                            <FormHelperText>
+                                Password must be at least 8 characters long and include at least 1 Uppercase letter and 1 number. Adding special characters is recommended but not required.
+                            </FormHelperText>
                         </FormControl>
                     </div>
 
