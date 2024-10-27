@@ -37,6 +37,13 @@ const getUsers = async (req, res) => {
 // Function to get a single user by ID
 const getUserById = async (req, res) => {
   const { id } = req.params;
+  const userIdFromToken = req.user.id;
+
+  if (userIdFromToken !== id) {
+    return res.status(403).json({ message: 'Access Denied. You can only access your own information.' });
+  }
+
+
   try {
     const user = await User.findByPk(id);  // Find user by primary key (id)
     if (user) {
@@ -47,6 +54,13 @@ const getUserById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error' });  // Handle server errors
   }
+};
+
+// Function to get user information from token
+const getUserByToken = async (req, res) => {
+  const userID = req.user.id;
+
+  return await getUserById({params: {id: userID}, user:req.user}, res);
 };
 
 // Function that returns true if the email is in the system
@@ -139,4 +153,4 @@ const deleteUser = async (req, res) => {
 
 
 
-module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken};
+module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken, getUserByToken};

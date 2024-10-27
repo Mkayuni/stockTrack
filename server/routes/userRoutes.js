@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken} = require('../controllers/userController');
+const { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken, getUserByToken} = require('../controllers/userController');
 const authenticateToken = require('../middleware/authenticateToken');  // Import the authentication middleware
 const isAdmin = require('../middleware/isAdmin');  // Import the isAdmin middleware
 const router = express.Router();
@@ -11,7 +11,7 @@ router.get('/has-email/:email', isEmailTaken);
 router.get('/has-username/:username', isUsernameTaken);
 
 // Protected routes (authentication required)
-router.get('/:id', authenticateToken, getUserById);  // Only authenticated users can get their own user info
+router.get('/self', authenticateToken, getUserByToken);  // Only authenticated users can get their own user info
 router.put('/:id', authenticateToken, updateUser);   // Only authenticated users can update their info
 router.delete('/:id', authenticateToken, deleteUser);  // Only authenticated users can delete their info
 
