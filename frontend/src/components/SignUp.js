@@ -15,7 +15,7 @@ export default function SignUp() {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [username, setUsername] = React.useState("");
-    const [error, setError] = React.useState(0);
+    const [errors, setSignupError] = React.useState([]);
 
     const nav = useNavigate();
 
@@ -32,10 +32,10 @@ export default function SignUp() {
 
     const registerUser = async () => {
         let isValid = true;
+        setSignupError([]);
 
         // Are any fields blank?
         if (blankFieldsCheck()) {
-            alert("You left some fields empty!");
             isValid = false;
         }
 
@@ -90,6 +90,12 @@ export default function SignUp() {
 
     async function validateUsername () {
 
+        // Empty field
+        if (username === "") {
+            setSignupError(prev => [...prev, 7]);
+            return false;
+        }
+
         // Is this username taken
         try {
             const response = await fetch ("http://localhost:3001/api/users/has-username/" + username, {
@@ -103,12 +109,12 @@ export default function SignUp() {
 
             // Username is in the system
             if (usernameFounded) {
-                alert("Username has been taken!");
+                setSignupError(prev => [...prev, 1]); // Username was taken
                 return false;
             }
 
         } catch (e) {
-            alert("failed: " + e);
+            setSignupError(prev => [...prev, -1]); // Unknown Error
             return false;
         }
 
@@ -118,9 +124,15 @@ export default function SignUp() {
     async function validateEmail () {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+        // Is empty?
+        if (email === "") {
+            setSignupError(prev => [...prev, 9]);
+            return false;
+        }
+
         // Is email an email?
         if (!emailRegex.test (email)) {
-            alert("Email is not formatted correctly!")
+            setSignupError(prev => [...prev, 2]); // Email not formatted correctly
             return false;
         }
 
@@ -137,12 +149,12 @@ export default function SignUp() {
 
             // Email is in the system
             if (emailFounded) {
-                alert("Email already exists!");
+                setSignupError(prev => [...prev, 3]); // Email already used
                 return false;
             }
 
         } catch (e) {
-            alert("failed: " + e);
+            setSignupError(prev => [...prev, -2]); // Unknown Error
             return false;
         }
 
@@ -152,25 +164,32 @@ export default function SignUp() {
     // Ensures the password matches requirements
     function validatePassword() {
 
+        // Empty field
+        if (password === "") {
+            setSignupError(prev => [...prev, 8]);
+            return false;
+        }
+
         let isValid = true;
         const min_pass_length = 8;
 
         // Is characters 8 or more?
         if (password.length < min_pass_length) {
             isValid = false;
+            setSignupError(prev => [...prev, 4]); // Password not correct length
         }
 
         // Is there a number?
         if (!/\d/.test(password)) {
+            setSignupError(prev => [...prev, 5]); // Password missing a number
             isValid = false;
         }
 
         // Is there a cap?
         if (!/[A-Z]/.test(password)) {
+            setSignupError(prev => [...prev, 6]); // Password missing a cap
             isValid = false;
         }
-
-        alert("Password does not meet requirement");
 
         return isValid;
     }
@@ -179,32 +198,141 @@ export default function SignUp() {
 
         let empty = false;
 
-        // Username
-        if (username === "") {
-            empty = true;
-        }
-
-        // Password
-        if (password === "") {
-            empty = true;
-        }
-
-        // Email
-        if (email === "") {
-            empty = true;
-        }
-
         // First Name
         if (firstName === "") {
             empty = true;
+            setSignupError(prev => [...prev, 10]);
         }
 
         // Last Name
         if (lastName === "") {
             empty = true;
+            setSignupError(prev => [...prev, 11]);
         }
 
         return empty;
+    }
+
+    function getLoginErrorMessage(type) {
+
+        if (errors.length === 0) {return '';}
+
+        let message = "";
+
+        // Loops through to check all errors in array and returns the first error that matches the type
+        for (const err of errors){
+            switch (err) {
+
+                case -2: // Email Error
+                    if (type === 'email') {
+                        message = "Unknown Email Error";
+                        return message;
+                    }
+
+                    break;
+
+                case -1: // Username Error
+                    if (type === 'username') {
+                        message = "Unknown Username Error";
+                        return message;
+                    }
+
+                    break;
+
+                case 1: // Username was taken
+                    if (type === 'username') {
+                        message = "This username is already taken";
+                        return message;
+                    }
+
+                    break;
+
+                case 2: // Email not formatted correctly
+                    if (type === 'email') {
+                        message = "Please enter a valid email";
+                        return message;
+                    }
+
+                    break;
+
+                case 3: // Email taken
+                    if (type === 'email') {
+                        message = "This email is already taken";
+                        return message;
+                    }
+
+                    break;
+
+                case 4: // Password does not meet length condition
+                    if (type === 'password') {
+                        message = "Password does not meet the requirement: 8 characters minimum";
+                        return message;
+                    }
+
+                    break;
+
+                case 5: // Password missing number
+                    if (type === 'password') {
+                        message = "Password does not meet the requirement: at least 1 number";
+                        return message;
+                    }
+
+                    break;
+
+                case 6: // Password missing cap
+                    if (type === 'password') {
+                        message = "Password does not meet the requirement: at least 1 capital letter";
+                        return message;
+                    }
+
+                    break;
+
+                case 7: // Empty Username
+                    if (type === 'username') {
+                        message = "A username is required";
+                        return message;
+                    }
+
+                    break;
+
+                case 8: // Empty Password
+                    if (type === 'password') {
+                        message = "A password is required";
+                        return message;
+                    }
+
+                    break;
+
+                case 9: // Empty Email
+                    if (type === 'email') {
+                        message = "A email is required";
+                        return message;
+                    }
+
+                    break;
+
+                case 10: // fname empty
+                    if (type === 'fname') {
+                        message = "Your first name is required";
+                        return message;
+                    }
+
+                    break;
+
+                case 11: // lname empty
+                    if (type === 'lname') {
+                        message = "Your last name is required";
+                        return message;
+                    }
+
+                    break;
+
+                default: // Unknown Error
+                    return ('Unknown Error code: ' + err)
+            }
+        }
+
+        return message;
     }
 
     return (
@@ -231,7 +359,7 @@ export default function SignUp() {
                                 id="fname"
                                 type="text"
                                 label="First Name"
-                                onChange={(e) => setFirstName(e.target.value)}
+                                onChange={(e) => setFirstName (e.target.value)}
                             />
                         </FormControl>
 
@@ -242,9 +370,14 @@ export default function SignUp() {
                                 id="lname"
                                 type="text"
                                 label="Last Name"
-                                onChange={(e) => setLastName(e.target.value)}
+                                onChange={(e) => setLastName (e.target.value)}
                             />
                         </FormControl>
+                    </div>
+
+                    <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("fname")}</div>
+                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("lname")}</div>
                     </div>
 
                     <div>
@@ -255,9 +388,13 @@ export default function SignUp() {
                                 id="signup-username"
                                 type="text"
                                 label="Username"
-                                onChange={(e) => setUsername(e.target.value)}
+                                onChange={(e) => setUsername (e.target.value)}
                             />
                         </FormControl>
+                    </div>
+
+                    <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("username")}</div>
                     </div>
 
                     <div>
@@ -268,9 +405,13 @@ export default function SignUp() {
                                 id="signup-email"
                                 type="email"
                                 label="Email"
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => setEmail (e.target.value)}
                             />
                         </FormControl>
+                    </div>
+
+                    <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("email")}</div>
                     </div>
 
                     <div>
@@ -280,7 +421,7 @@ export default function SignUp() {
                             <OutlinedInput
                                 id="outlined-adornment-password"
                                 type={showPassword ? 'text' : 'password'}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => setPassword (e.target.value)}
                                 required
                                 endAdornment={
                                     <InputAdornment position="end">
@@ -299,18 +440,23 @@ export default function SignUp() {
                                 }
                                 label="Password"
                             />
-
-                            <FormHelperText>
-                                Password must be at least 8 characters long and include at least 1 Uppercase letter and 1 number. Adding special characters is recommended but not required.
+                            
+                            <FormHelperText style={{textAlign : 'center'}}>
+                                Your password should be at least 8 characters long and include at least one uppercase
+                                letter and one number. Adding special characters is recommended for extra security.
                             </FormHelperText>
                         </FormControl>
                     </div>
 
+                    <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("password")}</div>
+                    </div>
 
                 </div>
 
                 <div className="Signup-Form-Footer">
-                    <Button variant="contained" onClick={() => registerUser()} sx={{backgroundColor : '#42A5F5', m : 1, width : '62ch'}}>Create
+                    <Button variant="contained" onClick={() => registerUser ()}
+                            sx={{backgroundColor : '#42A5F5', m : 1, width : '62ch'}}>Create
                         Account</Button>
                 </div>
 

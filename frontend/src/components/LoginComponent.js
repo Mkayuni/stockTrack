@@ -18,11 +18,13 @@ export default function LoginComponent({setUser, setUserToken}) {
 
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const [loginError, setLoginError] = React.useState(0);
+    const [loginError, setLoginError] = React.useState([]);
 
     const onSignIn = (event) => {
         setAnchorEl(event.currentTarget);
         setOpen((previousOpen) => !previousOpen);
+
+        if (!open) setLoginError([]);
     };
 
     const canBeOpen = open && Boolean(anchorEl);
@@ -39,29 +41,36 @@ export default function LoginComponent({setUser, setUserToken}) {
 
     const closePopper = () => {
         setOpen(false);
-        setAnchorEl(null)
+        setAnchorEl(null);
     }
 
     // User attempts to log into our system
     const loginUser = async () => {
 
+        let isValid = true;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        setLoginError([]);
 
         // Email is left empty
         if (email === '') {
-            setLoginError(4);
-            return;
+            setLoginError(prev => [...prev, 4]);
+            isValid = false;
         }
 
         // Email in field is not a correct email address
         if (!emailRegex.test(email)) {
-            setLoginError(5);
-            return;
+            setLoginError(prev => [...prev, 5]);
+            isValid = false;
         }
 
         // Password is left empty
         if (password === '') {
-            setLoginError(3);
+            setLoginError(prev => [...prev, 3]);
+            isValid = false;
+        }
+
+        // Don't fetch if there are errors
+        if (!isValid) {
             return;
         }
 
@@ -85,26 +94,26 @@ export default function LoginComponent({setUser, setUserToken}) {
                 setUserToken(data.token); // Fetches the user token for auth.
                 setUser(await getUserInfo(data.token)); // Fetches the user from token
 
-                setLoginError(0);
+                setLoginError([]);
             }
             // Fail to login
             else {
 
                 // Email is not registered in system
                 if (response.status === 404) {
-                    setLoginError(1);
+                    setLoginError(prev => [...prev, 1]);
                 }
                 // Password is incorrect
                 else if (response.status === 401) {
-                    setLoginError(2);
+                    setLoginError(prev => [...prev, 2]);
                 }
                 // Other Errors
                 else {
-                    setLoginError(3);
+                    setLoginError(prev => [...prev, -1]);
                 }
             }
         } catch (e) {
-            setLoginError(-1);
+            setLoginError(prev => [...prev, -1]);
         }
 
     };
@@ -139,44 +148,59 @@ export default function LoginComponent({setUser, setUserToken}) {
 
     function getLoginErrorMessage(type) {
 
+        if (loginError.length === 0) {return '';}
+
         let message = "";
-        let errorType = "";
 
-        switch (loginError) {
-            case 0: // No Error
-                return ('');
+        // Loops through to check all errors in array and returns the first error that matches the type
+        for (const err of loginError){
+            switch (err) {
+                case 1: // Email Error
+                    if (type === 'email') {
+                        message = "There are no accounts with that email";
+                        return message;
+                    }
 
-            case 1: // Email Error
-                errorType = 'email';
-                message = "There are no accounts with that email";
-                break;
+                    break;
 
-            case 2: // Password Error
-                errorType = 'password';
-                message = "Incorrect Password";
-                break;
+                case 2: // Password Error
+                    if (type === 'password') {
+                        message = "Incorrect Password";
+                        return message;
+                    }
 
-            case 3: // Empty Password
-                errorType = 'password';
-                message = "You can not leave the password field empty";
-                break;
+                    break;
 
-            case 4: // Empty Email
-                errorType = 'email';
-                message = "You can not leave the email field empty!";
-                break;
+                case 3: // Empty Password
+                    if (type === 'password') {
+                        message = "You can not leave the password field empty";
+                        return message;
+                    }
 
-            case 5:
-                errorType = 'email';
-                message = "Please enter a valid email"
-                break;
+                    break;
 
-            default: // Unknown Error
-                return ('Unknown Error')
+                case 4: // Empty Email
+                    if (type === 'email') {
+                        message = "You can not leave the email field empty";
+                        return message;
+                    }
+
+                    break;
+
+                case 5: // Email not formatted correctly
+                    if (type === 'email') {
+                        message = "Please enter a valid email"
+                        return message;
+                    }
+
+                    break;
+
+                default: // Unknown Error
+                    return ('Unknown Error')
+            }
         }
 
-        if (errorType === type) return (message);
-        else return ('');
+        return message;
     }
 
     return (

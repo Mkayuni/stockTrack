@@ -114,6 +114,11 @@ body::-webkit-scrollbar-thumb {
 
 .App-Right-SignIn-Error {
   color: red;
+  position: relative;
+  margin-left: 15px;
+  margin-right: 15px;
+  top: -8px;
+  font-style: italic;
 }
 
 .App-Right-SignIn:hover {
