@@ -1,6 +1,7 @@
 const { User } = require('../models');  // Import from models/index.js
 const bcrypt = require('bcrypt');  // Import bcrypt for password hashing
-const jwt = require('jsonwebtoken');  // Import jsonwebtoken for JWT token generation
+const jwt = require('jsonwebtoken');
+const {Op} = require ("sequelize");  // Import jsonwebtoken for JWT token generation
 
 // Function to create a new user with password hashing
 const createUser = async (req, res) => {
@@ -97,15 +98,22 @@ const isUsernameTaken = async (req, res) => {
 
 // Function to login a user (Login Route) with JWT token generation
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, username, password } = req.body;
   try {
-    const user = await User.findOne({ where: { email } });
+
+    const user = await User.findOne({
+      where: {
+        [Op.or]: [
+          { email: email || null },
+          { username: username || null }
+        ]
+      }
+    });
 
     // If user is not found
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
 
     if (user && await bcrypt.compare(password, user.password)) {
       // Generate a JWT token valid for 1 hour using the secret key from the .env file

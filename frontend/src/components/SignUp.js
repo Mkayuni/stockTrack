@@ -440,7 +440,7 @@ export default function SignUp() {
                                 }
                                 label="Password"
                             />
-                            
+
                             <FormHelperText style={{textAlign : 'center'}}>
                                 Your password should be at least 8 characters long and include at least one uppercase
                                 letter and one number. Adding special characters is recommended for extra security.

@@ -17,6 +17,7 @@ export default function LoginComponent({setUser, setUserToken}) {
     const [showPassword, setShowPassword] = React.useState(false);
 
     const [email, setEmail] = React.useState('');
+    const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [loginError, setLoginError] = React.useState([]);
 
@@ -47,18 +48,18 @@ export default function LoginComponent({setUser, setUserToken}) {
     // User attempts to log into our system
     const loginUser = async () => {
 
-        let isValid = true;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        let isValid = true;
         setLoginError([]);
 
-        // Email is left empty
-        if (email === '') {
+        // Email/Username is left empty
+        if (email === '' && username === '') {
             setLoginError(prev => [...prev, 4]);
             isValid = false;
         }
 
         // Email in field is not a correct email address
-        if (!emailRegex.test(email)) {
+        if (email !== '' && !emailRegex.test(email)) {
             setLoginError(prev => [...prev, 5]);
             isValid = false;
         }
@@ -74,6 +75,15 @@ export default function LoginComponent({setUser, setUserToken}) {
             return;
         }
 
+        if (username !== '') {
+            await loginUsername();
+        } else {
+            await loginEmail();
+        }
+
+    };
+
+    async function loginEmail() {
         try {
             // Fetches Login API
             const response = await fetch('http://localhost:3001/api/users/login', {
@@ -115,8 +125,51 @@ export default function LoginComponent({setUser, setUserToken}) {
         } catch (e) {
             setLoginError(prev => [...prev, -1]);
         }
+    }
 
-    };
+    async function loginUsername() {
+        try {
+            // Fetches Login API
+            const response = await fetch('http://localhost:3001/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            });
+
+            // Successful login
+            if (response.ok) {
+                const data = await response.json();
+
+                setUserToken(data.token); // Fetches the user token for auth.
+                setUser(await getUserInfo(data.token)); // Fetches the user from token
+
+                setLoginError([]);
+            }
+            // Fail to login
+            else {
+
+                // Username is not registered in system
+                if (response.status === 404) {
+                    setLoginError(prev => [...prev, 6]);
+                }
+                // Password is incorrect
+                else if (response.status === 401) {
+                    setLoginError(prev => [...prev, 2]);
+                }
+                // Other Errors
+                else {
+                    setLoginError(prev => [...prev, -1]);
+                }
+            }
+        } catch (e) {
+            setLoginError(prev => [...prev, -1]);
+        }
+    }
 
     // Fetches user data from login generated token
     async function getUserInfo(token) {
@@ -146,6 +199,20 @@ export default function LoginComponent({setUser, setUserToken}) {
 
     }
 
+    function setUsernameOrEmail(input) {
+        
+        // Determine if it is an email or username
+        if (input.includes('@')) {
+            setEmail(input);
+            setUsername('');
+        }
+        else {
+            setUsername(input);
+            setEmail('');
+        }
+
+    }
+
     function getLoginErrorMessage(type) {
 
         if (loginError.length === 0) {return '';}
@@ -157,7 +224,7 @@ export default function LoginComponent({setUser, setUserToken}) {
             switch (err) {
                 case 1: // Email Error
                     if (type === 'email') {
-                        message = "There are no accounts with that email";
+                        message = "There are no accounts associated with this email";
                         return message;
                     }
 
@@ -173,15 +240,15 @@ export default function LoginComponent({setUser, setUserToken}) {
 
                 case 3: // Empty Password
                     if (type === 'password') {
-                        message = "You can not leave the password field empty";
+                        message = "A password is required";
                         return message;
                     }
 
                     break;
 
-                case 4: // Empty Email
+                case 4: // Empty Email or Username
                     if (type === 'email') {
-                        message = "You can not leave the email field empty";
+                        message = "A email or username is required";
                         return message;
                     }
 
@@ -190,6 +257,14 @@ export default function LoginComponent({setUser, setUserToken}) {
                 case 5: // Email not formatted correctly
                     if (type === 'email') {
                         message = "Please enter a valid email"
+                        return message;
+                    }
+
+                    break;
+
+                case 6: // No username found
+                    if (type === 'email') {
+                        message = "There are no accounts associated with this username"
                         return message;
                     }
 
@@ -229,15 +304,15 @@ export default function LoginComponent({setUser, setUserToken}) {
                                     <FormControl sx={{ m: 1, width: '40ch' }} variant="outlined">
                                         <TextField
                                             required
-                                            onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                                            onChange={(e) => setUsernameOrEmail(e.target.value.toLowerCase())}
                                             id="email-box"
                                             type="email"
-                                            label="Email"
+                                            label="Email/Username"
                                         />
                                     </FormControl>
                                 </div>
 
-                                {/* Display Email Errors */}
+                                {/* Display Email/Username Errors */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
                                     <div className="App-Right-SignIn-Error">{getLoginErrorMessage("email")}</div>
                                 </div>
