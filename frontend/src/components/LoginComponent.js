@@ -26,6 +26,9 @@ export default function LoginComponent({setUser, setUserToken}) {
         setOpen((previousOpen) => !previousOpen);
 
         if (!open) setLoginError([]);
+        setEmail('');
+        setUsername('');
+        setPassword('');
     };
 
     const canBeOpen = open && Boolean(anchorEl);
@@ -224,7 +227,7 @@ export default function LoginComponent({setUser, setUserToken}) {
             switch (err) {
                 case 1: // Email Error
                     if (type === 'email') {
-                        message = "There are no accounts associated with this email";
+                        message = "No account found for this email";
                         return message;
                     }
 
@@ -264,7 +267,7 @@ export default function LoginComponent({setUser, setUserToken}) {
 
                 case 6: // No username found
                     if (type === 'email') {
-                        message = "There are no accounts associated with this username"
+                        message = "No account found for this username"
                         return message;
                     }
 
@@ -315,6 +318,11 @@ export default function LoginComponent({setUser, setUserToken}) {
                                 {/* Display Email/Username Errors */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
                                     <div className="App-Right-SignIn-Error">{getLoginErrorMessage("email")}</div>
+                                </div>
+
+                                {/* Recovery & Sign Up Links */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
+                                    <Link to='/' onClick={closePopper} className="App-Right-SignIn-UsernamePassword-Links"> Forgot Email or Username? </Link>
                                 </div>
 
                                 <div className="App-Right-SignIn-UsernamePassword">
