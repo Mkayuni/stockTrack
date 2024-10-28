@@ -322,7 +322,7 @@ export default function LoginComponent({setUser, setUserToken}) {
 
                                 {/* Recovery & Sign Up Links */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
-                                    <Link to='/' onClick={closePopper} className="App-Right-SignIn-UsernamePassword-Links"> Forgot Email or Username? </Link>
+                                    <Link to='/forgot-username-or-email' onClick={closePopper} className="App-Right-SignIn-UsernamePassword-Links"> Forgot Email or Username? </Link>
                                 </div>
 
                                 <div className="App-Right-SignIn-UsernamePassword">
@@ -360,7 +360,7 @@ export default function LoginComponent({setUser, setUserToken}) {
 
                                 {/* Recovery & Sign Up Links */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
-                                    <Link to='/' onClick={closePopper} className="App-Right-SignIn-UsernamePassword-Links"> Forgot Password? </Link>
+                                    <Link to='/forgot-password' onClick={closePopper} className="App-Right-SignIn-UsernamePassword-Links"> Forgot Password? </Link>
                                     <Link to='/signup' onClick={closePopper} className="App-Right-SignIn-UsernamePassword-Links"> Sign Up </Link>
                                 </div>
 
