@@ -21,14 +21,21 @@ export default function LoginComponent({setUser, setUserToken}) {
     const [password, setPassword] = React.useState('');
     const [loginError, setLoginError] = React.useState([]);
 
+    const [emailError, setEmailError] = React.useState(false);
+    const [passwordError, setPasswordError] = React.useState(false);
+
     const onSignIn = (event) => {
         setAnchorEl(event.currentTarget);
         setOpen((previousOpen) => !previousOpen);
 
         if (!open) setLoginError([]);
+
         setEmail('');
         setUsername('');
         setPassword('');
+
+        setEmailError(false);
+        setPasswordError(false);
     };
 
     const canBeOpen = open && Boolean(anchorEl);
@@ -228,6 +235,7 @@ export default function LoginComponent({setUser, setUserToken}) {
                 case 1: // Email Error
                     if (type === 'email') {
                         message = "No account found for this email";
+                        setEmailError(true);
                         return message;
                     }
 
@@ -236,6 +244,7 @@ export default function LoginComponent({setUser, setUserToken}) {
                 case 2: // Password Error
                     if (type === 'password') {
                         message = "Incorrect Password";
+                        setPasswordError(true);
                         return message;
                     }
 
@@ -244,6 +253,7 @@ export default function LoginComponent({setUser, setUserToken}) {
                 case 3: // Empty Password
                     if (type === 'password') {
                         message = "A password is required";
+                        setPasswordError(true);
                         return message;
                     }
 
@@ -252,6 +262,7 @@ export default function LoginComponent({setUser, setUserToken}) {
                 case 4: // Empty Email or Username
                     if (type === 'email') {
                         message = "A email or username is required";
+                        setEmailError(true);
                         return message;
                     }
 
@@ -260,6 +271,7 @@ export default function LoginComponent({setUser, setUserToken}) {
                 case 5: // Email not formatted correctly
                     if (type === 'email') {
                         message = "Please enter a valid email"
+                        setEmailError(true);
                         return message;
                     }
 
@@ -268,15 +280,21 @@ export default function LoginComponent({setUser, setUserToken}) {
                 case 6: // No username found
                     if (type === 'email') {
                         message = "No account found for this username"
+                        setEmailError(true);
                         return message;
                     }
 
                     break;
 
                 default: // Unknown Error
+                    setEmailError(true);
+                    setPasswordError(true);
                     return ('Unknown Error')
             }
         }
+
+        if (type === 'password') setPasswordError(false);
+        else setEmailError(false);
 
         return message;
     }
@@ -311,6 +329,13 @@ export default function LoginComponent({setUser, setUserToken}) {
                                             id="email-box"
                                             type="email"
                                             label="Email/Username"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    '& fieldset': {
+                                                        borderColor: emailError ? 'red' : 'grey',
+                                                    },
+                                                },
+                                            }}
                                         />
                                     </FormControl>
                                 </div>
@@ -349,6 +374,11 @@ export default function LoginComponent({setUser, setUserToken}) {
                                                 </InputAdornment>
                                             }
                                             label="Password"
+                                            sx={{
+                                                '& fieldset': {
+                                                    borderColor: passwordError ? 'red' : 'grey',
+                                                },
+                                            }}
                                         />
                                     </FormControl>
                                 </div>
