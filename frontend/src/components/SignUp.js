@@ -17,6 +17,12 @@ export default function SignUp() {
     const [username, setUsername] = React.useState("");
     const [errors, setSignupError] = React.useState([]);
 
+    const [lnameError, setLnameError] = React.useState(false);
+    const [fnameError, setFNameError] = React.useState(false);
+    const [emailError, setEmailError] = React.useState(false);
+    const [passwordError, setPasswordError] = React.useState(false);
+    const [usernameError, setUsernameError] = React.useState(false);
+
     const nav = useNavigate();
 
 
@@ -42,17 +48,20 @@ export default function SignUp() {
         // Is email matching conditions
         if (!await validateEmail ()) {
             isValid = false;
-        }
+            setEmailError(true);
+        } else setEmailError(false);
 
         // Is username matching conditions?
         if (!await validateUsername()) {
             isValid = false;
-        }
+            setUsernameError(true);
+        } else setUsernameError(false);
 
         // Is password matching conditions?
         if (!validatePassword()) {
             isValid = false;
-        }
+            setPasswordError(true);
+        } else setPasswordError(false);
 
         // If an error occur, return early
         if (!isValid) {
@@ -93,6 +102,18 @@ export default function SignUp() {
         // Empty field
         if (username === "") {
             setSignupError(prev => [...prev, 7]);
+            return false;
+        }
+
+        // Does username have at least three characters
+        if (username.length < 3) {
+            setSignupError(prev => [...prev, 12]);
+            return false;
+        }
+
+        // Does username have the '@' in it?
+        if (username.includes("@")) {
+            setSignupError(prev => [...prev, 13]);
             return false;
         }
 
@@ -202,13 +223,15 @@ export default function SignUp() {
         if (firstName === "") {
             empty = true;
             setSignupError(prev => [...prev, 10]);
-        }
+            setFNameError(true);
+        } else setFNameError(false);
 
         // Last Name
         if (lastName === "") {
             empty = true;
             setSignupError(prev => [...prev, 11]);
-        }
+            setLnameError(true);
+        } else setLnameError(false);
 
         return empty;
     }
@@ -327,6 +350,22 @@ export default function SignUp() {
 
                     break;
 
+                case 12: // username does not meet character length of 3
+                    if (type === 'username') {
+                        message = "Username must be at least 3 characters long";
+                        return message;
+                    }
+
+                    break;
+
+                case 13: // username includes '@'
+                    if (type === 'username') {
+                        message = "Username must not include the symbol '@'";
+                        return message;
+                    }
+
+                    break;
+
                 default: // Unknown Error
                     return ('Unknown Error code: ' + err)
             }
@@ -360,6 +399,13 @@ export default function SignUp() {
                                 type="text"
                                 label="First Name"
                                 onChange={(e) => setFirstName (e.target.value)}
+                                sx={{
+                                    '& .MuiOutlinedInput-root' : {
+                                        '& fieldset' : {
+                                            borderColor : fnameError ? 'red' : 'grey',
+                                        },
+                                    },
+                                }}
                             />
                         </FormControl>
 
@@ -370,6 +416,13 @@ export default function SignUp() {
                                 id="lname"
                                 type="text"
                                 label="Last Name"
+                                sx={{
+                                    '& .MuiOutlinedInput-root' : {
+                                        '& fieldset' : {
+                                            borderColor : lnameError ? 'red' : 'grey',
+                                        },
+                                    },
+                                }}
                                 onChange={(e) => setLastName (e.target.value)}
                             />
                         </FormControl>
@@ -381,23 +434,6 @@ export default function SignUp() {
                     </div>
 
                     <div>
-                        {/* Username */}
-                        <FormControl sx={{m : 1, width : '62ch'}} variant="outlined">
-                            <TextField
-                                required
-                                id="signup-username"
-                                type="text"
-                                label="Username"
-                                onChange={(e) => setUsername (e.target.value)}
-                            />
-                        </FormControl>
-                    </div>
-
-                    <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
-                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("username")}</div>
-                    </div>
-
-                    <div>
                         {/* Email */}
                         <FormControl sx={{m : 1, width : '62ch'}} variant="outlined">
                             <TextField
@@ -405,6 +441,13 @@ export default function SignUp() {
                                 id="signup-email"
                                 type="email"
                                 label="Email"
+                                sx={{
+                                    '& .MuiOutlinedInput-root' : {
+                                        '& fieldset' : {
+                                            borderColor : emailError ? 'red' : 'grey',
+                                        },
+                                    },
+                                }}
                                 onChange={(e) => setEmail (e.target.value)}
                             />
                         </FormControl>
@@ -412,6 +455,37 @@ export default function SignUp() {
 
                     <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
                         <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("email")}</div>
+                    </div>
+
+                    <div>
+                        {/* Username */}
+                        <FormControl sx={{m : 1, width : '62ch'}} variant="outlined">
+                            <TextField
+                                required
+                                id="signup-username"
+                                type="text"
+                                label="Username"
+                                sx={{
+                                    '& .MuiOutlinedInput-root' : {
+                                        '& fieldset' : {
+                                            borderColor : usernameError ? 'red' : 'grey',
+                                        },
+                                    },
+                                }}
+                                onChange={(e) => setUsername (e.target.value)}
+                            />
+
+                            <FormHelperText style={{textAlign : 'center'}}>
+                                Usernames may include letters, numbers, and any special character except for the '@'
+                                symbol.
+                                Additionally, the username must have at least three characters.
+                            </FormHelperText>
+
+                        </FormControl>
+                    </div>
+
+                    <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("username")}</div>
                     </div>
 
                     <div>
@@ -439,10 +513,15 @@ export default function SignUp() {
                                     </InputAdornment>
                                 }
                                 label="Password"
+                                sx={{
+                                    '& fieldset' : {
+                                        borderColor : passwordError ? 'red' : 'grey',
+                                    },
+                                }}
                             />
 
                             <FormHelperText style={{textAlign : 'center'}}>
-                                Your password should be at least 8 characters long and include at least one uppercase
+                                Your password should be at least 8 characters long, and include at least one uppercase
                                 letter and one number. Adding special characters is recommended for extra security.
                             </FormHelperText>
                         </FormControl>

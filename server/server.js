@@ -9,6 +9,7 @@ const cors = require('cors');
 const WebSocket = require('ws');  // Import WebSocket library
 const fetch = require('node-fetch');  // Import node-fetch for API calls
 const { StockPrice, StockSymbol } = require('./models');  // Import StockPrice and StockSymbol models
+const emailRoutes = require('./routes/emailRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;  // Use port from .env or default to 3001
@@ -24,7 +25,7 @@ app.use('/api/stocks', stockRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockPriceRoutes);
 app.use('/api/admin', adminRoutes);
-
+app.use('/api/email', emailRoutes)
 
 // Webhook Endpoint for Finnhub events
 app.post('/api/webhook', async (req, res) => {
