@@ -166,33 +166,38 @@ const deleteUser = async (req, res) => {
 
 // Function to verify codes and return user if codes match
 const verifyCode = async (req, res) => {
-  const { code } = req.params;
-  const { verificationCode, email, password} = req.body;
+  const { code, email, password, hashed } = req.body;
 
-  const hash_code = await bcrypt.hash(code, 12);
+  try {
+    // Check if codes matched
+    const match = await bcrypt.compare(code, hashed);
+    if (!match) {
+      return res.json({ matched: false, message: "Code does not match" });
+    }
 
-  // Check if codes matched
-  if (hash_code !== verificationCode) res.status(401).json({ matched: false, message: 'Invalid credentials' });
+    // If password is empty, just send a success response
+    if (password === "") {
+      return res.json({ matched: true });
+    }
 
-  // If password empty - just send if it failed or not
-  if (password === ""){
-    res.json({ matched: true })
+    // Else, change the password
+    const user = await User.findOne({ where: { email: email } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the password
+    user.password = await bcrypt.hash(password, 12);
+    await user.save();
+
+    // Return a success response after password change
+    return res.json({ matched: true, message: "Password has been updated" });
+  } catch (e) {
+    // Send a server error response if an exception occurs
+    console.log(e)
+    return res.status(500).json({ message: 'Server error' });
   }
-  // Else - change the password
-  else {
-   try {
-
-     const user = await User.findOne({where: {email: email}});
-     user.password = password;
-
-     res.json({matched: true, message: "Password has been updated"})
-
-   } catch (e) {
-     res.status(500).json({ message: 'Server error' });
-   }
-  }
-
-
-}
+};
 
 module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken, getUserByToken, verifyCode};

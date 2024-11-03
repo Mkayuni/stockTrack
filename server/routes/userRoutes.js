@@ -9,7 +9,7 @@ router.post('/register', createUser);
 router.post('/login', loginUser);
 router.get('/has-email/:email', isEmailTaken);
 router.get('/has-username/:username', isUsernameTaken);
-router.put('/verify-email-code/:code', verifyCode)
+router.put('/verify-email-code/', verifyCode)
 
 // Protected routes (authentication required)
 router.get('/self', authenticateToken, getUserByToken);  // Only authenticated users can get their own user info
