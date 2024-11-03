@@ -69,7 +69,7 @@ export default function ForgotPassword() {
                     label={verified ? "Verify Password" : "New Password"}
                     sx={{
                         '& fieldset' : {
-                            borderColor : passwordError !== 0 ? 'red' : 'grey',
+                            borderColor : (verified ? verifiedPasswordError : passwordError) !== 0 ? 'red' : 'grey',
                         },
                     }}
                 />
@@ -129,21 +129,27 @@ export default function ForgotPassword() {
         // Reset the password
         try {
 
-            const response = await fetch ("http://localhost:3001/api/users/verify-email-code/" + verificationCode, {
+            const response = await fetch ("http://localhost:3001/api/users/verify-email-code/", {
                 method : 'PUT',
                 headers : {
                     'content-type' : 'application/json',
                 },
-                body : {
+                body: JSON.stringify({
                     email: email.toLowerCase(),
                     code: code,
+                    hashed: verificationCode,
                     password: password,
-                }
+                })
             });
 
             // Success
             if (response.ok) {
                 alert("Password has been updated.")
+            } else {
+                const errorText = await response.text();
+                alert(errorText);
+                setPasswordError(-1);
+                setVerifiedPasswordError(-1);
             }
 
         }
@@ -167,30 +173,38 @@ export default function ForgotPassword() {
             return;
         }
 
+
+
         // Check if code is correct
         try {
 
-            const response = await fetch ("http://localhost:3001/api/users/verify-email-code/" + verificationCode, {
+            const response = await fetch ("http://localhost:3001/api/users/verify-email-code/", {
                 method : 'PUT',
                 headers : {
                     'content-type' : 'application/json',
                 },
-                body : {
+                body: JSON.stringify({
                     email: email.toLowerCase(),
+                    hashed: verificationCode,
                     code: code,
                     password: "",
-                }
+                })
             });
+
+
 
             const data = await response.json();
 
-            if (!data["matched"]) {
+            if (!data.matched) {
                 setCodeError(2);
                 return;
             }
 
         } catch (e) {
             console.error(e);
+            setCodeError(-1);
+            alert(e)
+            return;
         }
 
         // Lock Code
@@ -231,31 +245,29 @@ export default function ForgotPassword() {
             const data = await response.json ();
             const emailFounded = data.found;
 
-            // Email is in the system
+            // Email is not in the system
             if (!emailFounded) {
                 return;
             }
-        }
-        catch (e) {
-            console.log("Error has occurred: " + e)
-        }
 
-        // Send code to email
-        try {
-            const response = await fetch('http://localhost:3001/api/email/send-code', {
+
+            // Send code to email
+            const res = await fetch('http://localhost:3001/api/email/send-code/' + email.toLowerCase(), {
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json',
                 },
-                body: JSON.stringify({
-                    email: email.toLowerCase(),
-                }),
             });
 
-            setVerificationCode(response["code"])
+
+
+            const dat = await res.json();
+            setVerificationCode(dat["code"])
+
         }
         catch (e) {
             console.log("Error has occurred: " + e)
+            alert(e)
         }
     }
 

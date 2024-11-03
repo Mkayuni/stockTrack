@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 // Sends an email to the user that generates a code -- Return the code for frontend to verify
 const sendAuthEmail = async (req, res) => {
-    const { email } = req.body;
+    const { email } = req.params;
 
     const code = crypto.randomBytes(4).toString('hex');
     const hashed = await bcrypt.hash(code, 12);
