@@ -129,7 +129,12 @@ const loginUser = async (req, res) => {
 
 // Function to update an existing user
 const updateUser = async (req, res) => {
+
+  const userID = req.user.id;
   const { id } = req.params;
+
+  if (userID !== id)  res.status(401).json({ message: 'Invalid credentials' })
+
   try {
     const user = await User.findByPk(id);  // Find the user by ID
     if (user) {
@@ -159,6 +164,35 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// Function to verify codes and return user if codes match
+const verifyCode = async (req, res) => {
+  const { code } = req.params;
+  const { verificationCode, email, password} = req.body;
+
+  const hash_code = await bcrypt.hash(code, 12);
+
+  // Check if codes matched
+  if (hash_code !== verificationCode) res.status(401).json({ matched: false, message: 'Invalid credentials' });
+
+  // If password empty - just send if it failed or not
+  if (password === ""){
+    res.json({ matched: true })
+  }
+  // Else - change the password
+  else {
+   try {
+
+     const user = await User.findOne({where: {email: email}});
+     user.password = password;
+
+     res.json({matched: true, message: "Password has been updated"})
+
+   } catch (e) {
+     res.status(500).json({ message: 'Server error' });
+   }
+  }
 
 
-module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken, getUserByToken};
+}
+
+module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser, isEmailTaken, isUsernameTaken, getUserByToken, verifyCode};
