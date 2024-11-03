@@ -20,6 +20,7 @@ export default function ForgotPassword() {
     const [passwordError, setPasswordError] = React.useState(0);
     const [verifiedPassword, setVerifiedPassword] = React.useState("");
     const [verifiedPasswordError, setVerifiedPasswordError] = React.useState(0);
+    const [verificationCode, setVerificationCode] = React.useState("");
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleClickShowVerifiedPassword = () => setShowVerifiedPassword((show) => !show);
@@ -35,9 +36,9 @@ export default function ForgotPassword() {
     const resetPassword = async () => {
 
         // Need to know which step we are on :: Either 1 (Email) - 2 (Verification Code) - or 3 (Password)
-        if (!lockEmail) step_one_email()
-        else if (!lockCode) step_two_code()
-        else step_three_code()
+        if (!lockEmail) await step_one_email()
+        else if (!lockCode) await step_two_code ()
+        else await step_three_code()
 
     }
 
@@ -108,7 +109,7 @@ export default function ForgotPassword() {
     }
 
     // Does step 3 - Verify Passwords and reset the users password
-    function step_three_code() {
+    async function step_three_code() {
 
         // Check if password fields are empty
         password === "" ? setPasswordError(1) : setPasswordError(0);
@@ -126,12 +127,37 @@ export default function ForgotPassword() {
         }
 
         // Reset the password
+        try {
 
+            const response = await fetch ("http://localhost:3001/api/users/verify-email-code/" + verificationCode, {
+                method : 'PUT',
+                headers : {
+                    'content-type' : 'application/json',
+                },
+                body : {
+                    email: email.toLowerCase(),
+                    code: code,
+                    password: password,
+                }
+            });
+
+            // Success
+            if (response.ok) {
+                alert("Password has been updated.")
+            }
+
+        }
+        catch (e) {
+            setPasswordError(-1);
+            setVerifiedPasswordError(-1);
+
+            console.error(e);
+        }
 
     }
 
     // Does Step 2 - Verify code is correct
-    function step_two_code() {
+    async function step_two_code() {
 
         setCodeError(0);
 
@@ -142,6 +168,30 @@ export default function ForgotPassword() {
         }
 
         // Check if code is correct
+        try {
+
+            const response = await fetch ("http://localhost:3001/api/users/verify-email-code/" + verificationCode, {
+                method : 'PUT',
+                headers : {
+                    'content-type' : 'application/json',
+                },
+                body : {
+                    email: email.toLowerCase(),
+                    code: code,
+                    password: "",
+                }
+            });
+
+            const data = await response.json();
+
+            if (!data["matched"]) {
+                setCodeError(2);
+                return;
+            }
+
+        } catch (e) {
+            console.error(e);
+        }
 
         // Lock Code
         setLockCode(true);
@@ -149,7 +199,7 @@ export default function ForgotPassword() {
     }
 
     // Does Step 1 - Verify email and send code to email
-    function step_one_email() {
+    async function step_one_email() {
         setEmailError(0);
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -168,6 +218,45 @@ export default function ForgotPassword() {
 
         // Lock Email Address
         setLockEmail(true);
+
+        // Does email exist in system? (if not then do nothing)
+        try {
+            const response = await fetch ("http://localhost:3001/api/users/has-email/" + email.toLowerCase (), {
+                method : 'GET',
+                headers : {
+                    'content-type' : 'application/json',
+                }
+            });
+
+            const data = await response.json ();
+            const emailFounded = data.found;
+
+            // Email is in the system
+            if (!emailFounded) {
+                return;
+            }
+        }
+        catch (e) {
+            console.log("Error has occurred: " + e)
+        }
+
+        // Send code to email
+        try {
+            const response = await fetch('http://localhost:3001/api/email/send-code', {
+                method: 'GET',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email.toLowerCase(),
+                }),
+            });
+
+            setVerificationCode(response["code"])
+        }
+        catch (e) {
+            console.log("Error has occurred: " + e)
+        }
     }
 
     function validatePassword() {
