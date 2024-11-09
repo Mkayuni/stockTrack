@@ -8,6 +8,7 @@ import Home from './components/Home';
 import Avatar from '@mui/material/Avatar';
 import SignUp from "./components/SignUp";
 import ForgotPassword from "./components/ForgotPassword";
+import ProfileIcon from "./components/ProfileIcon";
 
 
 // Seperated into MainApp b.c location needed to be within Router
@@ -37,7 +38,7 @@ function MainApp () {
         }
 
         // Otherwise, show profile
-        return (<div className="App-Right-Profile"><Avatar>{user.firstName.charAt(0) + user.lastName.charAt(0)}</Avatar></div>);
+        return (<ProfileIcon user={user} setUser={setUser} setUserToken={setUserToken}/>);
     }
 
     return (
