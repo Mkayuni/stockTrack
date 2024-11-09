@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import {FormHelperText, IconButton, InputAdornment, OutlinedInput} from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {useNavigate} from "react-router-dom";
 
 export default function ForgotPassword() {
 
@@ -24,6 +25,8 @@ export default function ForgotPassword() {
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleClickShowVerifiedPassword = () => setShowVerifiedPassword((show) => !show);
+
+    const nav = useNavigate();
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
@@ -144,7 +147,8 @@ export default function ForgotPassword() {
 
             // Success
             if (response.ok) {
-                alert("Password has been updated.")
+                alert("Password has been updated.");
+                nav("/");
             } else {
                 const errorText = await response.text();
                 alert(errorText);

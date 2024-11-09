@@ -149,13 +149,13 @@ body::-webkit-scrollbar-thumb {
   color: white;
 }
 
-.Signup, .Forget-Password{
+.Signup, .Forget-Password, .Forgot-UsernameOrEmail {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.Signup-Form, .Forget-Password-Form {
+.Signup-Form, .Forget-Password-Form, .Forgot-UsernameOrEmail-Form {
   margin: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   justify-content: space-between;
@@ -166,7 +166,7 @@ body::-webkit-scrollbar-thumb {
   border-radius: 8px;
 }
 
-.Signup-Form-Title, .Forget-Password-Title{
+.Signup-Form-Title, .Forget-Password-Title, .Forgot-UsernameOrEmail-Title{
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -175,30 +175,36 @@ body::-webkit-scrollbar-thumb {
   margin: 20px 20px 0 20px;
 }
 
-.Signup-Form-Title p, .Forget-Password-Title p {
+.Signup-Form-Title p, .Forget-Password-Title p , .Forgot-UsernameOrEmail-Title p{
   font-weight: normal;
   font-size: 15px;
   font-style: italic;
   margin: 5px 0;
 }
 
-.Forget-Password-Title hr {
+.Forgot-UsernameOrEmail-Title hr {
+  width: 103%;
+  margin-left: -5%;
+  margin-right: -5%;
+}
+
+.Forget-Password-Title hr{
   width: 105%;
   margin-left: -5%;
   margin-right: -5%;
 }
 
-.Signup-Form-Title hr {
+.Signup-Form-Title hr{
   width: 120%;
   margin-left: -10%;
   margin-right: -10%;
 }
 
-.Signup-Form-Input, .Forget-Password-Input {
+.Signup-Form-Input, .Forget-Password-Input, .Forgot-UsernameOrEmail-Input {
   margin: 5px 20px 0 20px;
 }
 
-.Signup-Form-Footer, .Forget-Password-Footer{
+.Signup-Form-Footer, .Forget-Password-Footer, .Forgot-UsernameOrEmail-Footer {
   margin: 10px 20px 20px 20px;
 }
 
