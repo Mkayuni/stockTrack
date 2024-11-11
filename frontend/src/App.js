@@ -5,10 +5,11 @@ import './App.css';
 import LoginComponent from './components/LoginComponent';
 import StockList from './components/StockList';
 import Home from './components/Home';
-import Avatar from '@mui/material/Avatar';
+import Admin from './components/adminPanel';
 import SignUp from "./components/SignUp";
 import ForgotPassword from "./components/ForgotPassword";
 import ProfileIcon from "./components/ProfileIcon";
+import AdminPanel from "./components/adminPanel";
 
 
 // Seperated into MainApp b.c location needed to be within Router
@@ -66,6 +67,7 @@ function MainApp () {
                     <Route path="/stocks" element={<StockList/>}/>
                     <Route path="/signup" element={<SignUp/>}/>
                     <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                    <Route path="/admin-panel" element={<AdminPanel token={userToken} user={user}/>}/>
                 </Routes>
             </main>
         </div>
