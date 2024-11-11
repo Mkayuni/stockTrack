@@ -345,10 +345,10 @@ export default function LoginComponent({setUser, setUserToken}) {
                                     <div className="App-Right-SignIn-Error">{getLoginErrorMessage("email")}</div>
                                 </div>
 
-                                {/* Recovery & Sign Up Links */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
+                                {/* Recovery & Sign Up Links
+                                <div style={{ display: 'flex', justifyContent: ' space-between', flexDirection: 'row'}}>
                                     <Link to='/forgot-username-or-email' onClick={closePopper} className="App-Right-SignIn-UsernamePassword-Links"> Forgot Email or Username? </Link>
-                                </div>
+                                </div> */}
 
                                 <div className="App-Right-SignIn-UsernamePassword">
                                     <FormControl sx={{ m: 1, width: '40ch' }} variant="outlined">
