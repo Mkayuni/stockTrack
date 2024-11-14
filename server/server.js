@@ -1,51 +1,26 @@
 const express = require('express');
-require('dotenv').config();  // Load environment variables from .env
+require('dotenv').config();
 const sequelize = require('./config/db');
 const stockRoutes = require('./routes/stockRoutes');
 const userRoutes = require('./routes/userRoutes');
 const stockPriceRoutes = require('./routes/stockPriceRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const cors = require('cors');
-const WebSocket = require('ws');  // Import WebSocket library
-const fetch = require('node-fetch');  // Import node-fetch for API calls
-const { StockPrice, StockSymbol } = require('./models');  // Import StockPrice and StockSymbol models
-const emailRoutes = require('./routes/emailRoutes');
+const WebSocket = require('ws');
+const { StockPrice, StockSymbol } = require('./models');
 
 const app = express();
-const PORT = process.env.PORT || 3001;  // Use port from .env or default to 3001
+const PORT = process.env.PORT || 3001;
 
 // Use CORS before defining routes
 app.use(cors());
-
-// Middleware to parse JSON requests
 app.use(express.json());
 
-// API routes
 app.use('/api/stocks', stockRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockPriceRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/email', emailRoutes)
 
-// Webhook Endpoint for Finnhub events
-app.post('/api/webhook', async (req, res) => {
-  const secret = req.headers['x-finnhub-secret'];
-  
-  // Check if the secret matches secrete from environment
-  if (secret !== process.env.FINNHUB_SECRET_KEY) {
-    return res.status(403).json({ message: 'Unauthorized' });
-  }
-
-  // Acknowledge the event with a 200 status code
-  res.status(200).json({ message: 'Event received' });
-
-  // Logic to handle the event can be added here
-  console.log('Received Webhook Event:', req.body);
-
-  // Process the event here if needed
-});
-
-// Sync database and start server
 sequelize.sync().then(() => {
   console.log('Database synced');
   app.listen(PORT, () => {
@@ -55,19 +30,10 @@ sequelize.sync().then(() => {
   console.error('Error syncing database:', err);
 });
 
-// Optional: Global error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
-console.log('Secret Key:', process.env.FINNHUB_API_KEY);
-
-// ------ WebSocket Integration for Real-Time Updates ------ //
+// WebSocket Server for broadcasting data
 const wss = new WebSocket.Server({ port: 8080 });
 
 function broadcast(data) {
-  console.log('Broadcasting data:', data);
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(data));
@@ -75,76 +41,118 @@ function broadcast(data) {
   });
 }
 
-// Fetch stock data from the Finnhub API for all stock symbols in the database
-const fetchStockDataFromAPI = async () => {
-  try {
-    const apiKey = process.env.FINNHUB_API_KEY;
-    const stockSymbols = await StockSymbol.findAll({ attributes: ['symbol'] });
+// Environment variable to control logging
+const ENABLE_TRADE_LOGGING = process.env.ENABLE_TRADE_LOGGING === 'true';
 
-    const data = {};
-    for (const stock of stockSymbols) {
-      const symbol = stock.symbol;
-      console.log(`Fetching data for symbol: ${symbol}`);
+// Buffer to store the latest trade data
+const tradeBuffer = {};
+const lastProcessedTimestamps = { 'BTC-USD': 0 };
+const lastLogTimestamp = { 'BTC-USD': 0 };
+const BTC_THROTTLE_INTERVAL = 20000; // 20 seconds
+const LOG_INTERVAL = 10000; // Log every 10 seconds
 
-      const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`);
-      if (!response.ok) {
-        console.error(`Error fetching data for ${symbol}. Status: ${response.status}`);
-        continue;
+const mapSymbol = (webSocketSymbol) => {
+  const symbolMap = { 'BINANCE:BTCUSDT': 'BTC-USD' };
+  return symbolMap[webSocketSymbol] || webSocketSymbol;
+};
+
+// Function to process and buffer trade data
+const processTradeData = (tradeData) => {
+  const webSocketSymbol = tradeData.s;
+  const mappedSymbol = mapSymbol(webSocketSymbol);
+  const price = tradeData.p;
+  const volume = tradeData.v || null;
+  const currentTime = Date.now();
+
+  // Handle throttling for Bitcoin
+  if (mappedSymbol === 'BTC-USD') {
+    const lastProcessedTime = lastProcessedTimestamps['BTC-USD'];
+
+    // Throttle Bitcoin updates
+    if (currentTime - lastProcessedTime < BTC_THROTTLE_INTERVAL) {
+      if (currentTime - lastLogTimestamp['BTC-USD'] > LOG_INTERVAL) {
+        console.log(`Throttling Bitcoin updates: Skipping update for ${mappedSymbol}`);
+        lastLogTimestamp['BTC-USD'] = currentTime;
       }
-
-      const stockData = await response.json();
-      console.log(`Fetched data for ${symbol}:`, stockData);
-
-      if (Object.keys(stockData).length === 0) {
-        console.error(`Empty data for symbol: ${symbol}`);
-        continue;
-      }
-
-      data[symbol] = stockData;
+      return;
     }
+    lastProcessedTimestamps['BTC-USD'] = currentTime;
+  }
 
-    return data;
-  } catch (error) {
-    console.error('Error fetching stock data:', error);
+  // Buffer the latest trade data
+  tradeBuffer[mappedSymbol] = {
+    price,
+    volume,
+    timestamp: new Date()
+  };
+
+  if (ENABLE_TRADE_LOGGING) {
+    console.log(`Buffered trade for ${mappedSymbol} - Price: ${price}, Volume: ${volume}`);
   }
 };
 
-// Store stock data in the StockPrices table
-const updateStockPricesInDB = async (data) => {
-  for (const symbol in data) {
-    const stockData = data[symbol];
-    
-    // Ensure that stockData is valid and contains required fields
-    if (!stockData || stockData.o == null || stockData.c == null || stockData.h == null || stockData.l == null) {
-      console.error(`Missing required data for stock symbol ${symbol}. Skipping database update.`);
-      continue;
-    }
+// Connect to Finnhub WebSocket API for real-time data
+const connectWebSocket = () => {
+  const socket = new WebSocket(`wss://ws.finnhub.io?token=${process.env.FINNHUB_API_KEY}`);
 
-    // Handle volume: Set it to null if the volume is missing from the API response
-    const volume = stockData.v != null ? stockData.v : null;
+  socket.onopen = () => {
+    console.log('Connected to Finnhub WebSocket');
+    const symbols = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'BINANCE:BTCUSDT'];
+    symbols.forEach(symbol => {
+      console.log(`Subscribing to real-time updates for symbol: ${symbol}`);
+      socket.send(JSON.stringify({ type: 'subscribe', symbol }));
+    });
+  };
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'trade' && data.data && data.data.length > 0) {
+      const tradeData = data.data[0];
+      processTradeData(tradeData);
+    }
+  };
+
+  socket.onerror = (error) => {
+    console.error('WebSocket error:', error);
+  };
+
+  socket.onclose = () => {
+    console.log('WebSocket connection closed. Reconnecting...');
+    setTimeout(connectWebSocket, 5000);
+  };
+};
+
+// Function to save buffered data to the database
+const saveBufferedDataToDB = async () => {
+  for (const symbol in tradeBuffer) {
+    const tradeData = tradeBuffer[symbol];
 
     try {
-      const stock = await StockSymbol.findOne({ where: { symbol } });  // Find the stock ID from the symbol
-      await StockPrice.create({
-        stockId: stock.id,
-        date: new Date(),  // Adjust this to store the correct date if needed
-        open: stockData.o,
-        close: stockData.c,
-        high: stockData.h,
-        low: stockData.l,
-        volume,  // Explicitly set volume (could be null)
-      });
+      const stock = await StockSymbol.findOne({ where: { symbol } });
+
+      if (stock) {
+        await StockPrice.create({
+          stockId: stock.id,
+          date: tradeData.timestamp,
+          open: tradeData.price,
+          close: tradeData.price,
+          high: tradeData.price,
+          low: tradeData.price,
+          volume: tradeData.volume
+        });
+
+        console.log(`Saved to DB: ${symbol} - Price: ${tradeData.price}`);
+      } else {
+        console.log(`Symbol ${symbol} not found in database`);
+      }
     } catch (error) {
-      console.error(`Error updating stock prices for ${symbol} in DB:`, error);
+      console.error(`Error saving trade data for ${symbol}:`, error);
     }
   }
 };
 
-// Fetch and broadcast stock data every 1 minute
-setInterval(async () => {
-  const stockData = await fetchStockDataFromAPI();
-  if (stockData) {
-    broadcast(stockData);
-    await updateStockPricesInDB(stockData);
-  }
-}, 20000);  // Fetch stock data every 1 minute
+// Save buffered data every 30 seconds
+setInterval(saveBufferedDataToDB, 30000);
+
+// Start the WebSocket connection
+connectWebSocket();
