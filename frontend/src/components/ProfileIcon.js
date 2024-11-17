@@ -1,15 +1,11 @@
-import Avatar from "@mui/material/Avatar";
-import React, {useState} from "react";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Popover from "@mui/material/Popover";
-import {useNavigate} from "react-router-dom";
-import Box from "@mui/material/Box";
+import React, { useState } from "react";
+import { Avatar, Typography, Button, Popover, Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../globals/globalUser";  // Import the custom hook
 
-export default function ProfileIcon({user, setUser, setUserToken}) {
-
+export default function ProfileIcon() {
+    const { user, setUser } = useUser();  // Use the global user state
     const [anchorEl, setAnchorEl] = useState(null);
-
     const nav = useNavigate();
 
     const handleClick = (event) => {
@@ -21,13 +17,11 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
     };
 
     const open = Boolean(anchorEl);
-    const id = open ? 'profile-popover' : undefined;
+    const id = open ? "profile-popover" : undefined;
 
-    // Logs the user out
-    function logout () {
+    function logout() {
         setUser(null);
-        setUserToken(null);
-        nav('/');
+        nav("/");
     }
 
     function to_settings() {
@@ -42,9 +36,7 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
         const hours = new Date(Date.now()).getHours();
 
         if (hours >= 5 && hours < 12) return "Good Morning";
-
         if (hours >= 12 && hours < 17) return "Good Afternoon";
-
         if (hours >= 17 && hours < 21) return "Good Evening";
 
         return "Good Night";
@@ -53,7 +45,7 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
     return (
         <>
             <div className="App-Right-Profile" onClick={handleClick}>
-                <Avatar>{user.firstName.charAt (0) + user.lastName.charAt (0)}</Avatar>
+                <Avatar>{user.firstName.charAt(0) + user.lastName.charAt(0)}</Avatar>
             </div>
 
             <Popover
@@ -62,24 +54,30 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
+                    vertical: "bottom",
+                    horizontal: "right",
                 }}
                 transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    vertical: "top",
+                    horizontal: "right",
                 }}
             >
-                <Typography sx={{ p: 1, textAlign: 'center', borderBottom: '2px solid #ccc' }}>
+                <Typography sx={{ p: 1, textAlign: "center", borderBottom: "2px solid #ccc" }}>
                     {get_greeting() + ", " + user.firstName}!
                 </Typography>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                     {user.role === "admin" ? (
-                        <Button style={{width: '100%'}} onClick={to_admin_panel}>Admin Panel</Button>
+                        <Button style={{ width: "100%" }} onClick={to_admin_panel}>
+                            Admin Panel
+                        </Button>
                     ) : null}
-                    <Button onClick={to_settings} style={{width: '100%'}}>Settings</Button>
-                    <Button style={{color: 'red', width: '100%'}} onClick={logout}>Logout</Button>
+                    <Button onClick={to_settings} style={{ width: "100%" }}>
+                        Settings
+                    </Button>
+                    <Button style={{ color: "red", width: "100%" }} onClick={logout}>
+                        Logout
+                    </Button>
                 </Box>
             </Popover>
         </>

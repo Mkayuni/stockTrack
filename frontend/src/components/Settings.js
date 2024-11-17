@@ -8,11 +8,13 @@ import InputLabel from "@mui/material/InputLabel";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import CircularProgress from "@mui/material/CircularProgress";
 import api from "../services/api";
+import { useUser} from "../globals/globalUser";
 
-export default function Settings({ token, user }) {
+export default function Settings({ token }) {
 
     const navigate = useNavigate();
 
+    const { user, setUser } = useUser();
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -27,6 +29,18 @@ export default function Settings({ token, user }) {
         if (!user) {
             navigate('/');  // Redirect to home if user is undefined
         } else {
+            setLoading(false); // User is set, stop loading
+        }
+    }, [user, navigate]);
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/');  // Redirect to home if user is undefined
+        } else {
+            setFirstName(user.firstName);
+            setLastName(user.lastName);
+            setEmail(user.email);
+            setUsername(user.username);
             setLoading(false); // User is set, stop loading
         }
     }, [user, navigate]);
@@ -50,7 +64,6 @@ export default function Settings({ token, user }) {
 
     const updateNames = async () => {
         try {
-
             const updatedData = {
                 id: user.id,
                 firstName: firstName,
@@ -58,7 +71,7 @@ export default function Settings({ token, user }) {
                 email: user.email,
                 username: user.username,
                 password: user.password,
-            }
+            };
 
             const response = await api.put('/api/users/self', updatedData, {
                 headers: {
@@ -66,10 +79,17 @@ export default function Settings({ token, user }) {
                 },
             });
 
+            // Update the global user state with the updated data
+            setUser({
+                ...user,
+                firstName: response.data.firstName,
+                lastName: response.data.lastName,
+            });
+
         } catch (err) {
             alert(err);
         }
-    }
+    };
 
     const password_field = (verified) => {
         return (
