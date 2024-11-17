@@ -11,6 +11,7 @@ export default function AdminPanel({ token, user }) {
     const [input, setInput] = useState('');
     const [responses, setResponses] = useState([]);
     const [symbols, setSymbols] = useState([]);
+    const [users, setUsers] = useState([]);
 
     const handleAddResponse = () => {
         if (input.trim()) {
@@ -50,6 +51,25 @@ export default function AdminPanel({ token, user }) {
         };
 
         fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await api.get('/api/users', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setUsers(response.data);
+            } catch (err) {
+                alert(err);
+                setUsers([]);
+            }
+        }
+
+        fetchUsers()
     }, []);
 
     useEffect(() => {
@@ -98,7 +118,7 @@ export default function AdminPanel({ token, user }) {
                     textAlign : 'center',
                     borderBottom : '2px solid #ccc',
                     paddingBottom : '5px',
-                    width: '90%',
+                    width : '90%',
                 }}>
                     Add or Remove Stocks
                 </h2>
@@ -117,45 +137,104 @@ export default function AdminPanel({ token, user }) {
                         variant="contained"
                         color="primary"
                         sx={{mt : 2}}
-                        style={{width : "80%"}}
+                        style={{width : "100%"}}
                     >
                         Add
                     </Button>
 
                     <Box sx={{
-                        display: 'grid', // Use grid layout
-                        gridTemplateColumns: 'repeat(3, 1fr)', // Create 3 equal columns
-                        gap: 1, // Space between items
-                        mt: 3,
+                        display : 'grid',
+                        gridTemplateColumns : 'repeat(3, 1fr)',
+                        gap : 1,
+                        mt : 3,
                     }}>
-                        {responses.map((response, index) => (
+                        {responses.map ((response, index) => (
                             <Box
                                 key={response.id}
                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    backgroundColor: '#007bff',
-                                    color: 'white',
-                                    padding: '8px 12px',
-                                    borderRadius: '4px',
-                                    justifyContent: 'space-between',
-                                    fontSize: '15px',
-                                    height: '40px', // Reduce height
+                                    display : 'flex',
+                                    alignItems : 'center',
+                                    backgroundColor : '#007bff',
+                                    color : 'white',
+                                    padding : '8px 12px',
+                                    borderRadius : '4px',
+                                    justifyContent : 'space-between',
+                                    fontSize : '15px',
+                                    height : '40px', // Reduce height
                                 }}
                             >
                                 <span>{response.symbol}</span>
                                 <Button
-                                    onClick={() => handleRemoveResponse(index)}
+                                    onClick={() => handleRemoveResponse (index)}
                                     variant="text"
                                     sx={{
-                                        color: 'white',
-                                        ml: 1,
-                                        minWidth: 'auto',
-                                        padding: '0',
+                                        color : 'white',
+                                        ml : 1,
+                                        minWidth : 'auto',
+                                        padding : '0',
                                     }}
                                 >
                                     X
                                 </Button>
+                            </Box>
+                        ))}
+                    </Box>
+                </Box>
+            </div>
+
+            <div className="AdminPanel-Users">
+                <h2 style={{
+                    marginBottom : '10px',
+                    textAlign : 'center',
+                    borderBottom : '2px solid #ccc',
+                    paddingBottom : '5px',
+                    width : '90%',
+                }}>
+                    All Users
+                </h2>
+                <br/>
+                <Box sx={{maxWidth : '400px', margin : '-35px 20px 20px 20px', textAlign : 'center'}}>
+                    <Box sx={{
+                        display : 'grid',
+                        gridTemplateColumns : 'repeat(3, 1fr)',
+                        gap : 1,
+                        mt : 3,
+                    }}>
+                        {users.map((user, index) => (
+                            <Box
+                                key={user.id}
+                                sx={{
+                                    display : 'flex',
+                                    alignItems : 'center',
+                                    backgroundColor : '#007bff',
+                                    color : 'white',
+                                    padding : '8px 12px',
+                                    borderRadius : '4px',
+                                    justifyContent : 'space-between',
+                                    fontSize : '15px',
+                                    height : '40px', // Adjust height
+                                }}
+                            >
+                                {/* Avatar with initials */}
+                                <Box
+                                    sx={{
+                                        width : '30px',
+                                        height : '30px',
+                                        backgroundColor : '#ffffff',
+                                        color : '#007bff',
+                                        borderRadius : '50%',
+                                        display : 'flex',
+                                        alignItems : 'center',
+                                        justifyContent : 'center',
+                                        fontWeight : 'bold',
+                                        fontSize : '14px',
+                                        marginRight : '10px',
+                                    }}
+                                >
+                                    {user.firstName[0] + user.lastName[0]}
+                                </Box>
+
+                                <span>{user.firstName}</span>
                             </Box>
                         ))}
                     </Box>
