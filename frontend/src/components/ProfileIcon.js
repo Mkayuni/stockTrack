@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Popover from "@mui/material/Popover";
 import {useNavigate} from "react-router-dom";
+import Box from "@mui/material/Box";
 
 export default function ProfileIcon({user, setUser, setUserToken}) {
 
@@ -32,6 +33,18 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
         nav("/admin-panel");
     }
 
+    function get_greeting() {
+        const hours = new Date(Date.now()).getHours();
+
+        if (hours >= 5 && hours < 12) return "Good Morning";
+
+        if (hours >= 12 && hours < 17) return "Good Afternoon";
+
+        if (hours >= 17 && hours < 21) return "Good Evening";
+
+        return "Good Night";
+    }
+
     return (
         <>
             <div className="App-Right-Profile" onClick={handleClick}>
@@ -44,17 +57,25 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical : 'bottom',
-                    horizontal : 'right',
+                    vertical: 'bottom',
+                    horizontal: 'right',
                 }}
                 transformOrigin={{
-                    vertical : 'top',
-                    horizontal : 'right',
+                    vertical: 'top',
+                    horizontal: 'right',
                 }}
             >
-                <Typography sx={{p : 2}}>Hello {user.firstName}!</Typography>
-                {user.role === "admin" ? <Button onClick={to_admin_panel}>Admin Panel</Button> : ""}
-                <Button onClick={logout}>Logout</Button>
+                <Typography sx={{ p: 1, textAlign: 'center', borderBottom: '2px solid #ccc' }}>
+                    {get_greeting() + ", " + user.firstName}!
+                </Typography>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    {user.role === "admin" ? (
+                        <Button style={{width: '100%'}} onClick={to_admin_panel}>Admin Panel</Button>
+                    ) : null}
+                    <Button style={{width: '100%'}}>Settings</Button>
+                    <Button style={{color: 'red', width: '100%'}} onClick={logout}>Logout</Button>
+                </Box>
             </Popover>
         </>
     );
