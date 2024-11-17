@@ -14,8 +14,7 @@ export default function AdminPanel({ token, user }) {
 
     const handleAddResponse = () => {
         if (input.trim()) {
-            // Assuming the symbol has an ID when added (you might need to add logic for ID generation)
-            const newSymbol = { symbol: input.trim(), id: Date.now() }; // Using Date.now() as an example ID
+            const newSymbol = { symbol: input.trim()};
             setResponses([...responses, newSymbol]);
             setInput('');
         }
@@ -37,14 +36,13 @@ export default function AdminPanel({ token, user }) {
             try {
                 const response = await api.get('/api/admin/symbols');
 
-                // Assuming response.data is an array of symbol objects
                 const fetchedSymbols = response.data.map(symbol => ({
                     symbol: symbol.symbol,
                     id: symbol.id,
                 }));
 
                 setSymbols(fetchedSymbols);
-                setResponses(fetchedSymbols);  // Initialize responses with symbols from the server
+                setResponses(fetchedSymbols);
 
             } catch (err) {
                 alert(err);
@@ -88,35 +86,51 @@ export default function AdminPanel({ token, user }) {
             }
         };
 
-        handleDeletion(); // Call the async function
+        handleDeletion();
 
     }, [responses]);
 
     return (
         <div className="AdminPanel">
             <div className="AdminPanel-Stocks">
-                <Box sx={{ maxWidth: '400px', margin: '20px auto', textAlign: 'center' }}>
+                <h2 style={{
+                    marginBottom : '10px',
+                    textAlign : 'center',
+                    borderBottom : '2px solid #ccc',
+                    paddingBottom : '5px',
+                    width: '90%',
+                }}>
+                    Add or Remove Stocks
+                </h2>
+                <br/>
+                <Box sx={{maxWidth : '400px', margin : '-7px 20px 20px 20px', textAlign : 'center'}}>
                     <TextField
                         label="Stock Name"
                         variant="outlined"
                         type="search"
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={(e) => setInput (e.target.value)}
                         fullWidth
                     />
                     <Button
                         onClick={handleAddResponse}
                         variant="contained"
                         color="primary"
-                        sx={{ mt: 2 }}
+                        sx={{mt : 2}}
+                        style={{width : "80%"}}
                     >
                         Add
                     </Button>
 
-                    <Box sx={{ mt: 3 }}>
+                    <Box sx={{
+                        display: 'grid', // Use grid layout
+                        gridTemplateColumns: 'repeat(3, 1fr)', // Create 3 equal columns
+                        gap: 1, // Space between items
+                        mt: 3,
+                    }}>
                         {responses.map((response, index) => (
                             <Box
-                                key={response.id}  // Use the id as the key
+                                key={response.id}
                                 sx={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -124,8 +138,9 @@ export default function AdminPanel({ token, user }) {
                                     color: 'white',
                                     padding: '8px 12px',
                                     borderRadius: '4px',
-                                    mt: 1,
                                     justifyContent: 'space-between',
+                                    fontSize: '15px',
+                                    height: '40px', // Reduce height
                                 }}
                             >
                                 <span>{response.symbol}</span>
