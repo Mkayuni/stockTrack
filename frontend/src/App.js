@@ -5,11 +5,11 @@ import './App.css';
 import LoginComponent from './components/LoginComponent';
 import StockList from './components/StockList';
 import Home from './components/Home';
-import Admin from './components/adminPanel';
 import SignUp from "./components/SignUp";
 import ForgotPassword from "./components/ForgotPassword";
 import ProfileIcon from "./components/ProfileIcon";
 import AdminPanel from "./components/adminPanel";
+import Settings from "./components/Settings";
 
 
 // Seperated into MainApp b.c location needed to be within Router
@@ -23,7 +23,7 @@ function App () {
 
 function MainApp () {
 
-    const [user, setUser] = useState ([]); // Empty or null if user is not logged in
+    const [user, setUser] = useState (null); // Empty or null if user is not logged in
     const [userToken, setUserToken] = useState(null);
 
     // Grab the current page and check if it is the home page
@@ -68,6 +68,7 @@ function MainApp () {
                     <Route path="/signup" element={<SignUp/>}/>
                     <Route path="/forgot-password" element={<ForgotPassword/>}/>
                     <Route path="/admin-panel" element={<AdminPanel token={userToken} user={user}/>}/>
+                    <Route path="/settings" element={<Settings token={userToken} user={user}/>}/>
                 </Routes>
             </main>
         </div>

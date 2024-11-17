@@ -129,22 +129,24 @@ const loginUser = async (req, res) => {
 
 // Function to update an existing user
 const updateUser = async (req, res) => {
-
   const userID = req.user.id;
-  const { id } = req.params;
+  const { id } = req.body;
 
-  if (userID !== id)  res.status(401).json({ message: 'Invalid credentials' })
+  // If the user is not authorized, return an early response
+  if (userID !== id) {
+    return res.status(401).json({ message: 'Invalid credentials' });  // Make sure to return here
+  }
 
   try {
     const user = await User.findByPk(id);  // Find the user by ID
     if (user) {
       await user.update(req.body);  // Update the user with the request body data
-      res.json(user);  // Return the updated user
+      return res.json(user);  // Return the updated user (make sure to return here)
     } else {
-      res.status(404).json({ message: 'User not found' });  // Handle not found case
+      return res.status(404).json({ message: 'User not found' });  // Handle not found case (return early)
     }
   } catch (error) {
-    res.status(400).json({ message: 'Bad request', error: error.message });  // Handle errors, e.g., validation issues
+    return res.status(400).json({ message: 'Bad request', error: error.message });  // Handle errors, e.g., validation issues
   }
 };
 

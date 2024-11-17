@@ -149,14 +149,18 @@ body::-webkit-scrollbar-thumb {
   color: white;
 }
 
-.AdminPanel {
+.AdminPanel, .Settings{
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
 }
 
-.AdminPanel-Stocks, .AdminPanel-Users {
+.Settings-ChangePassword, .Settings-Name, .Settings-Email, .Settings-Username {
+  min-height: 330px;
+}
+
+.AdminPanel-Stocks, .AdminPanel-Users, .Settings-ChangePassword, .Settings-Name, .Settings-Email, .Settings-Username {
   margin: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   justify-content: space-between;
@@ -169,7 +173,7 @@ body::-webkit-scrollbar-thumb {
   min-width: 250px;
 }
 
-.Signup, .Forget-Password, .Forgot-UsernameOrEmail {
+.Signup, .Forget-Password, .Forgot-UsernameOrEmail{
   display: flex;
   flex-direction: column;
   align-items: center;

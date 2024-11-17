@@ -27,6 +27,11 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
     function logout () {
         setUser(null);
         setUserToken(null);
+        nav('/');
+    }
+
+    function to_settings() {
+        nav("/settings");
     }
 
     function to_admin_panel() {
@@ -73,7 +78,7 @@ export default function ProfileIcon({user, setUser, setUserToken}) {
                     {user.role === "admin" ? (
                         <Button style={{width: '100%'}} onClick={to_admin_panel}>Admin Panel</Button>
                     ) : null}
-                    <Button style={{width: '100%'}}>Settings</Button>
+                    <Button onClick={to_settings} style={{width: '100%'}}>Settings</Button>
                     <Button style={{color: 'red', width: '100%'}} onClick={logout}>Logout</Button>
                 </Box>
             </Popover>
