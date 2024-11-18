@@ -22,10 +22,14 @@ export default function SignUp() {
     const [emailError, setEmailError] = React.useState(false);
     const [passwordError, setPasswordError] = React.useState(false);
     const [usernameError, setUsernameError] = React.useState(false);
+    const [verifiedPassword, setVerifiedPassword] = React.useState("");
+    const [verifiedPasswordError, setVerifiedPasswordError] = React.useState(false);
+    const [showVerifiedPassword, setShowVerifiedPassword] = React.useState(false);
 
     const nav = useNavigate();
 
 
+    const handleClickShowVerifiedPassword = () => setShowVerifiedPassword((show) => !show);
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
     const handleMouseDownPassword = (event) => {
@@ -35,6 +39,45 @@ export default function SignUp() {
     const handleMouseUpPassword = (event) => {
         event.preventDefault();
     };
+
+    const password_field = (verified) => {
+        return (
+            <FormControl sx={{m : 1, width : '62ch'}} variant="outlined">
+                <InputLabel htmlFor="outlined-adornment-password" required>{verified ? "Verify Password" : "New Password"}</InputLabel>
+                <OutlinedInput
+                    id="outlined-adornment-password"
+                    type={verified ? (showVerifiedPassword ? 'text' : 'password') : (showPassword ? 'text' : 'password')}
+                    onChange={(e) => verified ? setVerifiedPassword(e.target.value) : setPassword (e.target.value)}
+                    required
+                    endAdornment={
+                        <InputAdornment position="end">
+                            <IconButton
+                                aria-label={
+                                    verified ? (showVerifiedPassword ? 'hide password' : 'show password') : (showPassword ? 'hide password' : 'show password')
+                                }
+                                onClick={verified ? handleClickShowVerifiedPassword : handleClickShowPassword}
+                                onMouseDown={handleMouseDownPassword}
+                                onMouseUp={handleMouseUpPassword}
+                                edge="end"
+                            >
+                                {showPassword ? <VisibilityOff/> : <Visibility/>}
+                            </IconButton>
+                        </InputAdornment>
+                    }
+                    label={verified ? "Verify Password" : "Password"}
+                    sx={{
+                        '& fieldset' : {
+                            borderColor : (verified ? verifiedPasswordError : passwordError) ? 'red' : 'grey',
+                        },
+                    }}
+                />
+
+                <FormHelperText style={{textAlign : 'center'}}>
+                    {verified ? "Reenter your password for verification." : "Your password should be at least 8 characters long, and include at least one uppercase letter and one number. Adding special characters is recommended for extra security."}
+                </FormHelperText>
+            </FormControl>
+        );
+    }
 
     const registerUser = async () => {
         let isValid = true;
@@ -62,6 +105,12 @@ export default function SignUp() {
             isValid = false;
             setPasswordError(true);
         } else setPasswordError(false);
+
+        // Is validate password matching conditions?
+        if (!validateVerifyPassword()) {
+            isValid = false;
+            setVerifiedPasswordError(true);
+        } else setVerifiedPasswordError(false);
 
         // If an error occur, return early
         if (!isValid) {
@@ -215,6 +264,23 @@ export default function SignUp() {
         return isValid;
     }
 
+    function validateVerifyPassword() {
+
+        // Is verify password empty?
+        if (verifiedPassword === "") {
+            setSignupError(prev => [...prev, 14]);
+            return false;
+        }
+
+        // Does validate password match password?
+        if (password !== verifiedPassword) {
+            setSignupError(prev => [...prev, 15]);
+            return false;
+        }
+
+        return true;
+    }
+
     function blankFieldsCheck() {
 
         let empty = false;
@@ -366,6 +432,23 @@ export default function SignUp() {
 
                     break;
 
+                case 14: // verify password is blank
+                    if (type === 'verify-password') {
+                        message = "Verifying your password is required";
+                        return message;
+                    }
+
+                    break;
+
+                case 15: // verify password does not match password
+                    if (type === 'verify-password') {
+                        message = "Passwords do not match";
+                        return message;
+                    }
+
+                    break;
+
+
                 default: // Unknown Error
                     return ('Unknown Error code: ' + err)
             }
@@ -488,47 +571,16 @@ export default function SignUp() {
                         <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("username")}</div>
                     </div>
 
-                    <div>
-                        {/* Password */}
-                        <FormControl sx={{m : 1, width : '62ch'}} variant="outlined">
-                            <InputLabel htmlFor="outlined-adornment-password" required>Password</InputLabel>
-                            <OutlinedInput
-                                id="outlined-adornment-password"
-                                type={showPassword ? 'text' : 'password'}
-                                onChange={(e) => setPassword (e.target.value)}
-                                required
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide password' : 'show password'
-                                            }
-                                            onClick={handleClickShowPassword}
-                                            onMouseDown={handleMouseDownPassword}
-                                            onMouseUp={handleMouseUpPassword}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                label="Password"
-                                sx={{
-                                    '& fieldset' : {
-                                        borderColor : passwordError ? 'red' : 'grey',
-                                    },
-                                }}
-                            />
-
-                            <FormHelperText style={{textAlign : 'center'}}>
-                                Your password should be at least 8 characters long, and include at least one uppercase
-                                letter and one number. Adding special characters is recommended for extra security.
-                            </FormHelperText>
-                        </FormControl>
-                    </div>
+                    <div>{password_field (false)}</div>
 
                     <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
                         <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("password")}</div>
+                    </div>
+
+                    <div>{password_field (true)}</div>
+
+                    <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                        <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("verify-password")}</div>
                     </div>
 
                 </div>
