@@ -130,7 +130,7 @@ const loginUser = async (req, res) => {
 // Function to update an existing user
 const updateUser = async (req, res) => {
   const userID = req.user.id;
-  const { id } = req.body;
+  const { id, password} = req.body;
 
   // If the user is not authorized, return an early response
   if (userID !== id) {
@@ -140,6 +140,7 @@ const updateUser = async (req, res) => {
   try {
     const user = await User.findByPk(id);  // Find the user by ID
     if (user) {
+      req.body.password = await bcrypt.hash(password, 10);
       await user.update(req.body);  // Update the user with the request body data
       return res.json(user);  // Return the updated user (make sure to return here)
     } else {

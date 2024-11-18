@@ -91,6 +91,90 @@ export default function Settings({ token }) {
         }
     };
 
+    const updateEmail = async () => {
+        try {
+            const updatedData = {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: email,
+                username: user.username,
+                password: user.password,
+            };
+
+            const response = await api.put('/api/users/self', updatedData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            // Update the global user state with the updated data
+            setUser({
+                ...user,
+                email: response.data.email,
+            });
+
+        } catch (err) {
+            alert(err);
+        }
+    };
+
+    const updateUsername = async () => {
+        try {
+            const updatedData = {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                username: username,
+                password: user.password,
+            };
+
+            const response = await api.put('/api/users/self', updatedData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            // Update the global user state with the updated data
+            setUser({
+                ...user,
+                username: response.data.username,
+            });
+
+        } catch (err) {
+            alert(err);
+        }
+    };
+
+    const updatePassword = async () => {
+        try {
+            const updatedData = {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                username: user.username,
+                password: password,
+            };
+
+            const response = await api.put('/api/users/self', updatedData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            // Update the global user state with the updated data
+            setUser({
+                ...user,
+                password: password,
+            });
+
+        } catch (err) {
+            alert(err);
+        }
+    };
+
     const password_field = (verified) => {
         return (
             <FormControl sx={{m : 1, width : '62ch'}} variant="outlined">
@@ -148,7 +232,7 @@ export default function Settings({ token }) {
 
                 {password_field (true)}
 
-                <Button variant="contained" /*onClick={() => registerUser ()}*/ sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Change Password</Button>
+                <Button variant="contained" onClick={() => updatePassword ()} sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Change Password</Button>
             </div>
 
             <div className="Settings-Name">
@@ -232,7 +316,7 @@ export default function Settings({ token }) {
                     />
                 </FormControl>
 
-                <Button variant="contained" /*onClick={() => registerUser ()}*/ sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Email</Button>
+                <Button variant="contained" onClick={() => updateEmail ()} sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Email</Button>
             </div>
 
             <div className="Settings-Username">
@@ -272,7 +356,7 @@ export default function Settings({ token }) {
 
                 </FormControl>
 
-                <Button variant="contained" /*onClick={() => registerUser ()}*/ sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Username</Button>
+                <Button variant="contained" onClick={() => updateUsername ()} sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Username</Button>
             </div>
         </div>
     );
