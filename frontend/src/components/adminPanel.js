@@ -11,11 +11,11 @@ export default function AdminPanel({ token, user }) {
     const [input, setInput] = useState('');
     const [responses, setResponses] = useState([]);
     const [symbols, setSymbols] = useState([]);
+    const [users, setUsers] = useState([]);
 
     const handleAddResponse = () => {
         if (input.trim()) {
-            // Assuming the symbol has an ID when added (you might need to add logic for ID generation)
-            const newSymbol = { symbol: input.trim(), id: Date.now() }; // Using Date.now() as an example ID
+            const newSymbol = { symbol: input.trim()};
             setResponses([...responses, newSymbol]);
             setInput('');
         }
@@ -37,14 +37,13 @@ export default function AdminPanel({ token, user }) {
             try {
                 const response = await api.get('/api/admin/symbols');
 
-                // Assuming response.data is an array of symbol objects
                 const fetchedSymbols = response.data.map(symbol => ({
                     symbol: symbol.symbol,
                     id: symbol.id,
                 }));
 
                 setSymbols(fetchedSymbols);
-                setResponses(fetchedSymbols);  // Initialize responses with symbols from the server
+                setResponses(fetchedSymbols);
 
             } catch (err) {
                 alert(err);
@@ -52,6 +51,25 @@ export default function AdminPanel({ token, user }) {
         };
 
         fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await api.get('/api/users', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setUsers(response.data);
+            } catch (err) {
+                alert(err);
+                setUsers([]);
+            }
+        }
+
+        fetchUsers()
     }, []);
 
     useEffect(() => {
@@ -88,59 +106,135 @@ export default function AdminPanel({ token, user }) {
             }
         };
 
-        handleDeletion(); // Call the async function
+        handleDeletion();
 
     }, [responses]);
 
     return (
         <div className="AdminPanel">
             <div className="AdminPanel-Stocks">
-                <Box sx={{ maxWidth: '400px', margin: '20px auto', textAlign: 'center' }}>
+                <h2 style={{
+                    marginBottom : '10px',
+                    textAlign : 'center',
+                    borderBottom : '2px solid #ccc',
+                    paddingBottom : '5px',
+                    width : '90%',
+                }}>
+                    Add or Remove Stocks
+                </h2>
+                <br/>
+                <Box sx={{maxWidth : '400px', margin : '-7px 20px 20px 20px', textAlign : 'center'}}>
                     <TextField
                         label="Stock Name"
                         variant="outlined"
                         type="search"
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={(e) => setInput (e.target.value)}
                         fullWidth
                     />
                     <Button
                         onClick={handleAddResponse}
                         variant="contained"
                         color="primary"
-                        sx={{ mt: 2 }}
+                        sx={{mt : 2}}
+                        style={{width : "100%"}}
                     >
                         Add
                     </Button>
 
-                    <Box sx={{ mt: 3 }}>
-                        {responses.map((response, index) => (
+                    <Box sx={{
+                        display : 'grid',
+                        gridTemplateColumns : 'repeat(3, 1fr)',
+                        gap : 1,
+                        mt : 3,
+                    }}>
+                        {responses.map ((response, index) => (
                             <Box
-                                key={response.id}  // Use the id as the key
+                                key={response.id}
                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    backgroundColor: '#007bff',
-                                    color: 'white',
-                                    padding: '8px 12px',
-                                    borderRadius: '4px',
-                                    mt: 1,
-                                    justifyContent: 'space-between',
+                                    display : 'flex',
+                                    alignItems : 'center',
+                                    backgroundColor : '#007bff',
+                                    color : 'white',
+                                    padding : '8px 12px',
+                                    borderRadius : '4px',
+                                    justifyContent : 'space-between',
+                                    fontSize : '15px',
+                                    height : '40px', // Reduce height
                                 }}
                             >
                                 <span>{response.symbol}</span>
                                 <Button
-                                    onClick={() => handleRemoveResponse(index)}
+                                    onClick={() => handleRemoveResponse (index)}
                                     variant="text"
                                     sx={{
-                                        color: 'white',
-                                        ml: 1,
-                                        minWidth: 'auto',
-                                        padding: '0',
+                                        color : 'white',
+                                        ml : 1,
+                                        minWidth : 'auto',
+                                        padding : '0',
                                     }}
                                 >
                                     X
                                 </Button>
+                            </Box>
+                        ))}
+                    </Box>
+                </Box>
+            </div>
+
+            <div className="AdminPanel-Users">
+                <h2 style={{
+                    marginBottom : '10px',
+                    textAlign : 'center',
+                    borderBottom : '2px solid #ccc',
+                    paddingBottom : '5px',
+                    width : '90%',
+                }}>
+                    All Users
+                </h2>
+                <br/>
+                <Box sx={{maxWidth : '400px', margin : '-35px 20px 20px 20px', textAlign : 'center'}}>
+                    <Box sx={{
+                        display : 'grid',
+                        gridTemplateColumns : 'repeat(3, 1fr)',
+                        gap : 1,
+                        mt : 3,
+                    }}>
+                        {users.map((user, index) => (
+                            <Box
+                                key={user.id}
+                                sx={{
+                                    display : 'flex',
+                                    alignItems : 'center',
+                                    backgroundColor : '#007bff',
+                                    color : 'white',
+                                    padding : '8px 12px',
+                                    borderRadius : '4px',
+                                    justifyContent : 'space-between',
+                                    fontSize : '15px',
+                                    height : '40px', // Adjust height
+                                }}
+                            >
+                                {/* Avatar with initials */}
+                                <Box
+                                    sx={{
+                                        width : '30px',
+                                        height : '30px',
+                                        backgroundColor : '#ffffff',
+                                        color : '#007bff',
+                                        borderRadius : '50%',
+                                        display : 'flex',
+                                        alignItems : 'center',
+                                        justifyContent : 'center',
+                                        fontWeight : 'bold',
+                                        fontSize : '14px',
+                                        marginRight : '10px',
+                                    }}
+                                >
+                                    {user.firstName[0] + user.lastName[0]}
+                                </Box>
+
+                                <span>{user.firstName}</span>
                             </Box>
                         ))}
                     </Box>
