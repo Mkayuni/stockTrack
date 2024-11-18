@@ -9,6 +9,7 @@ import {Visibility, VisibilityOff} from "@mui/icons-material";
 import CircularProgress from "@mui/material/CircularProgress";
 import api from "../services/api";
 import { useUser} from "../globals/globalUser";
+import {validateUsername, validatePassword, validateVerifyPassword, validateEmail, blankFieldsCheck, getLoginErrorMessage} from "../globals/validationFunctions";
 
 export default function Settings({ token }) {
 
@@ -24,6 +25,14 @@ export default function Settings({ token }) {
     const [verifiedPassword, setVerifiedPassword] = React.useState("");
     const [loading, setLoading] = useState(true);
     const [showVerifiedPassword, setShowVerifiedPassword] = React.useState(false);
+
+    const [errors, setErrors] = React.useState([]);
+    const [lnameError, setLnameError] = React.useState(false);
+    const [fnameError, setFNameError] = React.useState(false);
+    const [emailError, setEmailError] = React.useState(false);
+    const [passwordError, setPasswordError] = React.useState(false);
+    const [usernameError, setUsernameError] = React.useState(false);
+    const [verifiedPasswordError, setVerifiedPasswordError] = React.useState(false);
 
     useEffect(() => {
         if (!user) {
@@ -63,6 +72,13 @@ export default function Settings({ token }) {
     };
 
     const updateNames = async () => {
+
+        removeErrors([10, 11])
+
+        if (blankFieldsCheck(firstName, lastName, setFNameError, setLnameError, setErrors)) {
+            return;
+        }
+
         try {
             const updatedData = {
                 id: user.id,
@@ -92,6 +108,14 @@ export default function Settings({ token }) {
     };
 
     const updateEmail = async () => {
+
+        removeErrors([-2, 2, 3, 9])
+
+        if (!await validateEmail (email, setErrors)) {
+            setEmailError(true);
+            return;
+        } else setEmailError(false);
+
         try {
             const updatedData = {
                 id: user.id,
@@ -120,6 +144,14 @@ export default function Settings({ token }) {
     };
 
     const updateUsername = async () => {
+
+        removeErrors([-1, 1, 7, 12, 13])
+
+        if (!await validateUsername(username, setErrors)) {
+            setUsernameError(true);
+            return;
+        } else setUsernameError(false);
+
         try {
             const updatedData = {
                 id: user.id,
@@ -148,6 +180,26 @@ export default function Settings({ token }) {
     };
 
     const updatePassword = async () => {
+
+        removeErrors([8, 6, 5, 4, 14, 15])
+
+        let isValid = true;
+
+        if (!validatePassword(password, setErrors)) {
+            isValid = false;
+            setPasswordError(true);
+        } else setPasswordError(false);
+
+        if (!validateVerifyPassword(verifiedPassword, password, setErrors)) {
+            isValid = false;
+            setVerifiedPasswordError(true);
+        } else setVerifiedPasswordError(false);
+
+        // If an error occur, return early
+        if (!isValid) {
+            return;
+        }
+
         try {
             const updatedData = {
                 id: user.id,
@@ -202,7 +254,7 @@ export default function Settings({ token }) {
                     label={verified ? "Verify Password" : "New Password"}
                     sx={{
                         '& fieldset' : {
-                            //borderColor : (verified ? verifiedPasswordError : passwordError) !== 0 ? 'red' : 'grey',
+                            borderColor : (verified ? verifiedPasswordError : passwordError) ? 'red' : 'grey',
                         },
                     }}
                 />
@@ -212,6 +264,10 @@ export default function Settings({ token }) {
                 </FormHelperText>
             </FormControl>
         );
+    }
+
+    function removeErrors(errorsToRemove) {
+        setErrors(prevErrors => prevErrors.filter(err => !errorsToRemove.includes(err)));
     }
 
     return (
@@ -230,9 +286,18 @@ export default function Settings({ token }) {
 
                 {password_field (false)}
 
+                <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("password", errors)}</div>
+                </div>
+
                 {password_field (true)}
 
-                <Button variant="contained" onClick={() => updatePassword ()} sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Change Password</Button>
+                <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("verify-password", errors)}</div>
+                </div>
+
+                <Button variant="contained" onClick={() => updatePassword ()}
+                        sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Change Password</Button>
             </div>
 
             <div className="Settings-Name">
@@ -258,14 +323,17 @@ export default function Settings({ token }) {
                         sx={{
                             '& .MuiOutlinedInput-root' : {
                                 '& fieldset' : {
-                                    //borderColor : fnameError ? 'red' : 'grey',
+                                    borderColor : fnameError ? 'red' : 'grey',
                                 },
                             },
                         }}
                     />
                 </FormControl>
 
-                <FormControl sx={{m : 1, width : '30ch'}} style={{flexGrow : '1', margin : '8px 0', paddingTop : '22px'}} variant="outlined">
+                <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("fname", errors)}</div>
+
+                <FormControl sx={{m : 1, width : '30ch'}}
+                             style={{flexGrow : '1', margin : '8px 0', paddingTop : '22px'}} variant="outlined">
                     <TextField
                         required
                         id="lname"
@@ -275,7 +343,7 @@ export default function Settings({ token }) {
                         sx={{
                             '& .MuiOutlinedInput-root' : {
                                 '& fieldset' : {
-                                    //borderColor : lnameError ? 'red' : 'grey',
+                                    borderColor : lnameError ? 'red' : 'grey',
                                 },
                             },
                         }}
@@ -283,7 +351,10 @@ export default function Settings({ token }) {
                     />
                 </FormControl>
 
-                <Button variant="contained" onClick={() => updateNames ()} sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Name</Button>
+                <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("lname", errors)}</div>
+
+                <Button variant="contained" onClick={() => updateNames ()}
+                        sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Name</Button>
             </div>
 
             <div className="Settings-Email">
@@ -308,7 +379,7 @@ export default function Settings({ token }) {
                         sx={{
                             '& .MuiOutlinedInput-root' : {
                                 '& fieldset' : {
-                                    //borderColor : emailError ? 'red' : 'grey',
+                                    borderColor : emailError ? 'red' : 'grey',
                                 },
                             },
                         }}
@@ -316,7 +387,12 @@ export default function Settings({ token }) {
                     />
                 </FormControl>
 
-                <Button variant="contained" onClick={() => updateEmail ()} sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Email</Button>
+                <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("email", errors)}</div>
+                </div>
+
+                <Button variant="contained" onClick={() => updateEmail ()}
+                        sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Email</Button>
             </div>
 
             <div className="Settings-Username">
@@ -341,7 +417,7 @@ export default function Settings({ token }) {
                         sx={{
                             '& .MuiOutlinedInput-root' : {
                                 '& fieldset' : {
-                                    //borderColor : usernameError ? 'red' : 'grey',
+                                    borderColor : usernameError ? 'red' : 'grey',
                                 },
                             },
                         }}
@@ -356,7 +432,12 @@ export default function Settings({ token }) {
 
                 </FormControl>
 
-                <Button variant="contained" onClick={() => updateUsername ()} sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Username</Button>
+                <div style={{display : 'flex', justifyContent : 'space-between', flexDirection : 'row'}}>
+                    <div className="App-Right-SignIn-Error">{getLoginErrorMessage ("username", errors)}</div>
+                </div>
+
+                <Button variant="contained" onClick={() => updateUsername ()}
+                        sx={{backgroundColor : '#42A5F5', m : 1, width : '100%'}}>Update Username</Button>
             </div>
         </div>
     );
