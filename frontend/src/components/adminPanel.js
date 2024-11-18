@@ -13,16 +13,58 @@ export default function AdminPanel({ token, user }) {
     const [symbols, setSymbols] = useState([]);
     const [users, setUsers] = useState([]);
 
-    const handleAddResponse = () => {
-        if (input.trim()) {
-            const newSymbol = { symbol: input.trim()};
-            setResponses([...responses, newSymbol]);
-            setInput('');
+    const handleAddResponse = async () => {
+        if (input.trim ()) {
+            const newSymbol = {symbol : input.trim ()};
+
+            const exists = responses.some(response => response.symbol === newSymbol.symbol);
+
+            if (exists) {
+                alert("This symbol already exists in responses.");
+                return;
+            }
+
+            setResponses ([...responses, newSymbol]);
+            setInput ('');
+
+            // Add symbol to db
+            try {
+
+                const response = await api.post('/api/admin/add-symbol/',
+                    {
+                        symbol: newSymbol.symbol,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            } catch (e) {
+                alert(e);
+            }
+
         }
     };
 
-    const handleRemoveResponse = (index) => {
-        setResponses(responses.filter((_, i) => i !== index));
+    const handleRemoveResponse = async (index) => {
+        const removedItem = responses[index];
+
+        setResponses (responses.filter ((_, i) => i !== index));
+
+        // Remove symbol from DB
+        try {
+
+            const response = await api.delete('/api/admin/symbols/' + removedItem.id, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+        } catch (e) {
+            alert (e);
+        }
     };
 
     useEffect(() => {
@@ -72,43 +114,6 @@ export default function AdminPanel({ token, user }) {
         fetchUsers()
     }, []);
 
-    useEffect(() => {
-        const handleDeletion = async () => {
-            // Find elements added to responses but not in symbols
-            const added = responses.filter(response => !symbols.some(symbol => symbol.symbol === response.symbol));
-
-            // Find elements in symbols but not in responses (to be removed)
-            const removed = symbols.filter(symbol => !responses.some(response => response.symbol === symbol.symbol));
-
-            if (added.length > 0) {
-                setSymbols(prevSymbols => [...prevSymbols, ...added]);
-            }
-
-            if (removed.length > 0) {
-                // Log the ids of the removed symbols
-                removed.forEach(symbol => alert(symbol.id)); // Access id for each symbol
-
-                setSymbols(prevSymbols => prevSymbols.filter(symbol => !removed.includes(symbol)));
-
-                // Perform delete operation for removed IDs
-                const deletePromises = removed.map(async (symbol) => {
-                    if (symbol.id) {
-                        try {
-                            await api.delete(`/api/admin/symbols/${symbol.id}`);
-                        } catch (e) {
-                            console.error(`Error deleting symbol with ID: ${symbol.id}`, e);
-                        }
-                    }
-                });
-
-                // Wait for all deletions to complete
-                await Promise.all(deletePromises);
-            }
-        };
-
-        handleDeletion();
-
-    }, [responses]);
 
     return (
         <div className="AdminPanel">
