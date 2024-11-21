@@ -72,6 +72,7 @@ export default function ProfileIcon() {
                             Admin Panel
                         </Button>
                     ) : null}
+                    <Button style={{ width: "100%" }}>Portfolio</Button>
                     <Button onClick={to_settings} style={{ width: "100%" }}>
                         Settings
                     </Button>
