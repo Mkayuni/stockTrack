@@ -3,21 +3,24 @@ import api from "../../services/api";
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import StarBorder from '@mui/icons-material/StarBorder';
 
 import StockGraph from './StockGraph';
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
+import {Star} from "@mui/icons-material";
 
 /** Definition for a card which holds stock information **/
-export const StockCard = ({ stock, isSelected, onToggle }) => {
+export const StockCard = ({ stock, isSelected, onToggle, user }) => {
     const [height, setHeight] = useState('160px');
     const [stockPrices, setStockPrices] = useState([]);
     const [fetchError, setFetchError] = useState(null); // State for fetch error
     const [timeFrame, setTimeFrame] = useState("max");
     const [filteredStockPrices, setFilteredStockPrices] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isStarred, setIsStarred] = useState(false);
 
 
     // Retrieves the stock prices for the stock associated with this card
@@ -124,7 +127,26 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
             style={{height, transition : 'height 0.5s ease, box-shadow 0.3s ease'}}
             onClick={onToggle}
         >
-            <div className="StockList-Card-Title">{stock.symbol}</div>
+            <div className="StockList-Card-Title">
+                {stock.symbol}
+                {user === null ? "" : (isStarred ? (
+                        <Star
+                            style={{cursor : 'pointer', marginLeft : '8px'}}
+                            onClick={(event) => {
+                                event.stopPropagation (); // Prevent card toggle
+                                setIsStarred (false); // Set star to unfilled
+                            }}
+                        />
+                    ) : (
+                        <StarBorder
+                            style={{cursor : 'pointer', marginLeft : '8px'}}
+                            onClick={(event) => {
+                                event.stopPropagation (); // Prevent card toggle
+                                setIsStarred (true); // Set star to filled
+                            }}
+                        />
+                    ))}
+            </div>
             <div className="StockList-Card-Company">{stock.companyName}</div>
             <div className="StockList-Card-Sector">{stock.sector}</div>
             <br/>
