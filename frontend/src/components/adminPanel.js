@@ -30,16 +30,19 @@ export default function AdminPanel({ token, user }) {
             // Add symbol to db
             try {
 
-                const response = await api.post('/api/admin/add-symbol/',
-                    {
-                        symbol: newSymbol.symbol,
+                const response = await fetch(`http://localhost:3001/api/admin/add-symbol/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                    body: JSON.stringify(newSymbol)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json(); // Assuming server responds with JSON
+                    alert(`Error ${response.status}: ${errorData.message || response.statusText}`);
+                }
 
             } catch (e) {
                 alert(e);
@@ -56,11 +59,18 @@ export default function AdminPanel({ token, user }) {
         // Remove symbol from DB
         try {
 
-            const response = await api.delete('/api/admin/symbols/' + removedItem.id, {
+            const response = await fetch(`http://localhost:3001/api/admin/symbols/` + removedItem.id, {
+                method: 'DELETE',
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
+
+            if (!response.ok) {
+                const errorData = await response.json(); // Assuming server responds with JSON
+                alert(`Error ${response.status}: ${errorData.message || response.statusText}`);
+            }
 
         } catch (e) {
             alert (e);
