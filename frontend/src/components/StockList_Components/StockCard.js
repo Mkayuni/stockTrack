@@ -3,6 +3,7 @@ import api from "../../services/api";
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import StarBorder from '@mui/icons-material/StarBorder';
 
 import StockGraph from './StockGraph';
 import InputLabel from "@mui/material/InputLabel";
@@ -124,7 +125,10 @@ export const StockCard = ({ stock, isSelected, onToggle }) => {
             style={{height, transition : 'height 0.5s ease, box-shadow 0.3s ease'}}
             onClick={onToggle}
         >
-            <div className="StockList-Card-Title">{stock.symbol}</div>
+            <div className="StockList-Card-Title">
+                {stock.symbol}
+                <StarBorder/>
+            </div>
             <div className="StockList-Card-Company">{stock.companyName}</div>
             <div className="StockList-Card-Sector">{stock.sector}</div>
             <br/>

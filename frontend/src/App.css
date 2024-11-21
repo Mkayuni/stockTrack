@@ -381,6 +381,8 @@ body::-webkit-scrollbar-thumb {
   font-weight: bold;
   color: #808080;
   font-size: 15px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .StockList-Card-Company {
