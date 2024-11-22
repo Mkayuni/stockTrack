@@ -84,15 +84,15 @@ router.delete('/symbols/:id', verifyAdmin, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const stockSymbol = await StockSymbol.findByPk(id);
-    if (!stockSymbol) {
-      return res.status(404).json({ message: 'Stock symbol not found' });
-    }
+      const stockSymbol = await StockSymbol.findByPk(id);
+      if (!stockSymbol) {
+          return res.status(404).json({ message: 'Stock symbol not found' });
+      }
 
-    await stockSymbol.destroy();
-    res.status(200).json({ message: 'Stock symbol deleted successfully' });
+      await stockSymbol.destroy(); // This triggers the cascade delete
+      res.status(200).json({ message: 'Stock symbol and associated data deleted successfully' });
   } catch (error) {
-    res.status(400).json({ message: 'Failed to delete stock symbol', error: error.message });
+      res.status(400).json({ message: 'Failed to delete stock symbol', error: error.message });
   }
 });
 
