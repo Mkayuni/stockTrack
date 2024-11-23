@@ -38,7 +38,7 @@ const getHistoricalStock = async (req, res) => {
     url: 'https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/history',
     params: {
       symbol: symbol, // Use the symbol from request
-      interval: '5m', // 5-minute interval (you can change this as needed)
+      interval: '1d', // 5-minute interval (you can change this as needed)
       diffandsplits: 'false' // Exclude dividend and stock split data
     },
     headers: {

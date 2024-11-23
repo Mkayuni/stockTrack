@@ -4,7 +4,8 @@ const {
   createOrUpdateStockPrice,  // Updated here
   updateStockPrice,
   deleteStockPrice,
-  getLatestStockPrice
+  getLatestStockPrice,
+  createStockPriceSymbols
 } = require('../controllers/stockPriceController');
 
 const authenticateToken = require('../middleware/authenticateToken');
@@ -16,6 +17,9 @@ router.get('/:stockId/prices', getStockPrices);  // Example: GET /stocks/:stockI
 
 // Add or update stock price for a stock (admin only)
 router.post('/:stockId/prices', authenticateToken, isAdmin, createOrUpdateStockPrice);  // Updated here
+
+// Add or update stock price for a stock (admin only) ** Symbols
+router.post('/symbol/:symbol/prices', authenticateToken, isAdmin, createStockPriceSymbols);
 
 // Update existing stock price (admin only)
 router.put('/:stockId/prices/:priceId', authenticateToken, isAdmin, updateStockPrice);
