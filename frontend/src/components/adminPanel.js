@@ -77,16 +77,19 @@ export default function AdminPanel({ token, user }) {
                 },
             });
 
+            const convertToISODate = (inputDate) => {
+                const [day, month, year] = inputDate.split('-');
+                return `${year}-${month}-${day}`; // Converts to YYYY-MM-DD
+            };
+
             if (resp.ok) {
                 const data = await resp.json();
                 const history = data.historicalData;
 
                 for (const entry of history) {
 
-                    //if (isNaN(entry.date)) continue;
-
                     const postData = {
-                        date: entry.date,
+                        date: convertToISODate(entry.date),
                         open: entry.open,
                         close: entry.close,
                         high: entry.high,
