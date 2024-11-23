@@ -23,6 +23,18 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
     const [isStarred, setIsStarred] = useState(false);
     const [currentSector, setCurrentSector] = useState("Open");
 
+    const [openPrice, setOpenPrice] = useState(0);
+    const [closePrice, setClosePrice] = useState(0);
+    const [highPrice, setHighPrice] = useState(0);
+    const [lowPrice, setLowPrice] = useState(0);
+
+    const [openPricePrev, setOpenPricePrev] = useState(0);
+    const [closePricePrev, setClosePricePrev] = useState(0);
+    const [highPricePrev, setHighPricePrev] = useState(0);
+    const [lowPricePrev, setLowPricePrev] = useState(0);
+
+    const [priceChanged, setPriceChanged] = useState("");
+
 
     // Retrieves the stock prices for the stock associated with this card
     useEffect(() => {
@@ -49,6 +61,106 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
             setHeight('250px'); // Reset height when collapsed
         }
     }, [isSelected, stock.id]);
+
+    // Get Latest stock prices
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+
+            try {
+                const res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices/latest`, {
+                })
+
+                const latest = res.data;
+                alert(latest.date)
+
+                // Set the values
+                setOpenPrice(latest.open);
+                setClosePrice(latest.close);
+                setHighPrice(latest.high);
+                setLowPrice(latest.low);
+
+                // Gets the day before the provided date
+                const getDayBeforeDate = (inputDate) => {
+
+                    // Parse the input date or use today's date if not provided
+                    const date = inputDate ? new Date(inputDate) : new Date();
+
+                    // Subtract one day from the given date
+                    date.setDate(date.getDate() - 1);
+
+                    // Format the date as YYYY-MM-DD
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+                    const day = String(date.getDate()).padStart(2, '0');
+
+                    return `${year}-${month}-${day}`;
+                };
+
+                // Get the yesterday stock
+                try {
+                    let yesterday = getDayBeforeDate(latest.date);
+
+                    let res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`, {})
+
+                    let stks = res.data;
+                    let attempts = 0
+
+                    //if (stks != null) alert(stks[0].open);
+
+                    // Continue looping until stks is not null
+                    while (stks.length === 0) {
+
+                        if (attempts > 30) {
+                            break;
+                        }
+
+                        yesterday = getDayBeforeDate(yesterday);
+                        res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`, {})
+                        stks = res.data;
+                        attempts += 1;
+                    }
+
+                    if (attempts > 30) {
+                        setOpenPricePrev(0);
+                        setClosePricePrev(0);
+                        setHighPricePrev(0);
+                        setLowPricePrev(0);
+                        return;
+                    }
+
+                    // Get the newest entry from the date
+                    const stk = stks[stks.length - 1];
+
+                    // Set the values
+                    setOpenPricePrev(stk.open);
+                    setClosePricePrev(stk.close);
+                    setHighPricePrev(stk.high);
+                    setLowPricePrev(stk.low);
+
+                } catch (e) {
+                    alert(e);
+                }
+
+
+
+            } catch (e) {
+                alert("Failed to fetch stock prices: " + e);
+                setFetchError('Failed to fetch stock prices');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData().then(() => {
+            update_price_change({
+                open: openPricePrev,
+                close: closePricePrev,
+                high: highPricePrev,
+                low: lowPricePrev,
+            });
+        });
+    }, [stock.id, currentSector])
 
     // Handles filtering and sorting of prices
     useEffect(() => {
@@ -122,6 +234,44 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
             return num.toString();
         }
 
+    }
+
+    function update_price_change(prices) {
+
+        let dif = 0;
+        let sym = "";
+        let arrow = "";
+        let percent = 0;
+
+        switch (currentSector) {
+            case 'Open':
+                dif = openPrice - prices.open;
+                percent = (dif / openPrice) * 100;
+
+                break;
+            case 'Close':
+                dif = closePrice - prices.close;
+                percent = (dif / closePrice) * 100;
+                break;
+            case 'High':
+                dif = highPrice - prices.high;
+                percent = (dif / highPrice) * 100;
+                break;
+            case 'Low':
+                dif = lowPrice - prices.low;
+                percent = (dif / lowPrice) * 100;
+                break;
+        }
+
+        dif = parseFloat(dif.toFixed(2));
+        percent = parseFloat(percent.toFixed(2));
+
+        dif > 0 ? sym = "+" : sym = "";
+        dif > 0 ? arrow = "↑" : arrow = "↓";
+
+        if (dif === 0) arrow = "-"
+
+        setPriceChanged(`${sym}${dif} (${percent}%) ${arrow}`)
     }
 
     return (
@@ -207,18 +357,18 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
 
             <div className="StockList-Card-Bottom">
                 <div className="StockList-Card-Price">
-                    <div>Open: $99.99</div>
-                    <div>Close: $103.99</div>
+                    <div>Open: ${openPrice}</div>
+                    <div>Close: ${closePrice}</div>
                 </div>
 
                 <div className="StockList-Card-Price">
-                    <div>High: $99.99</div>
-                    <div>Low: $103.99</div>
+                    <div>High: ${highPrice}</div>
+                    <div>Low: ${lowPrice}</div>
                 </div>
 
                 <div className="StockList-Card-Price">
                     <div>Mkt: ${numberToMoney (stock.marketCap)}</div>
-                    <div>+1.37 (0.55%) ↑</div>
+                    <div>{priceChanged}</div>
                 </div>
                 <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
             </div>
