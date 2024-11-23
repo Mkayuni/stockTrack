@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken'); // For token verification
 const router = express.Router();
 const axios = require('axios');
 const { addSymbolToSubscription } = require('../utils/websocketUtils'); // Import the utility function
+const { schedulePriceUpdates } = require('../utils/priceScheduler');
 
 // Middleware to verify admin token
 const verifyAdmin = (req, res, next) => {
@@ -48,10 +49,7 @@ router.post('/add-symbol', verifyAdmin, async (req, res) => {
       stockSymbolId: stockSymbol.id, // Associate the stock symbol
     });
 
-    // Subscribe the symbol to the WebSocket for real-time updates
-    addSymbolToSubscription(symbol, process.env.FINNHUB_API_KEY);
-
-    // Fetch the latest stock prices from Finhub
+    // Fetch the latest stock prices from Finnhub
     const response = await axios.get(
       `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${process.env.FINNHUB_API_KEY}`
     );
@@ -67,9 +65,17 @@ router.post('/add-symbol', verifyAdmin, async (req, res) => {
         close,
         high,
         low,
-        volume: null, // Finhub doesn't provide volume in the quote endpoint
+        volume: null, // Finnhub doesn't provide volume in the quote endpoint
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     }
+
+    // Schedule periodic price updates
+    schedulePriceUpdates(symbol, newStock.id);
+
+    // Subscribe to WebSocket for real-time updates
+    addSymbolToSubscription(symbol, process.env.FINNHUB_API_KEY);
 
     res.status(201).json({ stock: newStock, symbol: stockSymbol });
   } catch (error) {

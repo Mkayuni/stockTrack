@@ -18,7 +18,12 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   StockSymbol.associate = (models) => {
-    StockSymbol.hasMany(models.Stock, { foreignKey: 'stockSymbolId', as: 'stocks' });
+    StockSymbol.hasMany(models.Stock, {
+      foreignKey: 'stockSymbolId',
+      as: 'stocks',
+      onDelete: 'CASCADE', // Optional: ensures cascading delete
+      onUpdate: 'CASCADE', // Optional: ensures cascading updates
+    });
   };
 
   return StockSymbol;
