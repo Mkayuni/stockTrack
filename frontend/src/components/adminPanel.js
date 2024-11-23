@@ -83,6 +83,8 @@ export default function AdminPanel({ token, user }) {
 
                 for (const entry of history) {
 
+                    //if (isNaN(entry.date)) continue;
+
                     const postData = {
                         date: entry.date,
                         open: entry.open,
