@@ -344,6 +344,14 @@ body::-webkit-scrollbar-thumb {
   margin-bottom: 20px;
 }
 
+.StockList-Card-Price {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .StockList-Card-Graph {
   overflow: hidden;
   height: 0;

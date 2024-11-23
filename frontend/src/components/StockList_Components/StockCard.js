@@ -14,7 +14,7 @@ import {Star} from "@mui/icons-material";
 
 /** Definition for a card which holds stock information **/
 export const StockCard = ({ stock, isSelected, onToggle, user }) => {
-    const [height, setHeight] = useState('160px');
+    const [height, setHeight] = useState('250px');
     const [stockPrices, setStockPrices] = useState([]);
     const [fetchError, setFetchError] = useState(null); // State for fetch error
     const [timeFrame, setTimeFrame] = useState("max");
@@ -43,10 +43,10 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
         };
 
         if (isSelected) {
-            setHeight('450px'); // Set height when expanded
+            setHeight('550px'); // Set height when expanded
             fetchData(); // Call fetchData only when expanded
         } else {
-            setHeight('160px'); // Reset height when collapsed
+            setHeight('250px'); // Reset height when collapsed
         }
     }, [isSelected, stock.id]);
 
@@ -206,7 +206,20 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
             <br/>
 
             <div className="StockList-Card-Bottom">
-                <div className="StockList-Card-MarketCap">${numberToMoney (stock.marketCap)}</div>
+                <div className="StockList-Card-Price">
+                    <div>Open: $99.99</div>
+                    <div>Close: $103.99</div>
+                </div>
+
+                <div className="StockList-Card-Price">
+                    <div>High: $99.99</div>
+                    <div>Low: $103.99</div>
+                </div>
+
+                <div className="StockList-Card-Price">
+                    <div>Mkt: ${numberToMoney (stock.marketCap)}</div>
+                    <div>+1.37 (0.55%) ↑</div>
+                </div>
                 <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
             </div>
         </div>
