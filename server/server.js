@@ -2,6 +2,7 @@ const express = require('express');
 require('dotenv').config();
 const sequelize = require('./config/db');
 const stockRoutes = require('./routes/stockRoutes');
+const userStocksRoutes = require('./routes/userStocksRoutes');
 const userRoutes = require('./routes/userRoutes');
 const stockPriceRoutes = require('./routes/stockPriceRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -27,6 +28,7 @@ app.use('/api/stocks', stockRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockPriceRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/user-stocks', userStocksRoutes)
 
 sequelize.sync().then(async () => {
   try {

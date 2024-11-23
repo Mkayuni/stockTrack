@@ -18,6 +18,7 @@ router.get('/:id', getStockById);
 // Create a new stock (with symbol creation)
 router.post('/', createStock);
 
+// Gets all the historical data of a certain stock
 router.get('/historic/:id', getHistoricalStock);
 
 // Update a stock by ID

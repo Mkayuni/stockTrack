@@ -11,6 +11,7 @@ import ProfileIcon from "./components/ProfileIcon";
 import AdminPanel from "./components/adminPanel";
 import Settings from "./components/Settings";
 import { useUser } from "./globals/globalUser"; // Correct import of useUser
+import Portfolio from "./components/Portfolio";
 
 // Separated into MainApp because location needed to be within Router
 function App() {
@@ -65,6 +66,7 @@ function MainApp() {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/admin-panel" element={<AdminPanel token={userToken} user={user} />} />
                     <Route path="/settings" element={<Settings token={userToken} />} />
+                    <Route path="/portfolio" element={<Portfolio token={userToken} user = {user} />} />
                 </Routes>
             </main>
         </div>
