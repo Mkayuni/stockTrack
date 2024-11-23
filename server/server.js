@@ -14,6 +14,11 @@ const subscribedSymbols = new Set(); // Track subscribed symbols
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const getThrottleInterval = () => {
+  return parseInt(process.env.DEFAULT_THROTTLE_INTERVAL, 10) || 3000; // Default to 3000ms if not defined
+};
+
+
 // Use CORS before defining routes
 app.use(cors());
 app.use(express.json());
@@ -23,14 +28,23 @@ app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockPriceRoutes);
 app.use('/api/admin', adminRoutes);
 
-sequelize.sync().then(() => {
-  console.log('Database synced');
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+sequelize.sync().then(async () => {
+  try {
+    // Enable foreign key constraints for the current session
+    await sequelize.query('PRAGMA foreign_keys = ON;');
+    console.log('Foreign key constraints enabled.');
+
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error enabling foreign key constraints:', error.message);
+  }
 }).catch(err => {
   console.error('Error syncing database:', err);
 });
+
 
 // WebSocket Server for broadcasting data
 const wss = new WebSocket.Server({ port: 8080 });
@@ -50,7 +64,7 @@ const ENABLE_TRADE_LOGGING = process.env.ENABLE_TRADE_LOGGING === 'true';
 const tradeBuffer = {};
 const lastProcessedTimestamps = { 'BTC-USD': 0 };
 const lastLogTimestamp = { 'BTC-USD': 0 };
-const BTC_THROTTLE_INTERVAL = 20000; // 20 seconds
+const BTC_THROTTLE_INTERVAL = 5000; 
 const LOG_INTERVAL = 10000; // Log every 10 seconds
 
 const mapSymbol = (webSocketSymbol) => {
@@ -64,22 +78,23 @@ const processTradeData = (tradeData) => {
   const mappedSymbol = mapSymbol(webSocketSymbol);
   const price = tradeData.p;
   const volume = tradeData.v || null;
-  const currentTime = Date.now();
 
-  // Handle throttling for Bitcoin
-  if (mappedSymbol === 'BTC-USD') {
-    const lastProcessedTime = lastProcessedTimestamps['BTC-USD'];
+  // Use BTC_THROTTLE_INTERVAL for BTC-USD
+  const throttleInterval = mappedSymbol === 'BTC-USD' ? BTC_THROTTLE_INTERVAL : getThrottleInterval(mappedSymbol);
 
-    // Throttle Bitcoin updates
-    if (currentTime - lastProcessedTime < BTC_THROTTLE_INTERVAL) {
-      if (currentTime - lastLogTimestamp['BTC-USD'] > LOG_INTERVAL) {
-        console.log(`Throttling Bitcoin updates: Skipping update for ${mappedSymbol}`);
-        lastLogTimestamp['BTC-USD'] = currentTime;
-      }
-      return;
+  const lastProcessedTime = lastProcessedTimestamps[mappedSymbol] || 0;
+
+  // Check if we should throttle the update
+  if (Date.now() - lastProcessedTime < throttleInterval) {
+    if (Date.now() - (lastLogTimestamp[mappedSymbol] || 0) > LOG_INTERVAL) {
+      console.log(`Throttling updates: Skipping update for ${mappedSymbol}`);
+      lastLogTimestamp[mappedSymbol] = Date.now();
     }
-    lastProcessedTimestamps['BTC-USD'] = currentTime;
+    return; // Skip this update
   }
+
+  // Update the last processed timestamp
+  lastProcessedTimestamps[mappedSymbol] = Date.now();
 
   // Buffer the latest trade data
   tradeBuffer[mappedSymbol] = {
@@ -92,6 +107,7 @@ const processTradeData = (tradeData) => {
     console.log(`Buffered trade for ${mappedSymbol} - Price: ${price}, Volume: ${volume}`);
   }
 };
+
 
 // Function to subscribe to a symbol
   const subscribeToSymbol = (socket, symbol) => {
@@ -163,21 +179,22 @@ const fetchLastStockPrice = async (symbol) => {
   }
 };
 
-// Function to save buffered data to the database
 const saveBufferedDataToDB = async () => {
   for (const symbol in tradeBuffer) {
     const tradeData = tradeBuffer[symbol];
 
     try {
+      // Fetch the stock details from the database
       const stock = await StockSymbol.findOne({ where: { symbol } });
-
       if (!stock) {
-        console.error(`Symbol ${symbol} not found in database`);
+        console.error(`Symbol ${symbol} not found in Stocks table. Skipping...`);
         continue;
       }
 
+      console.log(`Saving trade data for ${symbol}: stockId=${stock.id}, TradeData=${JSON.stringify(tradeData)}`);
+
       if (!tradeData) {
-        console.log(`No real-time data for ${symbol}, fetching last available price...`);
+        console.warn(`No real-time data for ${symbol}, fetching fallback price...`);
         const lastPriceData = await fetchLastStockPrice(symbol);
         if (lastPriceData) {
           await StockPrice.create({
@@ -187,16 +204,16 @@ const saveBufferedDataToDB = async () => {
             close: lastPriceData.close,
             high: lastPriceData.high,
             low: lastPriceData.low,
-            volume: null, // Finnhub does not provide volume for this endpoint
+            volume: 0, // Default volume for fallback data
             createdAt: new Date(),
             updatedAt: new Date(),
           });
-          console.log(`Saved last price for ${symbol} to the database`);
+          console.log(`Saved fallback price for ${symbol} to the database`);
         } else {
           console.error(`No fallback data available for ${symbol}`);
         }
       } else {
-        // Save buffered real-time data
+        // Save real-time trade data
         await StockPrice.create({
           stockId: stock.id,
           date: tradeData.timestamp,
@@ -204,15 +221,22 @@ const saveBufferedDataToDB = async () => {
           close: tradeData.price,
           high: tradeData.price,
           low: tradeData.price,
-          volume: tradeData.volume || null,
+          volume: tradeData.volume ?? 0, // Use volume or default to 0
+          createdAt: new Date(),
+          updatedAt: new Date(),
         });
-        console.log(`Saved to DB: ${symbol} - Price: ${tradeData.price}`);
+        console.log(`Real-time data saved: ${symbol} - Price: ${tradeData.price}`);
       }
+
+      // Clear the buffer for the processed symbol
+      delete tradeBuffer[symbol];
     } catch (error) {
-      console.error(`Error saving trade data for ${symbol}:`, error);
+      console.error(`Error saving trade data for ${symbol}:`, error.message);
     }
   }
 };
+
+
 
 // Save buffered data every 30 seconds
 setInterval(saveBufferedDataToDB, 30000);

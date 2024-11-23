@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     symbol: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true, // Optional: if each stock symbol must be unique
     },
     companyName: {
       type: DataTypes.STRING,
@@ -12,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
     marketCap: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(20, 2), // Optional: Adjust precision/scale as needed
     },
     stockSymbolId: {
       type: DataTypes.INTEGER,
@@ -20,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         model: 'StockSymbols',
         key: 'id',
       },
-      allowNull: true, // Nullable initially
+      allowNull: true, // Nullable if stock can exist without a symbol
     },
     createdAt: {
       allowNull: false,
@@ -35,7 +36,12 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Stock.associate = (models) => {
-    Stock.belongsTo(models.StockSymbol, { foreignKey: 'stockSymbolId', as: 'stockSymbol' });
+    Stock.belongsTo(models.StockSymbol, {
+      foreignKey: 'stockSymbolId',
+      as: 'stockSymbol',
+      onDelete: 'SET NULL', // Optional: Adjust to 'CASCADE' if required
+      onUpdate: 'CASCADE', // Optional: Ensure updates in StockSymbol reflect here
+    });
   };
 
   return Stock;
