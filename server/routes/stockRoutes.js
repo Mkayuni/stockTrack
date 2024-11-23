@@ -4,7 +4,8 @@ const {
   getStockById,
   createStock,
   updateStock,
-  deleteStock
+  deleteStock,
+  getHistoricalStock,
 } = require('../controllers/stockController');
 const router = express.Router();
 
@@ -16,6 +17,8 @@ router.get('/:id', getStockById);
 
 // Create a new stock (with symbol creation)
 router.post('/', createStock);
+
+router.get('/historic/:id', getHistoricalStock);
 
 // Update a stock by ID
 router.put('/:id', updateStock);
