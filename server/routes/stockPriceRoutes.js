@@ -5,7 +5,8 @@ const {
   updateStockPrice,
   deleteStockPrice,
   getLatestStockPrice,
-  createStockPriceSymbols
+  createStockPriceSymbols,
+  getStockPricesByDate
 } = require('../controllers/stockPriceController');
 
 const authenticateToken = require('../middleware/authenticateToken');
@@ -14,6 +15,9 @@ const router = express.Router();
 
 // Get stock prices by stock ID and optional date range (public access)
 router.get('/:stockId/prices', getStockPrices);  // Example: GET /stocks/:stockId/prices?startDate=2024-01-01&endDate=2024-12-31
+
+// Get stock price by stock id ordered by date
+router.get('/:stockId/order/prices', getStockPricesByDate);
 
 // Add or update stock price for a stock (admin only)
 router.post('/:stockId/prices', authenticateToken, isAdmin, createOrUpdateStockPrice);  // Updated here

@@ -2,7 +2,7 @@ import { Line } from 'react-chartjs-2';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useEffect, useState} from "react";
 
-export default function StockGraph({prices, loading}) {
+export default function StockGraph({prices, loading, priceType}) {
 
     if (loading) {
         return (
@@ -53,7 +53,20 @@ export default function StockGraph({prices, loading}) {
         labels: prices.map(price => new Date(price.date)),
         datasets: [{
             label: 'Stock Price',
-            data: prices.map(price => price.open),
+            data: prices.map(price => {
+                switch (priceType) {
+                    case 'Open':
+                        return price.open;
+                    case 'Closed':
+                        return price.close;
+                    case 'High':
+                        return price.high;
+                    case 'Low':
+                        return price.low;
+                    default:
+                        return null; // Handle invalid state
+                }
+            }),
             borderColor: 'rgba(75, 192, 192, 1)',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             fill: true,
@@ -79,6 +92,8 @@ export default function StockGraph({prices, loading}) {
                 grid: {
                     display: false,
                 },
+                max: new Date(Math.max(...prices.map(price => Date.parse(price.date)))),
+                min: new Date(Math.min(...prices.map(price => Date.parse(price.date)))),
             },
             y: {
                 beginAtZero: false,

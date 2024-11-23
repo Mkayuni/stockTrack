@@ -21,6 +21,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
     const [filteredStockPrices, setFilteredStockPrices] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isStarred, setIsStarred] = useState(false);
+    const [currentSector, setCurrentSector] = useState("Open");
 
 
     // Retrieves the stock prices for the stock associated with this card
@@ -28,7 +29,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await api.get(`/api/stocks/${stock.id}/prices`, {
+                const response = await api.get(`/api/stocks/${stock.id}/order/prices`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
                 });
                 setStockPrices(response.data);
@@ -55,11 +56,14 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
         setLoading(true);
         let prices = [...stockPrices];
 
-        // Sort prices in case they are not in order
-        prices = prices.sort((a, b) => new Date(a.date) - new Date(b.date));
+        prices = prices.filter(price => !isNaN(new Date(price.date).getTime()));
+
+        if (prices[0] == null) return;
 
         // Get latest date
-        const latest = new Date(Math.max(...prices.map(price => Date.parse(price.date))));
+        const latest = new Date(prices[prices.length - 1].date);
+
+        //alert(latest)
 
         // Get the min based on time frame
         const past = new Date(latest);
@@ -167,8 +171,8 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
                                     labelId="StockList-Card-Prices-Dropdown-Label"
                                     id="StockList-Card-Prices-Dropdown"
                                     label="Price Type"
-                                    //value={currentSector}
-                                    //onChange={(event) => setSectors(event.target.value)}
+                                    value={currentSector}
+                                    onChange={(event) => setCurrentSector(event.target.value)}
                                 >
                                     <MenuItem value="Closed">Closed Price</MenuItem>
                                     <MenuItem value="Open">Open Price</MenuItem>
@@ -193,7 +197,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
                             ))}
                         </div>
 
-                        <StockGraph prices={filteredStockPrices} loading={loading}/>
+                        <StockGraph prices={filteredStockPrices} loading={loading} priceType={currentSector} />
 
                     </div>
                 ))}

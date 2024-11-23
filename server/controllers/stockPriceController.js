@@ -21,6 +21,33 @@ const getStockPrices = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+// Function to get stock prices by stock ID order by date
+const getStockPricesByDate = async (req, res) => {
+  const { stockId } = req.params;
+  const { startDate, endDate } = req.query;
+
+  try {
+    const whereClause = { stockId };
+
+    if (startDate && endDate) {
+      whereClause.date = {
+        [Op.between]: [startDate, endDate]
+      };
+    }
+
+    const stockPrices = await StockPrice.findAll({
+      where: whereClause,
+      order: [
+        ['date', 'ASC']
+      ]
+    });
+    res.json(stockPrices);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // Function to create or update a stock price (admin only) ** Symbols
 const createStockPriceSymbols = async (req, res) => {
   const { symbol } = req.params;
@@ -200,5 +227,6 @@ module.exports = {
   updateStockPrice,
   deleteStockPrice,
   getLatestStockPrice,
-  createStockPriceSymbols
+  createStockPriceSymbols,
+  getStockPricesByDate
 };
