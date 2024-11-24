@@ -24,6 +24,10 @@ export default function ProfileIcon() {
         nav("/");
     }
 
+    function to_portfolio() {
+        nav("/portfolio");
+    }
+
     function to_settings() {
         nav("/settings");
     }
@@ -72,7 +76,7 @@ export default function ProfileIcon() {
                             Admin Panel
                         </Button>
                     ) : null}
-                    <Button style={{ width: "100%" }}>Portfolio</Button>
+                    <Button onClick={to_portfolio} style={{ width: "100%" }}>Portfolio</Button>
                     <Button onClick={to_settings} style={{ width: "100%" }}>
                         Settings
                     </Button>

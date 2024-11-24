@@ -68,6 +68,56 @@ export default function AdminPanel({ token, user }) {
                 },
                 body: JSON.stringify(newStock),
             });
+
+            // Get Historical Data
+            const resp = await fetch(`http://localhost:3001/api/stocks/historic/${newStock.symbol}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const convertToISODate = (inputDate) => {
+                const [day, month, year] = inputDate.split('-');
+                return `${year}-${month}-${day}`; // Converts to YYYY-MM-DD
+            };
+
+            if (resp.ok) {
+                const data = await resp.json();
+                const history = data.historicalData;
+
+                for (const entry of history) {
+
+                    const postData = {
+                        date: convertToISODate(entry.date),
+                        open: entry.open,
+                        close: entry.close,
+                        high: entry.high,
+                        low: entry.low,
+                        volume: entry.volume,
+                    }
+
+                    const res = await fetch(`http://localhost:3001/api/stocks/symbol/${newStock.symbol}/prices`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+
+                        },
+                        body: JSON.stringify(postData),
+                    });
+
+                    if (res.ok) {
+                        const result = await res.json();
+                        console.log('Successfully posted stock price:', result);
+                    } else {
+                        console.error('Failed to post stock price', await res.text());
+                    }
+                }
+            }
+            else {
+                alert("Failed: " + (await response.text()));
+            }
     
             if (!response.ok) {
                 const errorData = await response.json(); // Assuming server responds with JSON
