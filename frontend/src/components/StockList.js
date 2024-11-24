@@ -17,6 +17,7 @@ Chart.register(...registerables);
 
 const StockList = ({user}) => {
     const [stocks, setStocks] = useState([]);
+    const [latestStocksPrices, setLatestStockPrices] = useState([]);
     const [loading, setLoading] = useState(true);  // State for loading
     const [error, setError] = useState(null);  // State for error handling
     const [orderBy, setOrderBy] = useState("Newest"); // When orderBy updates
@@ -30,6 +31,22 @@ const StockList = ({user}) => {
             try {
                 const response = await api.get('/api/stocks');  // Make sure your backend route is '/api/stocks'
                 setStocks(response.data);  // Set fetched data to state
+
+                // Create an array of promises for fetching latest prices
+                const pricePromises = response.data.map(async (stock) => {
+                    try {
+                        const res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices/latest`);
+                        return { stockId: stock.id, latest: res.data }; // Return stock ID and latest data
+                    } catch (error) {
+                        console.error(`Failed to fetch latest prices for Stock ID: ${stock.id}`, error);
+                        return null; // Handle errors gracefully
+                    }
+                });
+
+                const latestPrices = await Promise.all(pricePromises);
+                const validPrices = latestPrices.filter((price) => price !== null);
+                setLatestStockPrices(validPrices);
+
             } catch (err) {
                 setError('Failed to fetch stock data');  // Handle errors
             } finally {
@@ -62,6 +79,54 @@ const StockList = ({user}) => {
                 return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             case "Oldest":
                 return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            case "Price Open High":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.open
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.open
+                    return latestB - latestA;
+                });
+            case "Price Open Low":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.open
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.open
+                    return latestA - latestB;
+                });
+            case "Price Close High":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.close
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.close
+                    return latestB - latestA;
+                });
+            case "Price Close Low":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.close
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.close
+                    return latestA - latestB;
+                });
+            case "Price Low High":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.low
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.low
+                    return latestB - latestA;
+                });
+            case "Price Low Low":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.low
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.low
+                    return latestA - latestB;
+                });
+            case "Price High High":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.high
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.high
+                    return latestB - latestA;
+                });
+            case "Price High Low":
+                return sorted.sort((a, b) => {
+                    const latestA = latestStocksPrices.find(price => price.stockId === a.id).latest.high
+                    const latestB = latestStocksPrices.find(price => price.stockId === b.id).latest.high
+                    return latestA - latestB;
+                });
             case "Market Low":
                 return sorted.sort((a, b) => a.marketCap - b.marketCap);
             case "Market High":
@@ -149,16 +214,18 @@ const StockList = ({user}) => {
                             value={orderBy}
                             onChange={(event) => setOrderBy(event.target.value)}
                         >
-                            <MenuItem value={"Newest"}>Newest</MenuItem>
-                            <MenuItem value={"Oldest"}>Oldest</MenuItem>
-                            <MenuItem value={"Updated"}>Updated</MenuItem>
-                            <MenuItem value={"Percent Change"}>Percent Change (high-to-low)</MenuItem>
-                            <MenuItem value={"Price Low"}>Price (low-to-high)</MenuItem>
-                            <MenuItem value={"Price High"}>Price (high-to-low)</MenuItem>
+                            <MenuItem value={"Newest"}>Newly Added</MenuItem>
+                            <MenuItem value={"Oldest"}>First Added</MenuItem>
+                            <MenuItem value={"Price Open High"}>Open Price (high-to-low)</MenuItem>
+                            <MenuItem value={"Price Open Low"}>Open Price (low-to-high)</MenuItem>
+                            <MenuItem value={"Price Close High"}>Close Price (high-to-low)</MenuItem>
+                            <MenuItem value={"Price Close Low"}>Close Price (low-to-high)</MenuItem>
+                            <MenuItem value={"Price Low High"}>Low Price (high-to-low)</MenuItem>
+                            <MenuItem value={"Price Low Low"}>Low Price (low-to-high)</MenuItem>
+                            <MenuItem value={"Price High High"}>High Price (high-to-low)</MenuItem>
+                            <MenuItem value={"Price High Low"}>High Price (low-to-high)</MenuItem>
                             <MenuItem value={"Market Low"}>Market Value (low-to-high)</MenuItem>
                             <MenuItem value={"Market High"}>Market Value (high-to-low)</MenuItem>
-                            <MenuItem value={"Percent Low"}>Percent Change (low-to-high)</MenuItem>
-                            <MenuItem value={"Percent High"}>Percent Change (high-to-low)</MenuItem>
                         </Select>
                     </FormControl>
                 </div>
