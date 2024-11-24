@@ -34,6 +34,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
     const [lowPricePrev, setLowPricePrev] = useState(0);
 
     const [priceChanged, setPriceChanged] = useState("");
+    const [isPricePos, setIsPricePos] = useState(false);
 
 
     // Retrieves the stock prices for the stock associated with this card
@@ -72,7 +73,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
                 })
 
                 const latest = res.data;
-                alert(latest.date)
+                //alert(latest.date)
 
                 // Set the values
                 setOpenPrice(latest.open);
@@ -266,10 +267,20 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
         dif = parseFloat(dif.toFixed(2));
         percent = parseFloat(percent.toFixed(2));
 
-        dif > 0 ? sym = "+" : sym = "";
-        dif > 0 ? arrow = "↑" : arrow = "↓";
+        if (dif > 0) {
+            sym = "+";
+            arrow = "↑";
+            setIsPricePos(true);
+        }
+        else if (dif < 0) {
+            sym = "";
+            arrow = "↓";
+            setIsPricePos(false);
+        } else {
+            arrow = "-";
+            setIsPricePos(null);
+        }
 
-        if (dif === 0) arrow = "-"
 
         setPriceChanged(`${sym}${dif} (${percent}%) ${arrow}`)
     }
@@ -368,7 +379,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
 
                 <div className="StockList-Card-Price">
                     <div>Mkt: ${numberToMoney (stock.marketCap)}</div>
-                    <div>{priceChanged}</div>
+                    <div style={{color: isPricePos === true ? 'green' : isPricePos === false ? 'red' : 'black' }}>{priceChanged}</div>
                 </div>
                 <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
             </div>
