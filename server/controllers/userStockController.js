@@ -1,24 +1,104 @@
-const {UserStocks} = require('../models');
+const { UserStocks, StockSymbol } = require('../models');
 
-// Creates a new entry in the user stock table
-const createUserStock = async (req, res) => {
-    const {email, id} = req.body;
+/**
+ * Add or Toggle Favorite Status
+ */
+const addFavorite = async (req, res) => {
+    const { stockSymbolId } = req.body;
+    const { email } = req.user;
 
-    // Check to make sure email and id are valid
-
-    // Create new entry
     try {
-        const item = await UserStocks.create({email: email, stockSymbolId: id});
-    }
-    catch (error) {
-        console.log(error);
-    }
+        if (!stockSymbolId) {
+            return res.status(400).json({ error: 'Stock symbol ID is required.' });
+        }
 
+        const [favorite, created] = await UserStocks.findOrCreate({
+            where: { email, stockSymbolId },
+            defaults: { favorite: true },
+        });
 
+        if (!created) {
+            await favorite.update({ favorite: true });
+            return res.status(200).json({ message: 'Stock is already in favorites and updated to favorite.' });
+        }
+
+        res.status(201).json({ message: 'Stock added to favorites.' });
+    } catch (error) {
+        console.error('Error adding favorite stock:', error.message);
+        res.status(500).json({ error: 'Failed to add stock to favorites.' });
+    }
 };
 
-const deleteUserStock = async (req, res) => {
+/**
+ * Get All Favorite Stocks for the User
+ */
+const getFavorites = async (req, res) => {
+    const { email } = req.user;
 
+    try {
+        const favorites = await UserStocks.findAll({
+            where: { email, favorite: true }, // Only fetch stocks marked as favorite
+            include: [StockSymbol],
+        });
+
+        res.status(200).json(favorites);
+    } catch (error) {
+        console.error('Error fetching favorite stocks:', error.message);
+        res.status(500).json({ error: 'Failed to fetch favorites.' });
+    }
 };
 
-module.exports = {createUserStock, deleteUserStock}
+/**
+ * Check if a Specific Stock is Favorited
+ */
+const isFavorite = async (req, res) => {
+    const { stockSymbolId } = req.params;
+    const { email } = req.user;
+
+    try {
+        const favorite = await UserStocks.findOne({
+            where: { email, stockSymbolId },
+        });
+
+        res.status(200).json({ isFavorite: !!favorite && favorite.favorite });
+    } catch (error) {
+        console.error('Error checking favorite status:', error.message);
+        res.status(500).json({ error: 'Failed to check favorite status.' });
+    }
+};
+
+/**
+ * Remove a Stock from Favorites
+ */
+const removeFavorite = async (req, res) => {
+    const { stockSymbolId } = req.body;
+    const { email } = req.user;
+
+    try {
+        const favorite = await UserStocks.findOne({
+            where: { email, stockSymbolId },
+        });
+
+        if (!favorite) {
+            return res.status(404).json({ error: 'Stock not found in favorites.' });
+        }
+
+        favorite.favorite = false;
+        await favorite.save();
+
+        res.status(200).json({ message: 'Stock removed from favorites.' });
+    } catch (error) {
+        console.error('Error removing favorite stock:', error.message);
+        res.status(500).json({ error: 'Failed to remove stock from favorites.' });
+    }
+};
+
+/**
+ * Export All Methods
+ */
+module.exports = {
+    addFavorite,
+    getFavorites,
+    isFavorite,
+    removeFavorite,
+};
