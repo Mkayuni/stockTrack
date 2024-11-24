@@ -88,6 +88,7 @@ export default function Settings({ token }) {
                 username: user.username,
                 password: user.password,
                 isUpdatingPassword: false,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
@@ -128,6 +129,7 @@ export default function Settings({ token }) {
                 username: user.username,
                 password: user.password,
                 isUpdatingPassword: false,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
@@ -167,6 +169,7 @@ export default function Settings({ token }) {
                 username: username,
                 password: user.password,
                 isUpdatingPassword: false,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
@@ -218,6 +221,7 @@ export default function Settings({ token }) {
                 username: user.username,
                 password: password,
                 isUpdatingPassword: true,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
