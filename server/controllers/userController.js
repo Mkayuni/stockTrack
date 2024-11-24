@@ -100,14 +100,13 @@ const isUsernameTaken = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, username, password } = req.body;
   try {
-
     const user = await User.findOne({
       where: {
         [Op.or]: [
           { email: email || null },
-          { username: username || null }
-        ]
-      }
+          { username: username || null },
+        ],
+      },
     });
 
     // If user is not found
@@ -115,15 +114,25 @@ const loginUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (user && await bcrypt.compare(password, user.password)) {
-      // Generate a JWT token valid for 1 hour using the secret key from the .env file
-      const token = jwt.sign({ id: user.id, role: user.role }, process.env.YOUR_SECRET_KEY, { expiresIn: '1h' });
-      res.json({ message: 'Login successful', token });  // Send back the token and success message
+    // Check password
+    if (await bcrypt.compare(password, user.password)) {
+      // Generate a token that includes email in the payload
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email, // Include email
+          role: user.role,   // Include role for admin verification
+        },
+        process.env.YOUR_SECRET_KEY,
+        { expiresIn: '1h' }
+      );
+      res.json({ message: 'Login successful', token });
     } else {
-      res.status(401).json({ message: 'Invalid credentials' });  // Handle invalid login
+      res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });  // Handle server errors
+    console.error('Login error:', error.message);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
