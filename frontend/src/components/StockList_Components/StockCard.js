@@ -13,7 +13,7 @@ import FormControl from "@mui/material/FormControl";
 import {Star} from "@mui/icons-material";
 
 /** Definition for a card which holds stock information **/
-export const StockCard = ({ stock, isSelected, onToggle, user }) => {
+export const StockCard = ({ stock, isSelected, onToggle, user, token }) => {
     const [height, setHeight] = useState('250px');
     const [stockPrices, setStockPrices] = useState([]);
     const [fetchError, setFetchError] = useState(null); // State for fetch error
@@ -36,6 +36,36 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
     const [priceChanged, setPriceChanged] = useState("");
     const [isPricePos, setIsPricePos] = useState(false);
 
+    // Check if Card is in favorites
+    useEffect(() => {
+        const fetchFavoriteStatus = async () => {
+            if (!user || !token) return;
+
+            try {
+                const res = await fetch(`http://localhost:3001/api/user-stocks/favorites/${stock.symbol}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
+
+                const msg = await res.json();
+
+                if (!res.ok) {
+                    alert("Error: " + (msg.error || "Unknown error"));
+                    return;
+                }
+
+                setIsStarred(msg.isFavorite);
+
+            } catch (err) {
+                alert("Network error: " + err.message);
+            }
+        };
+
+        fetchFavoriteStatus();
+    }, [user, token, stock.symbol]);
 
     // Retrieves the stock prices for the stock associated with this card
     useEffect(() => {
@@ -297,17 +327,72 @@ export const StockCard = ({ stock, isSelected, onToggle, user }) => {
                 {user === null ? "" : (isStarred ? (
                         <Star
                             style={{cursor : 'pointer', marginLeft : '8px'}}
-                            onClick={(event) => {
+                            onClick={async (event) => {
                                 event.stopPropagation (); // Prevent card toggle
                                 setIsStarred (false); // Set star to unfilled
+
+                                // Removes a stock from favorite
+                                try {
+
+                                    const postData = {
+                                        "stockSymbol" : stock.symbol,
+                                    };
+
+                                    const res = await fetch (`http://localhost:3001/api/user-stocks/favorite`, {
+                                        method : "DELETE",
+                                        headers : {
+                                            "Content-Type" : "application/json",
+                                            "Authorization" : `Bearer ${token}`,
+
+                                        },
+                                        body : JSON.stringify (postData),
+                                    });
+
+                                    if (!res.ok) {
+                                        const data = await res.json ();
+                                        alert ("Error: " + data.error);
+                                    }
+
+                                } catch (e) {
+                                    alert (e);
+                                }
+
                             }}
                         />
                     ) : (
                         <StarBorder
                             style={{cursor : 'pointer', marginLeft : '8px'}}
-                            onClick={(event) => {
+                            onClick={async (event) => {
                                 event.stopPropagation (); // Prevent card toggle
                                 setIsStarred (true); // Set star to filled
+
+                                // Add stock to favorite
+                                try {
+
+                                    const postData = {
+                                        "stockSymbol" : stock.symbol,
+                                    };
+
+                                    const res = await fetch (`http://localhost:3001/api/user-stocks/favorite`, {
+                                        method : "POST",
+                                        headers : {
+                                            "Content-Type" : "application/json",
+                                            "Authorization" : `Bearer ${token}`,
+
+                                        },
+                                        body : JSON.stringify (postData),
+                                    });
+
+                                    if (!res.ok) {
+                                        const data = await res.json ();
+                                        alert ("Error: " + data.error);
+                                    }
+
+                                } catch (e) {
+                                    alert (e);
+                                }
+
+
                             }}
                         />
                     ))}

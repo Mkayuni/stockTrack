@@ -1,16 +1,27 @@
-const { UserStocks, StockSymbol } = require('../models');
+const { UserStocks, StockSymbol} = require('../models');
 
 /**
  * Add or Toggle Favorite Status
  */
 const addFavorite = async (req, res) => {
-    const { stockSymbolId } = req.body;
+    const { stockSymbol } = req.body;
     const { email } = req.user;
 
     try {
-        if (!stockSymbolId) {
-            return res.status(400).json({ error: 'Stock symbol ID is required.' });
+        if (!stockSymbol) {
+            return res.status(400).json({ error: 'Stock symbol is required.' });
         }
+
+        // Gets the symbol id from the symbol
+        const record = await StockSymbol.findOne({
+            where: { symbol: stockSymbol },
+        });
+
+        const stockSymbolId = record.id;
+
+        if (!stockSymbolId) return res.status(404).json({ error: 'Stock symbol not found.' });
+
+        console.log(stockSymbolId);
 
         const [favorite, created] = await UserStocks.findOrCreate({
             where: { email, stockSymbolId },
@@ -52,10 +63,22 @@ const getFavorites = async (req, res) => {
  * Check if a Specific Stock is Favorited
  */
 const isFavorite = async (req, res) => {
-    const { stockSymbolId } = req.params;
+    const { stockSymbol } = req.params;
     const { email } = req.user;
 
     try {
+
+        if (!stockSymbol) {
+            return res.status(400).json({ error: 'Stock symbol is required.' });
+        }
+
+        // Gets the symbol id from the symbol
+        const record = await StockSymbol.findOne({
+            where: { symbol: stockSymbol },
+        });
+
+        const stockSymbolId = record.id;
+
         const favorite = await UserStocks.findOne({
             where: { email, stockSymbolId },
         });
@@ -71,10 +94,22 @@ const isFavorite = async (req, res) => {
  * Remove a Stock from Favorites
  */
 const removeFavorite = async (req, res) => {
-    const { stockSymbolId } = req.body;
+    const { stockSymbol } = req.body;
     const { email } = req.user;
 
     try {
+
+        if (!stockSymbol) {
+            return res.status(400).json({ error: 'Stock symbol is required.' });
+        }
+
+        // Gets the symbol id from the symbol
+        const record = await StockSymbol.findOne({
+            where: { symbol: stockSymbol },
+        });
+
+        const stockSymbolId = record.id;
+
         const favorite = await UserStocks.findOne({
             where: { email, stockSymbolId },
         });
