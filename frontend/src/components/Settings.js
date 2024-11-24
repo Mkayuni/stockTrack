@@ -87,6 +87,8 @@ export default function Settings({ token }) {
                 email: user.email,
                 username: user.username,
                 password: user.password,
+                isUpdatingPassword: false,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
@@ -101,6 +103,8 @@ export default function Settings({ token }) {
                 firstName: response.data.firstName,
                 lastName: response.data.lastName,
             });
+
+            alert("Successfully updated names");
 
         } catch (err) {
             alert(err);
@@ -124,6 +128,8 @@ export default function Settings({ token }) {
                 email: email,
                 username: user.username,
                 password: user.password,
+                isUpdatingPassword: false,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
@@ -137,6 +143,8 @@ export default function Settings({ token }) {
                 ...user,
                 email: response.data.email,
             });
+
+            alert("Successfully updated email");
 
         } catch (err) {
             alert(err);
@@ -160,6 +168,8 @@ export default function Settings({ token }) {
                 email: user.email,
                 username: username,
                 password: user.password,
+                isUpdatingPassword: false,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
@@ -173,6 +183,8 @@ export default function Settings({ token }) {
                 ...user,
                 username: response.data.username,
             });
+
+            alert("Successfully updated username");
 
         } catch (err) {
             alert(err);
@@ -208,6 +220,8 @@ export default function Settings({ token }) {
                 email: user.email,
                 username: user.username,
                 password: password,
+                isUpdatingPassword: true,
+                role: user.role,
             };
 
             const response = await api.put('/api/users/self', updatedData, {
@@ -219,8 +233,10 @@ export default function Settings({ token }) {
             // Update the global user state with the updated data
             setUser({
                 ...user,
-                password: password,
+                password: password, /// Needs to be hashed
             });
+
+            alert("Successfully updated password");
 
         } catch (err) {
             alert(err);

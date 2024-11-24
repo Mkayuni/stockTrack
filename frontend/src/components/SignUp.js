@@ -136,7 +136,7 @@ export default function SignUp() {
                 }),
             });
 
-            alert(await response.json());
+            //alert(await response.json());
 
 
         } catch (e) {
