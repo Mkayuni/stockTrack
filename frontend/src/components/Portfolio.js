@@ -80,12 +80,6 @@ export default function Portfolio({token, user}) {
 
             </div>
 
-            <div className="Portfolio-Footer">
-                <Button variant="contained" sx={{backgroundColor: '#f8f9fa', color: 'black', minWidth: '163px'}}>
-                    Generate Report
-                </Button>
-            </div>
-
         </div>
     );
 }
