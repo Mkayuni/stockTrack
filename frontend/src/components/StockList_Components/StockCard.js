@@ -108,10 +108,6 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
                 //alert(latest.date)
 
                 // Set the values
-                setOpenPrice(latest.open);
-                setClosePrice(latest.close);
-                setHighPrice(latest.high);
-                setLowPrice(latest.low);
 
                 // Gets the day before the provided date
                 const getDayBeforeDate = (inputDate) => {
@@ -134,27 +130,38 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
                 try {
                     let yesterday = getDayBeforeDate(latest.date);
 
-                    let res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`, {})
+                    // Fetch data for yesterday
+                    let res = await api.get(
+                        `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`,
+                        {}
+                    );
+
+                    //alert(res.data)
 
                     let stks = res.data;
-                    let attempts = 0
+                    let attempts = 0;
 
-                    //if (stks != null) alert(stks[0].open);
-
-                    // Continue looping until stks is not null
+                    // Loop until we find a valid entry for yesterday
                     while (stks.length === 0) {
-
                         if (attempts > 30) {
                             break;
                         }
 
                         yesterday = getDayBeforeDate(yesterday);
-                        res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`, {})
+                        res = await api.get(
+                            `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`,
+                            {}
+                        );
                         stks = res.data;
                         attempts += 1;
                     }
 
                     if (attempts > 30) {
+                        setOpenPrice(0);
+                        setClosePrice(0);
+                        setHighPrice(0);
+                        setLowPrice(0);
+
                         setOpenPricePrev(0);
                         setClosePricePrev(0);
                         setHighPricePrev(0);
@@ -162,18 +169,65 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
                         return;
                     }
 
-                    // Get the newest entry from the date
+                    // Get the newest entry for yesterday
                     const stk = stks[stks.length - 1];
 
-                    // Set the values
-                    setOpenPricePrev(stk.open);
-                    setClosePricePrev(stk.close);
-                    setHighPricePrev(stk.high);
-                    setLowPricePrev(stk.low);
+                    //alert(yesterday);
+
+                    // Set the current day's prices
+                    setOpenPrice(stk.open);
+                    setClosePrice(stk.close);
+                    setHighPrice(stk.high);
+                    setLowPrice(stk.low);
+
+
+                    // Now fetch the day before yesterday for previous prices
+                    let dayBeforeYesterday = getDayBeforeDate(yesterday);
+
+                    res = await api.get(
+                        `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${dayBeforeYesterday}&endDate=${dayBeforeYesterday}`,
+                        {}
+                    );
+
+                    let prevStks = res.data;
+                    attempts = 0;
+
+                    // Loop until we find a valid entry for the day before yesterday
+                    while (prevStks.length === 0) {
+                        if (attempts > 30) {
+                            break;
+                        }
+
+                        dayBeforeYesterday = getDayBeforeDate(dayBeforeYesterday);
+                        res = await api.get(
+                            `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${dayBeforeYesterday}&endDate=${dayBeforeYesterday}`,
+                            {}
+                        );
+                        prevStks = res.data;
+                        attempts += 1;
+                    }
+
+                    if (attempts > 30 || prevStks.length === 0) {
+                        setOpenPricePrev(0);
+                        setClosePricePrev(0);
+                        setHighPricePrev(0);
+                        setLowPricePrev(0);
+                        return;
+                    }
+
+                    // Get the newest entry for the day before yesterday
+                    const prevStk = prevStks[prevStks.length - 1];
+
+                    // Set the previous day's prices
+                    setOpenPricePrev(prevStk.open);
+                    setClosePricePrev(prevStk.close);
+                    setHighPricePrev(prevStk.high);
+                    setLowPricePrev(prevStk.low);
 
                 } catch (e) {
                     alert(e);
                 }
+
 
 
 
@@ -286,20 +340,19 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
 
         switch (currentSector) {
             case 'Open':
-                dif = openPrice - prices.open;
+                dif = openPrice - openPricePrev;
                 percent = (dif / openPrice) * 100;
-
                 break;
             case 'Close':
-                dif = closePrice - prices.close;
+                dif = closePrice - closePricePrev;
                 percent = (dif / closePrice) * 100;
                 break;
             case 'High':
-                dif = highPrice - prices.high;
+                dif = highPrice - highPricePrev;
                 percent = (dif / highPrice) * 100;
                 break;
             case 'Low':
-                dif = lowPrice - prices.low;
+                dif = lowPrice - lowPricePrev;
                 percent = (dif / lowPrice) * 100;
                 break;
         }
