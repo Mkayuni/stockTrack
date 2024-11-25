@@ -1,8 +1,40 @@
 import { Line } from 'react-chartjs-2';
 import CircularProgress from "@mui/material/CircularProgress";
 import {useEffect, useState} from "react";
+import api from "../../services/api";
 
-export default function StockGraph({prices, loading, priceType}) {
+export default function StockGraph({prices, loading, priceType, isDay, stock}) {
+
+    const [p, setPrices] = useState(prices);
+
+    useEffect(() => {
+        // Sync local state with prop changes
+        setPrices(prices);
+    }, [prices]);
+
+    useEffect(() => {
+        if (!isDay) return;
+
+        const fetchData = async () => {
+            try {
+                const response = await api.get(`/api/stocks/${stock.id}/prices/`);
+                const data = response.data;
+
+                // Get today's date in 'YYYY-MM-DD' format
+                const today = new Date().toISOString().split('T')[0]; // Extract only the date part
+
+                // Filter to get only today's entries
+                const todaysData = data.filter(item => item.date === today);
+
+                setPrices(todaysData);
+
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        };
+
+        fetchData();
+    }, [isDay]);
 
     if (loading) {
         return (
@@ -12,7 +44,7 @@ export default function StockGraph({prices, loading, priceType}) {
         );
     }
 
-    if (!Array.isArray(prices) || prices.length === 0 ) {
+    if (!Array.isArray(p) || p.length === 0 ) {
         return <div>Error loading graph data.</div>;
     }
 
@@ -50,10 +82,10 @@ export default function StockGraph({prices, loading, priceType}) {
     };
 
     const stockData = {
-        labels: prices.map(price => new Date(price.date)),
+        labels: p.map(price => new Date(isDay ? price.createdAt : price.date)),
         datasets: [{
             label: 'Stock Price',
-            data: prices.map(price => {
+            data: p.map(price => {
                 switch (priceType) {
                     case 'Open':
                         return price.open;
@@ -75,6 +107,34 @@ export default function StockGraph({prices, loading, priceType}) {
         }],
     };
 
+    const calculateRange = (prices, type) => {
+        const values = prices.map(price => {
+            switch (type) {
+                case 'Open':
+                    return price.open;
+                case 'Closed':
+                    return price.close;
+                case 'High':
+                    return price.high;
+                case 'Low':
+                    return price.low;
+                default:
+                    return null;
+            }
+        });
+
+        // Remove nulls (in case of invalid type)
+        const validValues = values.filter(value => value !== null);
+
+        // Calculate min and max with some padding
+        return {
+            max: Math.max(...validValues) + 50,
+            min: Math.min(...validValues) - 50,
+        };
+    };
+
+    const { max, min } = calculateRange(p, priceType);
+
     const stockOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -82,26 +142,36 @@ export default function StockGraph({prices, loading, priceType}) {
             x: {
                 type: 'time',
                 time: {
-                    unit: 'day',
-                    tooltipFormat: 'MMM d, yyyy',
+                    unit: isDay ? 'hour' : 'day',
+                    tooltipFormat: isDay ? 'HH:mm' : 'MMM d',
+                    displayFormats: {
+                        hour: 'h:mm a',
+                        day: 'MMM d',
+                    },
                 },
                 ticks: {
                     autoSkip: true,
-                    maxTicksLimit: 12,
+                    maxTicksLimit: isDay ? 12 : 7,
+                    callback: function(value) {
+                        const date = new Date(value);
+                        return isDay
+                            ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    },
                 },
                 grid: {
                     display: false,
                 },
-                max: new Date(Math.max(...prices.map(price => Date.parse(price.date)))),
-                min: new Date(Math.min(...prices.map(price => Date.parse(price.date)))),
+                max: new Date(Math.max(...p.map(price => Date.parse(isDay ? price.createdAt : price.date)))),
+                min: new Date(Math.min(...p.map(price => Date.parse(isDay ? price.createdAt : price.date)))),
             },
             y: {
                 beginAtZero: false,
                 grid: {
                     color: 'rgba(0, 0, 0, 0.2)',
                 },
-                max: Math.max(...prices.map(price => price.open)) + 50,
-                min: Math.min(...prices.map(price => price.open)) - 50,
+                max: max,
+                min: min,
             },
         },
         plugins: {
@@ -118,8 +188,8 @@ export default function StockGraph({prices, loading, priceType}) {
             verticalLine: verticalLinePlugin,
         },
         hover: {
-          mode: 'index',
-          intersect: false,
+            mode: 'index',
+            intersect: false,
         },
         elements: {
             point: {
@@ -130,8 +200,10 @@ export default function StockGraph({prices, loading, priceType}) {
         },
         animation: {
             duration: 0,
-        }
+        },
     };
+
+
 
     return (
         <div>
