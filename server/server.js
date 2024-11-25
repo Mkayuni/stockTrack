@@ -222,19 +222,22 @@ const saveBufferedDataToDB = async () => {
 
         const lastPriceData = await fetchLastStockPrice(symbol);
 
-        // Save real-time trade data
-        await StockPrice.create({
-          stockId: stock.id,
-          date: tradeData.timestamp,
-          open: lastPriceData.open,
-          close: tradeData.price,
-          high: lastPriceData.high,
-          low: lastPriceData.low,
-          volume: tradeData.volume ?? 0, // Use volume or default to 0
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-        console.log(`Real-time data saved: ${symbol} - Price: ${tradeData.price}`);
+        if (lastPriceData) {
+          // Save real-time trade data
+          await StockPrice.create({
+            stockId: stock.id,
+            date: tradeData.timestamp,
+            open: lastPriceData.open,
+            close: tradeData.price,
+            high: lastPriceData.high,
+            low: lastPriceData.low,
+            volume: tradeData.volume ?? 0, // Use volume or default to 0
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+
+          console.log(`Real-time data saved: ${symbol} - Price: ${tradeData.price}`);
+        }
       }
 
       // Clear the buffer for the processed symbol

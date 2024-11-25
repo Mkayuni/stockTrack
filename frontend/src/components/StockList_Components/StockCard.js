@@ -101,79 +101,56 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
             setLoading(true);
 
             try {
-                const res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices/latest`, {
-                })
+                const today = new Date();
 
-                const latest = res.data;
-                //alert(latest.date)
+                const res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices/`, {});
 
-                // Set the values
-                setOpenPrice(latest.open);
-                setClosePrice(latest.close);
-                setHighPrice(latest.high);
-                setLowPrice(latest.low);
+                // Sort prices in descending order by date
+                const sortedPrices = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                // Gets the day before the provided date
-                const getDayBeforeDate = (inputDate) => {
+                // Get distinct previous days
+                const prevDays = [];
+                const pricesByDay = {};
 
-                    // Parse the input date or use today's date if not provided
-                    const date = inputDate ? new Date(inputDate) : new Date();
+                // Iterate through sorted prices to group entries by distinct dates
+                for (const price of sortedPrices) {
+                    const priceDate = new Date(price.date).toISOString().split("T")[0]; // Format as YYYY-MM-DD
+                    const todayDate = today.toISOString().split("T")[0];
 
-                    // Subtract one day from the given date
-                    date.setDate(date.getDate() - 1);
-
-                    // Format the date as YYYY-MM-DD
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-                    const day = String(date.getDate()).padStart(2, '0');
-
-                    return `${year}-${month}-${day}`;
-                };
-
-                // Get the yesterday stock
-                try {
-                    let yesterday = getDayBeforeDate(latest.date);
-
-                    let res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`, {})
-
-                    let stks = res.data;
-                    let attempts = 0
-
-                    //if (stks != null) alert(stks[0].open);
-
-                    // Continue looping until stks is not null
-                    while (stks.length === 0) {
-
-                        if (attempts > 30) {
-                            break;
-                        }
-
-                        yesterday = getDayBeforeDate(yesterday);
-                        res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`, {})
-                        stks = res.data;
-                        attempts += 1;
+                    if (priceDate === todayDate) {
+                        // Skip today's date
+                        continue;
                     }
 
-                    if (attempts > 30) {
-                        setOpenPricePrev(0);
-                        setClosePricePrev(0);
-                        setHighPricePrev(0);
-                        setLowPricePrev(0);
-                        return;
+                    if (!pricesByDay[priceDate]) {
+                        pricesByDay[priceDate] = [];
+                        prevDays.push(priceDate); // Track the order of unique previous days
                     }
 
-                    // Get the newest entry from the date
-                    const stk = stks[stks.length - 1];
+                    pricesByDay[priceDate].push(price);
 
-                    // Set the values
-                    setOpenPricePrev(stk.open);
-                    setClosePricePrev(stk.close);
-                    setHighPricePrev(stk.high);
-                    setLowPricePrev(stk.low);
-
-                } catch (e) {
-                    alert(e);
+                    // Stop once we have the two previous days
+                    if (prevDays.length === 2) {
+                        break;
+                    }
                 }
+
+                // Get the newest entries for the two previous days
+                const result = prevDays.map((day) => {
+                    const entries = pricesByDay[day];
+                    // Assume the newest entry is the first one (sorted order)
+                    return entries[0];
+                });
+
+                setOpenPrice(result[0].open);
+                setClosePrice(result[0].close);
+                setHighPrice(result[0].high);
+                setLowPrice(result[0].low);
+
+                setOpenPricePrev(result[1].open);
+                setClosePricePrev(result[1].close);
+                setHighPricePrev(result[1].high);
+                setLowPricePrev(result[1].low);
 
 
 
@@ -286,20 +263,19 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
 
         switch (currentSector) {
             case 'Open':
-                dif = openPrice - prices.open;
+                dif = openPrice - openPricePrev;
                 percent = (dif / openPrice) * 100;
-
                 break;
             case 'Close':
-                dif = closePrice - prices.close;
+                dif = closePrice - closePricePrev;
                 percent = (dif / closePrice) * 100;
                 break;
             case 'High':
-                dif = highPrice - prices.high;
+                dif = highPrice - highPricePrev;
                 percent = (dif / highPrice) * 100;
                 break;
             case 'Low':
-                dif = lowPrice - prices.low;
+                dif = lowPrice - lowPricePrev;
                 percent = (dif / lowPrice) * 100;
                 break;
         }
