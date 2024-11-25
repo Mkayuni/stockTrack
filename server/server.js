@@ -6,6 +6,7 @@ const userStocksRoutes = require('./routes/userStocksRoutes');
 const userRoutes = require('./routes/userRoutes');
 const stockPriceRoutes = require('./routes/stockPriceRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const emailRoutes = require('./routes/emailRoutes');
 const cors = require('cors');
 const WebSocket = require('ws');
 const { StockPrice, StockSymbol } = require('./models');
@@ -29,6 +30,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockPriceRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user-stocks', userStocksRoutes)
+app.use('/api/email', emailRoutes)
 
 sequelize.sync().then(async () => {
   try {
@@ -147,7 +149,7 @@ const connectWebSocket = async () => {
     const data = JSON.parse(event.data);
     if (data.type === 'trade' && data.data && data.data.length > 0) {
       const tradeData = data.data[0];
-      console.log(`Received trade data for symbol ${tradeData.s}:`, tradeData); // Log trade data
+      //console.log(`Received trade data for symbol ${tradeData.s}:`, tradeData); // Log trade data
       processTradeData(tradeData);
     }
   };
@@ -241,7 +243,7 @@ const saveBufferedDataToDB = async () => {
 
 
 // Save buffered data every 30 seconds
-setInterval(saveBufferedDataToDB, 30000);
+setInterval(saveBufferedDataToDB, 3000);
 
 // Start the WebSocket connection
 connectWebSocket();

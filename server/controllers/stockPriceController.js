@@ -208,7 +208,7 @@ const getLatestStockPrice = async (req, res) => {
   try {
     const latestPrice = await StockPrice.findOne({
       where: { stockId },
-      order: [['date', 'DESC']]
+      order: [['createdAt', 'DESC']]
     });
 
     if (!latestPrice) {

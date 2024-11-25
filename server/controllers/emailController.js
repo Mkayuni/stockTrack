@@ -14,11 +14,13 @@ const sendAuthEmail = async (req, res) => {
 
     const result = await sendEmail(email, subject, html);
 
+
     if (result) {
-        res.json({code: hashed});
+        return res.json({code: hashed});
     } else {
         return res.status(500).json({ error: 'Failed to send email due to a server error.' });
     }
+
 
 }
 

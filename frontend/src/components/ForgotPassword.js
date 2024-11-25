@@ -263,8 +263,6 @@ export default function ForgotPassword() {
                 },
             });
 
-
-
             const dat = await res.json();
             setVerificationCode(dat["code"])
 
