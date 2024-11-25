@@ -1,4 +1,4 @@
-const { UserStocks, StockSymbol} = require('../models');
+const { UserStocks, StockSymbol, Stock} = require('../models');
 
 /**
  * Add or Toggle Favorite Status
@@ -47,12 +47,26 @@ const getFavorites = async (req, res) => {
     const { email } = req.user;
 
     try {
+        // Fetch all favorite UserStocks, including associated StockSymbol
         const favorites = await UserStocks.findAll({
-            where: { email, favorite: true }, // Only fetch stocks marked as favorite
-            include: [StockSymbol],
+            where: { email, favorite: true },
+            include: [{
+                model: StockSymbol,
+                as: 'stockSymbol',  // Use the alias here
+            }],
         });
 
-        res.status(200).json(favorites);
+        // Fetch all stocks
+        const stocks = await Stock.findAll();
+
+        // Map favorite stock symbols to a list
+        const favoriteSymbols = favorites.map(fav => fav.stockSymbol.symbol); // Access the symbol from the associated StockSymbol
+
+        // Filter stocks to include only those in the favorites list
+        const favoriteStocks = stocks.filter(stock => favoriteSymbols.includes(stock.symbol)); // Compare stock.symbol
+
+        // Return filtered stock objects
+        res.status(200).json(favoriteStocks);
     } catch (error) {
         console.error('Error fetching favorite stocks:', error.message);
         res.status(500).json({ error: 'Failed to fetch favorites.' });

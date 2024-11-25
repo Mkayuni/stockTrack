@@ -13,7 +13,7 @@ import FormControl from "@mui/material/FormControl";
 import {Star} from "@mui/icons-material";
 
 /** Definition for a card which holds stock information **/
-export const StockCard = ({ stock, isSelected, onToggle, user, token }) => {
+export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavorite = null}) => {
     const [height, setHeight] = useState('250px');
     const [stockPrices, setStockPrices] = useState([]);
     const [fetchError, setFetchError] = useState(null); // State for fetch error
@@ -337,6 +337,8 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token }) => {
                                     const postData = {
                                         "stockSymbol" : stock.symbol,
                                     };
+
+                                    if (onUnfavorite) onUnfavorite(stock.id);
 
                                     const res = await fetch (`http://localhost:3001/api/user-stocks/favorite`, {
                                         method : "DELETE",
