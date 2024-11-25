@@ -101,133 +101,56 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
             setLoading(true);
 
             try {
-                const res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices/latest`, {
-                })
+                const today = new Date();
 
-                const latest = res.data;
-                //alert(latest.date)
+                const res = await api.get(`http://localhost:3001/api/stocks/${stock.id}/prices/`, {});
 
-                // Set the values
+                // Sort prices in descending order by date
+                const sortedPrices = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                // Gets the day before the provided date
-                const getDayBeforeDate = (inputDate) => {
+                // Get distinct previous days
+                const prevDays = [];
+                const pricesByDay = {};
 
-                    // Parse the input date or use today's date if not provided
-                    const date = inputDate ? new Date(inputDate) : new Date();
+                // Iterate through sorted prices to group entries by distinct dates
+                for (const price of sortedPrices) {
+                    const priceDate = new Date(price.date).toISOString().split("T")[0]; // Format as YYYY-MM-DD
+                    const todayDate = today.toISOString().split("T")[0];
 
-                    // Subtract one day from the given date
-                    date.setDate(date.getDate() - 1);
-
-                    // Format the date as YYYY-MM-DD
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-                    const day = String(date.getDate()).padStart(2, '0');
-
-                    return `${year}-${month}-${day}`;
-                };
-
-                // Get the yesterday stock
-                try {
-                    let yesterday = getDayBeforeDate(latest.date);
-
-                    // Fetch data for yesterday
-                    let res = await api.get(
-                        `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`,
-                        {}
-                    );
-
-                    //alert(res.data)
-
-                    let stks = res.data;
-                    let attempts = 0;
-
-                    // Loop until we find a valid entry for yesterday
-                    while (stks.length === 0) {
-                        if (attempts > 30) {
-                            break;
-                        }
-
-                        yesterday = getDayBeforeDate(yesterday);
-                        res = await api.get(
-                            `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${yesterday}&endDate=${yesterday}`,
-                            {}
-                        );
-                        stks = res.data;
-                        attempts += 1;
+                    if (priceDate === todayDate) {
+                        // Skip today's date
+                        continue;
                     }
 
-                    if (attempts > 30) {
-                        setOpenPrice(0);
-                        setClosePrice(0);
-                        setHighPrice(0);
-                        setLowPrice(0);
-
-                        setOpenPricePrev(0);
-                        setClosePricePrev(0);
-                        setHighPricePrev(0);
-                        setLowPricePrev(0);
-                        return;
+                    if (!pricesByDay[priceDate]) {
+                        pricesByDay[priceDate] = [];
+                        prevDays.push(priceDate); // Track the order of unique previous days
                     }
 
-                    // Get the newest entry for yesterday
-                    const stk = stks[stks.length - 1];
+                    pricesByDay[priceDate].push(price);
 
-                    //alert(yesterday);
-
-                    // Set the current day's prices
-                    setOpenPrice(stk.open);
-                    setClosePrice(stk.close);
-                    setHighPrice(stk.high);
-                    setLowPrice(stk.low);
-
-
-                    // Now fetch the day before yesterday for previous prices
-                    let dayBeforeYesterday = getDayBeforeDate(yesterday);
-
-                    res = await api.get(
-                        `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${dayBeforeYesterday}&endDate=${dayBeforeYesterday}`,
-                        {}
-                    );
-
-                    let prevStks = res.data;
-                    attempts = 0;
-
-                    // Loop until we find a valid entry for the day before yesterday
-                    while (prevStks.length === 0) {
-                        if (attempts > 30) {
-                            break;
-                        }
-
-                        dayBeforeYesterday = getDayBeforeDate(dayBeforeYesterday);
-                        res = await api.get(
-                            `http://localhost:3001/api/stocks/${stock.id}/prices?startDate=${dayBeforeYesterday}&endDate=${dayBeforeYesterday}`,
-                            {}
-                        );
-                        prevStks = res.data;
-                        attempts += 1;
+                    // Stop once we have the two previous days
+                    if (prevDays.length === 2) {
+                        break;
                     }
-
-                    if (attempts > 30 || prevStks.length === 0) {
-                        setOpenPricePrev(0);
-                        setClosePricePrev(0);
-                        setHighPricePrev(0);
-                        setLowPricePrev(0);
-                        return;
-                    }
-
-                    // Get the newest entry for the day before yesterday
-                    const prevStk = prevStks[prevStks.length - 1];
-
-                    // Set the previous day's prices
-                    setOpenPricePrev(prevStk.open);
-                    setClosePricePrev(prevStk.close);
-                    setHighPricePrev(prevStk.high);
-                    setLowPricePrev(prevStk.low);
-
-                } catch (e) {
-                    alert(e);
                 }
 
+                // Get the newest entries for the two previous days
+                const result = prevDays.map((day) => {
+                    const entries = pricesByDay[day];
+                    // Assume the newest entry is the first one (sorted order)
+                    return entries[0];
+                });
+
+                setOpenPrice(result[0].open);
+                setClosePrice(result[0].close);
+                setHighPrice(result[0].high);
+                setLowPrice(result[0].low);
+
+                setOpenPricePrev(result[1].open);
+                setClosePricePrev(result[1].close);
+                setHighPricePrev(result[1].high);
+                setLowPricePrev(result[1].low);
 
 
 
