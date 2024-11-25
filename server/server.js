@@ -9,7 +9,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 const cors = require('cors');
 const WebSocket = require('ws');
-const { StockPrice, StockSymbol } = require('./models');
+const { StockPrice, StockSymbol, Stock} = require('./models');
 const axios = require('axios');
 const subscribedSymbols = new Set(); // Track subscribed symbols
 
@@ -187,9 +187,11 @@ const saveBufferedDataToDB = async () => {
   for (const symbol in tradeBuffer) {
     const tradeData = tradeBuffer[symbol];
 
+    console.log(JSON.stringify(tradeData))
+
     try {
       // Fetch the stock details from the database
-      const stock = await StockSymbol.findOne({ where: { symbol } });
+      const stock = await Stock.findOne({ where: { symbol } });
       if (!stock) {
         console.error(`Symbol ${symbol} not found in Stocks table. Skipping...`);
         continue;
@@ -217,14 +219,17 @@ const saveBufferedDataToDB = async () => {
           console.error(`No fallback data available for ${symbol}`);
         }
       } else {
+
+        const lastPriceData = await fetchLastStockPrice(symbol);
+
         // Save real-time trade data
         await StockPrice.create({
           stockId: stock.id,
           date: tradeData.timestamp,
-          open: tradeData.price,
+          open: lastPriceData.open,
           close: tradeData.price,
-          high: tradeData.price,
-          low: tradeData.price,
+          high: lastPriceData.high,
+          low: lastPriceData.low,
           volume: tradeData.volume ?? 0, // Use volume or default to 0
           createdAt: new Date(),
           updatedAt: new Date(),
