@@ -72,8 +72,8 @@ The system architecture consists of:
    - `PORT`: 3001.
    - `DEFAULT_THROTTLE_INTERVAL`: 3000.
    - `ENABLE_TRADE_LOGGING`: true.
-   - `GMAIL_APP_PASSWORD`: "yaqy rrbl uxcs exjq".
-   - `GMAIL_USER`: stocktracker609@gmail.com.
+   - `GMAIL_APP_PASSWORD`: "your password".
+   - `GMAIL_USER`: youremail@gmail.com.
 3. Start the server:
    - Run `npm start`. The server will be accessible at `http://localhost:3001`.
 
