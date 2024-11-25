@@ -6,6 +6,7 @@ const userStocksRoutes = require('./routes/userStocksRoutes');
 const userRoutes = require('./routes/userRoutes');
 const stockPriceRoutes = require('./routes/stockPriceRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const emailRoutes = require('./routes/emailRoutes');
 const cors = require('cors');
 const WebSocket = require('ws');
 const { StockPrice, StockSymbol } = require('./models');
@@ -29,6 +30,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockPriceRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user-stocks', userStocksRoutes)
+app.use('/api/email', emailRoutes)
 
 sequelize.sync().then(async () => {
   try {
