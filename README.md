@@ -1,7 +1,6 @@
 # Stock Tracking and Portfolio Management System
 
 [![Node.js Version](https://img.shields.io/badge/node.js-v14%2B-brightgreen)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/license-pending-lightgrey)](#)
 
 ---
 
@@ -149,11 +148,6 @@ The system architecture consists of:
 - **Backend**: Node.js, Express.js, Sequelize ORM.
 - **Database**: SQLite.
 - **External APIs**: Finnhub.
-
----
-
-## License
-> **Note**: The license for this project is currently under review and will be decided in a future release. For now, all rights are reserved.
 
 ---
 
