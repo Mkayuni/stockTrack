@@ -11,6 +11,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import {Star} from "@mui/icons-material";
+import CircularProgress from "@mui/material/CircularProgress";
 
 /** Definition for a card which holds stock information **/
 export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavorite = null}) => {
@@ -322,10 +323,15 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
             style={{height, transition : 'height 0.5s ease, box-shadow 0.3s ease'}}
             onClick={onToggle}
         >
-            <div className="StockList-Card-Title">
-                {stock.symbol}
-                {user === null ? "" : (isStarred ? (
-                        <Star
+
+            {loading ?
+                <div style={{display : 'flex', justifyContent : 'center', alignItems : 'center', height : '100vh'}}>
+                    <CircularProgress/>
+                </div> : <>
+                    <div className="StockList-Card-Title">
+                        {stock.symbol}
+                        {user === null ? "" : (isStarred ? (
+                            <Star
                             style={{cursor : 'pointer', marginLeft : '8px'}}
                             onClick={async (event) => {
                                 event.stopPropagation (); // Prevent card toggle
@@ -338,7 +344,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
                                         "stockSymbol" : stock.symbol,
                                     };
 
-                                    if (onUnfavorite) onUnfavorite(stock.id);
+                                    if (onUnfavorite) onUnfavorite (stock.id);
 
                                     const res = await fetch (`http://localhost:3001/api/user-stocks/favorite`, {
                                         method : "DELETE",
@@ -398,78 +404,81 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
                             }}
                         />
                     ))}
-            </div>
-            <div className="StockList-Card-Company">{stock.companyName}</div>
-            <div className="StockList-Card-Sector">{stock.sector}</div>
-            <br/>
+                </div>
+                <div className="StockList-Card-Company">{stock.companyName}</div>
+                <div className="StockList-Card-Sector">{stock.sector}</div>
+                <br/>
 
-            {/** Graph **/}
-            <div className={`StockList-Card-Graph ${isSelected ? 'Expanded' : ''}`}>
-                {isSelected && (fetchError ? (
-                    <div>{fetchError}</div> // Display error if fetching fails
-                ) : (
-                    <div onClick={(event) => {
-                        event.stopPropagation ();
-                    }} style={{cursor : 'default'}}>
+                {/** Graph **/}
+                <div className={`StockList-Card-Graph ${isSelected ? 'Expanded' : ''}`}>
+                    {isSelected && (fetchError ? (
+                        <div>{fetchError}</div> // Display error if fetching fails
+                    ) : (
+                        <div onClick={(event) => {
+                            event.stopPropagation ();
+                        }} style={{cursor : 'default'}}>
 
-                        <div className="StockList-Card-Prices">
-                            <FormControl className="StockList-Card-Prices-Dropdown" sx={{m : 0, minWidth : 140}} fullWidth>
-                                <InputLabel id="StockList-Card-Prices-Dropdown-Label">Price Type</InputLabel>
-                                <Select
-                                    labelId="StockList-Card-Prices-Dropdown-Label"
-                                    id="StockList-Card-Prices-Dropdown"
-                                    label="Price Type"
-                                    value={currentSector}
-                                    onChange={(event) => setCurrentSector(event.target.value)}
-                                >
-                                    <MenuItem value="Closed">Closed Price</MenuItem>
-                                    <MenuItem value="Open">Open Price</MenuItem>
-                                    <MenuItem value="High">High Price</MenuItem>
-                                    <MenuItem value="Low">Low Price</MenuItem>
+                            <div className="StockList-Card-Prices">
+                                <FormControl className="StockList-Card-Prices-Dropdown" sx={{m : 0, minWidth : 140}}
+                                             fullWidth>
+                                    <InputLabel id="StockList-Card-Prices-Dropdown-Label">Price Type</InputLabel>
+                                    <Select
+                                        labelId="StockList-Card-Prices-Dropdown-Label"
+                                        id="StockList-Card-Prices-Dropdown"
+                                        label="Price Type"
+                                        value={currentSector}
+                                        onChange={(event) => setCurrentSector (event.target.value)}
+                                    >
+                                        <MenuItem value="Closed">Closed Price</MenuItem>
+                                        <MenuItem value="Open">Open Price</MenuItem>
+                                        <MenuItem value="High">High Price</MenuItem>
+                                        <MenuItem value="Low">Low Price</MenuItem>
 
-                                </Select>
-                            </FormControl>
+                                    </Select>
+                                </FormControl>
+                            </div>
+
+                            <div className="StockList-Card-Graph-Buttons">
+                                {['1D', '1W', '1M', '6M', 'YTD', '1Y', '5Y', 'Max'].map ((label) => (
+                                    <button
+                                        key={label}
+                                        onClick={(event) => {
+                                            event.stopPropagation (); // Prevent card toggle on button click
+                                            setTimeFrame (label);
+                                        }}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <StockGraph prices={filteredStockPrices} loading={loading} priceType={currentSector}/>
+
                         </div>
+                    ))}
+                </div>
 
-                        <div className="StockList-Card-Graph-Buttons">
-                            {['1D', '1W', '1M', '6M', 'YTD', '1Y', '5Y', 'Max'].map ((label) => (
-                                <button
-                                    key={label}
-                                    onClick={(event) => {
-                                        event.stopPropagation (); // Prevent card toggle on button click
-                                        setTimeFrame (label);
-                                    }}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
+                <br/>
 
-                        <StockGraph prices={filteredStockPrices} loading={loading} priceType={currentSector} />
-
+                <div className="StockList-Card-Bottom">
+                    <div className="StockList-Card-Price">
+                        <div>Open: ${openPrice}</div>
+                        <div>Close: ${closePrice}</div>
                     </div>
-                ))}
-            </div>
 
-            <br/>
+                    <div className="StockList-Card-Price">
+                        <div>High: ${highPrice}</div>
+                        <div>Low: ${lowPrice}</div>
+                    </div>
 
-            <div className="StockList-Card-Bottom">
-                <div className="StockList-Card-Price">
-                    <div>Open: ${openPrice}</div>
-                    <div>Close: ${closePrice}</div>
+                    <div className="StockList-Card-Price">
+                        <div>Mkt: ${numberToMoney (stock.marketCap)}</div>
+                        <div
+                            style={{color : isPricePos === true ? 'green' : isPricePos === false ? 'red' : 'black'}}>{priceChanged}</div>
+                    </div>
+                    <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
                 </div>
-
-                <div className="StockList-Card-Price">
-                    <div>High: ${highPrice}</div>
-                    <div>Low: ${lowPrice}</div>
-                </div>
-
-                <div className="StockList-Card-Price">
-                    <div>Mkt: ${numberToMoney (stock.marketCap)}</div>
-                    <div style={{color: isPricePos === true ? 'green' : isPricePos === false ? 'red' : 'black' }}>{priceChanged}</div>
-                </div>
-                <div className="StockList-Card-Icon"> {isSelected ? <ExpandLessIcon/> : <ExpandMoreIcon/>} </div>
-            </div>
+            </>}
         </div>
     );
 };

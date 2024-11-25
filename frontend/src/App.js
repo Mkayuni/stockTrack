@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Route, Routes, BrowserRouter as Router, Link, useLocation } from "react-router-dom";
+import React, {useEffect, useState} from 'react';
+import {Route, Routes, BrowserRouter as Router, Link, useLocation, useNavigate} from "react-router-dom";
 import './App.css';
 
 import LoginComponent from './components/LoginComponent';
@@ -51,6 +51,7 @@ function MainApp() {
                 <div className={useFullHeader ? "App-Right" : "App-Right Small"}>
                     <nav className="App-Routes">
                         <Link to="/">Home</Link>
+                        {/*<Link to="/about">About</Link>*/}
                         <Link to="/stocks">Stocks</Link>
                     </nav>
 
@@ -60,6 +61,7 @@ function MainApp() {
 
             <main>
                 <Routes>
+                    {/*<Route path="/about" element={<Home/>} />*/}
                     <Route path="/stocks" element={<StockList user={user} token={userToken}/>} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
