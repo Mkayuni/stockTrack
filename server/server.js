@@ -149,7 +149,7 @@ const connectWebSocket = async () => {
     const data = JSON.parse(event.data);
     if (data.type === 'trade' && data.data && data.data.length > 0) {
       const tradeData = data.data[0];
-      console.log(`Received trade data for symbol ${tradeData.s}:`, tradeData); // Log trade data
+      //console.log(`Received trade data for symbol ${tradeData.s}:`, tradeData); // Log trade data
       processTradeData(tradeData);
     }
   };
@@ -243,7 +243,7 @@ const saveBufferedDataToDB = async () => {
 
 
 // Save buffered data every 30 seconds
-setInterval(saveBufferedDataToDB, 30000);
+setInterval(saveBufferedDataToDB, 3000);
 
 // Start the WebSocket connection
 connectWebSocket();
