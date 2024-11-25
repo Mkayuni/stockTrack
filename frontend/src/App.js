@@ -61,7 +61,7 @@ function MainApp() {
             <main>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/stocks" element={<StockList user={user}/>} />
+                    <Route path="/stocks" element={<StockList user={user} token={userToken}/>} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/admin-panel" element={<AdminPanel token={userToken} user={user} />} />

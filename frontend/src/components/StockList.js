@@ -15,7 +15,7 @@ import SearchFields from "./StockList_Components/SearchFields";
 
 Chart.register(...registerables);
 
-const StockList = ({user}) => {
+const StockList = ({user, token}) => {
     const [stocks, setStocks] = useState([]);
     const [latestStocksPrices, setLatestStockPrices] = useState([]);
     const [loading, setLoading] = useState(true);  // State for loading
@@ -166,7 +166,7 @@ const StockList = ({user}) => {
     // Creates a list of cards from stock database
     function generateCards () {
         return filteredAndSortedStocks.map(stock => {
-            return (<StockCard stock={stock} isSelected={selectedCards.has(stock.id)} user={user} onToggle={() => toggleCardExpansion(stock.id)}/>)
+            return (<StockCard stock={stock} isSelected={selectedCards.has(stock.id)} user={user} token={token} onToggle={() => toggleCardExpansion(stock.id)}/>)
         });
     }
 

@@ -1,16 +1,27 @@
-const { UserStocks, StockSymbol } = require('../models');
+const { UserStocks, StockSymbol, Stock} = require('../models');
 
 /**
  * Add or Toggle Favorite Status
  */
 const addFavorite = async (req, res) => {
-    const { stockSymbolId } = req.body;
+    const { stockSymbol } = req.body;
     const { email } = req.user;
 
     try {
-        if (!stockSymbolId) {
-            return res.status(400).json({ error: 'Stock symbol ID is required.' });
+        if (!stockSymbol) {
+            return res.status(400).json({ error: 'Stock symbol is required.' });
         }
+
+        // Gets the symbol id from the symbol
+        const record = await StockSymbol.findOne({
+            where: { symbol: stockSymbol },
+        });
+
+        const stockSymbolId = record.id;
+
+        if (!stockSymbolId) return res.status(404).json({ error: 'Stock symbol not found.' });
+
+        console.log(stockSymbolId);
 
         const [favorite, created] = await UserStocks.findOrCreate({
             where: { email, stockSymbolId },
@@ -36,12 +47,26 @@ const getFavorites = async (req, res) => {
     const { email } = req.user;
 
     try {
+        // Fetch all favorite UserStocks, including associated StockSymbol
         const favorites = await UserStocks.findAll({
-            where: { email, favorite: true }, // Only fetch stocks marked as favorite
-            include: [StockSymbol],
+            where: { email, favorite: true },
+            include: [{
+                model: StockSymbol,
+                as: 'stockSymbol',  // Use the alias here
+            }],
         });
 
-        res.status(200).json(favorites);
+        // Fetch all stocks
+        const stocks = await Stock.findAll();
+
+        // Map favorite stock symbols to a list
+        const favoriteSymbols = favorites.map(fav => fav.stockSymbol.symbol); // Access the symbol from the associated StockSymbol
+
+        // Filter stocks to include only those in the favorites list
+        const favoriteStocks = stocks.filter(stock => favoriteSymbols.includes(stock.symbol)); // Compare stock.symbol
+
+        // Return filtered stock objects
+        res.status(200).json(favoriteStocks);
     } catch (error) {
         console.error('Error fetching favorite stocks:', error.message);
         res.status(500).json({ error: 'Failed to fetch favorites.' });
@@ -52,10 +77,22 @@ const getFavorites = async (req, res) => {
  * Check if a Specific Stock is Favorited
  */
 const isFavorite = async (req, res) => {
-    const { stockSymbolId } = req.params;
+    const { stockSymbol } = req.params;
     const { email } = req.user;
 
     try {
+
+        if (!stockSymbol) {
+            return res.status(400).json({ error: 'Stock symbol is required.' });
+        }
+
+        // Gets the symbol id from the symbol
+        const record = await StockSymbol.findOne({
+            where: { symbol: stockSymbol },
+        });
+
+        const stockSymbolId = record.id;
+
         const favorite = await UserStocks.findOne({
             where: { email, stockSymbolId },
         });
@@ -71,10 +108,22 @@ const isFavorite = async (req, res) => {
  * Remove a Stock from Favorites
  */
 const removeFavorite = async (req, res) => {
-    const { stockSymbolId } = req.body;
+    const { stockSymbol } = req.body;
     const { email } = req.user;
 
     try {
+
+        if (!stockSymbol) {
+            return res.status(400).json({ error: 'Stock symbol is required.' });
+        }
+
+        // Gets the symbol id from the symbol
+        const record = await StockSymbol.findOne({
+            where: { symbol: stockSymbol },
+        });
+
+        const stockSymbolId = record.id;
+
         const favorite = await UserStocks.findOne({
             where: { email, stockSymbolId },
         });
