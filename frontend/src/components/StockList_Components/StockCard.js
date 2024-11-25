@@ -36,6 +36,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
 
     const [priceChanged, setPriceChanged] = useState("");
     const [isPricePos, setIsPricePos] = useState(false);
+    const [isDayTrue, setIsDayTrue] = useState(false);
 
     // Check if Card is in favorites
     useEffect(() => {
@@ -216,27 +217,35 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
         switch (timeFrame) {
             case '1D':
                 past.setDate(latest.getDate() - 1);
+                setIsDayTrue(true);
                 break;
             case '1W':
                 past.setDate(latest.getDate() - 7);
+                setIsDayTrue(false);
                 break;
             case '1M':
                 past.setDate(latest.getDate() - 30);
+                setIsDayTrue(false);
                 break;
             case '6M':
                 past.setDate(latest.getDate() - (30 * 6));
+                setIsDayTrue(false);
                 break;
             case 'YTD':
                 past.setFullYear(latest.getFullYear(), 0, 1);
+                setIsDayTrue(false);
                 break;
             case '1Y':
                 past.setFullYear(latest.getFullYear() - 1);
+                setIsDayTrue(false);
                 break;
             case '5Y':
                 past.setFullYear(latest.getFullYear() - 5);
+                setIsDayTrue(false);
                 break;
             default:
                 setFilteredStockPrices(prices);
+                setIsDayTrue(false);
                 setLoading(false);
                 return;
         }
@@ -427,7 +436,10 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
                                         id="StockList-Card-Prices-Dropdown"
                                         label="Price Type"
                                         value={currentSector}
-                                        onChange={(event) => setCurrentSector (event.target.value)}
+                                        onChange={(event) => {
+                                            setCurrentSector (event.target.value);
+                                            //setLoading(true);
+                                        }}
                                     >
                                         <MenuItem value="Closed">Closed Price</MenuItem>
                                         <MenuItem value="Open">Open Price</MenuItem>
@@ -452,7 +464,7 @@ export const StockCard = ({ stock, isSelected, onToggle, user, token, onUnfavori
                                 ))}
                             </div>
 
-                            <StockGraph prices={filteredStockPrices} loading={loading} priceType={currentSector}/>
+                            <StockGraph prices={filteredStockPrices} loading={loading} priceType={currentSector} isDay={isDayTrue} stock={stock}/>
 
                         </div>
                     ))}
