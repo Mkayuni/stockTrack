@@ -147,7 +147,7 @@ The system architecture consists of:
 - **Frontend**: React, Axios, HTML/CSS.
 - **Backend**: Node.js, Express.js, Sequelize ORM.
 - **Database**: SQLite.
-- **External APIs**: Finnhub.
+- **External APIs**: Finnhub. Yahoo Finance, RapidAPI
 
 ---
 
