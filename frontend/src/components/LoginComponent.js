@@ -378,6 +378,10 @@ export default function LoginComponent({setUser, setUserToken}) {
                                                 '& fieldset': {
                                                     borderColor: passwordError ? 'red' : 'grey',
                                                 },
+                                                '& .MuiInputAdornment-root': {
+                                                    marginRight: 0, // Ensure there is no extra margin that could cause expansion
+                                                },
+                                                height: '50px',
                                             }}
                                         />
                                     </FormControl>
