@@ -16,17 +16,17 @@
     <tr>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/37fb4e7a-96c4-4f4d-b33d-d349ddb59759" width="400" alt="Login Screen"/>
-        <br /><em>Authentication</em>
+        <br /><em>Terminal</em>
       </td>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/1930b03b-7ab9-4cce-932b-e6842186ebee" width="400" alt="Dashboard"/>
-        <br /><em>Main Dashboard</em>
+        <br /><em>Admin Dashboard</em>
       </td>
     </tr>
     <tr>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/03e5268f-19a3-4bcc-bfb7-7c1b610fa3e2" width="400" alt="Portfolio View"/>
-        <br /><em>Portfolio Management</em>
+        <br /><em>Portfolio Sectors</em>
       </td>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/76ef429b-b53d-4468-90d9-45332d82f3a5" width="400" alt="Stock Details"/>
@@ -36,7 +36,7 @@
     <tr>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/8b7153d3-7aec-43a6-8e27-c9b0ebebf2c4" width="400" alt="Admin Panel"/>
-        <br /><em>Admin Control Panel</em>
+        <br /><em>Main Page</em>
       </td>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/09c5f319-1b77-4cde-a83a-03c86213c1bb" width="400" alt="User Management"/>
@@ -50,7 +50,7 @@
       </td>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/1ef47e0f-6749-4045-ba36-3228b9ffe707" width="400" alt="Mobile View"/>
-        <br /><em>Responsive Mobile Design</em>
+        <br /><em>Structure</em>
       </td>
     </tr>
   </table>
@@ -348,26 +348,15 @@ StockTrack implements several security measures:
 - [ ] Multi-currency support
 - [ ] Integration with trading platforms
 
-## 🤝 Contributing
-
-We welcome contributions to StockTrack! Here's how you can help:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-👥 Authors
+## 👥 Authors
 
-Moses Kayuni - kayunilow11@gmail.com
-Michael Seavers - michaelseavers@hotmail.com
+- **Moses Kayuni** - [kayunilow11@gmail.com](mailto:kayunilow11@gmail.com)
+- **Michael Seavers** - [michaelseavers@hotmail.com](mailto:michaelseavers@hotmail.com)
 
 ---
 
