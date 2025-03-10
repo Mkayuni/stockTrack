@@ -46,11 +46,11 @@
     <tr>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/513617a1-bf65-4da9-b5d7-3a5ca185e11c" width="400" alt="Analytics"/>
-        <br /><em>Performance Analytics</em>
+        <br /><em>Structure</em>
       </td>
       <td align="center">
         <img src="https://github.com/user-attachments/assets/1ef47e0f-6749-4045-ba36-3228b9ffe707" width="400" alt="Mobile View"/>
-        <br /><em>Structure</em>
+        <br /><em>Admin Management</em>
       </td>
     </tr>
   </table>
