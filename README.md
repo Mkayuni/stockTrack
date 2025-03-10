@@ -9,14 +9,6 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-</div>
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/f76204f0-d14e-4d1c-a841-26115b562d75" alt="StockTrack Logo" width="150"/>
-</p>
-
-<p align="center"><i>A comprehensive solution for tracking stocks and managing investment portfolios</i></p>
-
 ## 📊 Application Screenshots
 
 <div align="center">
@@ -105,10 +97,6 @@ Our application combines real-time market data with personal portfolio tracking 
 - **Data Export** — Generate and download portfolio reports
 
 ## 🏗 System Architecture
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/f76204f0-d14e-4d1c-a841-26115b562d75" alt="System Architecture" width="600"/>
-</div>
 
 The system follows a modern three-tier architecture:
 
@@ -376,30 +364,10 @@ Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our co
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Authors
+👥 Authors
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/username">
-        <img src="https://github.com/user-attachments/assets/f76204f0-d14e-4d1c-a841-26115b562d75" width="100px;" alt="Moses Kayuni"/>
-        <br />
-        <sub><b>Moses Kayuni</b></sub>
-      </a>
-      <br />
-      <a href="mailto:kayunilow11@gmail.com">📧</a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/username">
-        <img src="https://github.com/user-attachments/assets/f76204f0-d14e-4d1c-a841-26115b562d75" width="100px;" alt="Michael Seavers"/>
-        <br />
-        <sub><b>Michael Seavers</b></sub>
-      </a>
-      <br />
-      <a href="mailto:michaelseavers@hotmail.com">📧</a>
-    </td>
-  </tr>
-</table>
+Moses Kayuni - kayunilow11@gmail.com
+Michael Seavers - michaelseavers@hotmail.com
 
 ---
 
